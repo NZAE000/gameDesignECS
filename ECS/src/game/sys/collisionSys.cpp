@@ -84,10 +84,10 @@ chekCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, cons
         else if (!boxNode2.subBoxes.empty()){
             for (auto& b : boxNode2.subBoxes) chekCollisionEntities(phycmp1, boxNode1, phycmp2, b);
         }
-        else { // ambos son nodo hojas
+        //else { // ambos son nodo hojas
             boxNode1.isCollided = true;
             boxNode2.isCollided = true;
-        }
+        //}
     }
 }
 

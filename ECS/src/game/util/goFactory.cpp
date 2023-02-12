@@ -4,6 +4,7 @@
 #include <game/cmp/inputCmp.hpp>
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/spawnCmp.hpp>
+#include <game/cmp/healthCmp.hpp>
 
 
 ECS::Entity_t& 
@@ -11,15 +12,17 @@ GOFactory::createEntity(uint32_t x, uint32_t y, const std::string_view filename)
 { 
     auto& ent = entityMan.createEntity();
 
-    auto& rendercmp = entityMan.addCmp<RenderCmp_t>(ent);
-    rendercmp.loadFromPng(filename);
+    auto& rencmp = entityMan.addCmp<RenderCmp_t>(ent);
+    rencmp.loadFromPng(filename);
 
     auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(ent);
     phycmp.x     = x;
     phycmp.y     = y;
 
     auto& collcmp = entityMan.addCmp<ColliderCmp_t>(ent);
-    collcmp.boxRoot.box = { 5, rendercmp.w-5, 5, rendercmp.h-5 }; // default
+    collcmp.boxRoot.box = { 5, rencmp.w-5, 5, rencmp.h-5 }; // default
+
+    [[maybe_unused]]auto& healthcmp = entityMan.addCmp<HealthCmp_t>(ent);
 
     return ent;
 }
@@ -54,9 +57,12 @@ GOFactory::createPlayer(uint32_t x, uint32_t y) const
                 { { 31, 44,  83, 104 }, false, {} }, // 3.
                 { {  5, 17, 100, 110 }, false, {} }, // 3.
                 { { 33, 46, 104, 110 }, false, {} }  // 3.
-            } 
+            }
         }
     };
+
+    auto* healthcmp   = principalCharac.getCmp<HealthCmp_t>();
+    healthcmp->health = 100; // set to 100 health for my player
 
     return principalCharac;
 }

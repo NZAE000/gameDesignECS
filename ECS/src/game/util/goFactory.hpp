@@ -30,6 +30,7 @@ struct GOFactory {
 
 	    auto& spwncmp    = entityMan.addCmp<SpawnCmp_t>(ent);
 	    spwncmp.spawnNow = callback; // accion al momento de spawnear
+	    spwncmp.tobe_spawned = 10;
 
 	    auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(ent);
 	    phycmp.x     = x;

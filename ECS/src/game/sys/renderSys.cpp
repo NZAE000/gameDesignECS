@@ -135,7 +135,7 @@ template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox, uint32_t x, uint32_t y, uint32_t color) const
 {
     if (treeBox.isCollided)
-        drawFillBox(treeBox.box, x, y, color);
+        drawFillBox(treeBox.box, x, y, color); // when a box collide, then filled box whit his color.
 
     else drawBox(treeBox.box, x, y, color);
 

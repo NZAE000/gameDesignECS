@@ -4,6 +4,7 @@
 #include <game/sys/collisionSys.cpp>
 #include <game/sys/inputSys.cpp>
 #include <game/sys/spawnSys.cpp>
+#include <game/sys/healthSys.cpp>
 #include <ecs/man/entityManager.hpp>
 #include <game/util/goFactory.hpp>
 
@@ -43,6 +44,7 @@ try {
     const PhysicsSys_t<ECS::EntityManager_t>   Physic    {};
     const CollisionSys_t<ECS::EntityManager_t> Collision { WIDTH, HEIGHT };
     const SpawnSys_t<ECS::EntityManager_t>     Spawn     {};
+    const HealthSys_t<ECS::EntityManager_t>    Health    {};
 
     Render.setDebugDraw(true); // marcado de bounding box en las entidades (solo las que tienen collider de componente)
 
@@ -50,6 +52,7 @@ try {
         Render.update(EntityMan);
         Physic.update(EntityMan);
         Collision.update(EntityMan);
+        Health.update(EntityMan);
         Spawn.update(EntityMan);
     }
 
