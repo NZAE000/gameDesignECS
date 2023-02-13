@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string_view>
-#include <ecs/man/entityManager.hpp>
+#include <ecs/man/entityManager.cpp>
 #include <game/cmp/spawnCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/renderCmp.hpp>
@@ -9,7 +9,6 @@
 
 namespace ECS { 
 	struct Entity_t;
-	struct EntityManager_t;
 }
 
 struct GOFactory {
@@ -19,28 +18,30 @@ struct GOFactory {
 
 	ECS::Entity_t& createPlayer(uint32_t x, uint32_t y) const;
 	ECS::Entity_t& createBlade(uint32_t x, uint32_t y) const;
-	ECS::Entity_t& createSpawner(uint32_t x, uint32_t y) const;
 
 	// Programacion generica
 	template<typename CALLABLE>
 	ECS::Entity_t&
 	createSpawner(uint32_t x, uint32_t y, CALLABLE callback) const
 	{
-	    auto& ent = entityMan.createEntity();
+	    auto& spwnEnt = entityMan.createEntity();
 
-	    auto& spwncmp    = entityMan.addCmp<SpawnCmp_t>(ent);
-	    spwncmp.spawnNow = callback; // accion al momento de spawnear
-	    spwncmp.tobe_spawned = 10;
+	    [[maybe_unused]]auto& ren = entityMan.addCmp<RenderCmp_t>(spwnEnt);
 
-	    auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(ent);
+	    auto& spwncmp        = entityMan.addCmp<SpawnCmp_t>(spwnEnt);
+	    spwncmp.spawnNow     = callback; // accion al momento de spawnear
+	    spwncmp.tobe_spawned = 50;
+
+	    auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(spwnEnt);
 	    phycmp.x     = x;
 	    phycmp.y     = y;
 	    phycmp.vx    =  0;
 
-	    auto& collcmp = entityMan.addCmp<ColliderCmp_t>(ent);
+	    auto& collcmp         = entityMan.addCmp<ColliderCmp_t>(spwnEnt);
+	    collcmp.boxRoot.box   = { 0, 40, 0, 40 };
 	    collcmp.maskCollision = 0; // collide with nothing.
 
-	    return ent;
+	    return spwnEnt;
 	}
 
 private:

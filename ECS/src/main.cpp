@@ -5,7 +5,7 @@
 #include <game/sys/inputSys.cpp>
 #include <game/sys/spawnSys.cpp>
 #include <game/sys/healthSys.cpp>
-#include <ecs/man/entityManager.hpp>
+//#include <ecs/man/entityManager.hpp>
 #include <game/util/goFactory.hpp>
 
 constexpr uint32_t WIDTH  { 640 };  
@@ -16,10 +16,10 @@ int
 main(void)
 try {
 
-    ECS::EntityManager_t EntityMan;
-    GOFactory GoFactory { EntityMan };
+    ECS::EntityManager_t EntityMan;     // Manager of entities and components
+    GOFactory GoFactory { EntityMan };  // Game objects (entities) factory
 
-    // Entitys
+    // Entities
     GoFactory.createPlayer(1, 1);
     //GoFactory.createBlade(20, 40);
     //GoFactory.createBlade(140, 70);
@@ -27,7 +27,6 @@ try {
     // Entidad spawner que genera n entidades cada cierto lapso de tiempo
     // Ultimo argumento es un llamable que es la accion al momento de spawnear,
     // que en este caso es crear un nuevo blade.
-
     GoFactory.createSpawner(580, 1, [&](const SpawnCmp_t& spcp)
     {
         auto* phycmp = EntityMan.getRequiredCmp<PhysicsCmp_t>(spcp);
