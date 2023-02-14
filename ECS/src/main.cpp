@@ -17,12 +17,17 @@ main(void)
 try {
 
     ECS::EntityManager_t EntityMan;     // Manager of entities and components
-    GOFactory GoFactory { EntityMan };  // Game objects (entities) factory
+    GOFactory_t GoFactory { EntityMan };  // Game objects (entities) factory
 
     // Entities
     GoFactory.createPlayer(1, 1);
     //GoFactory.createBlade(20, 40);
     //GoFactory.createBlade(140, 70);
+
+    GoFactory.createPlatform(138, 320);
+    GoFactory.createPlatform(276, 320);
+    GoFactory.createPlatform(414, 320);
+    //GoFactory.createPlatform(50, 50);
 
     // Entidad spawner que genera n entidades cada cierto lapso de tiempo
     // Ultimo argumento es un llamable que es la accion al momento de spawnear,

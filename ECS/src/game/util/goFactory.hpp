@@ -11,13 +11,14 @@ namespace ECS {
 	struct Entity_t;
 }
 
-struct GOFactory {
+struct GOFactory_t {
 
-	GOFactory(ECS::EntityManager_t& entMan) 
+	GOFactory_t(ECS::EntityManager_t& entMan) 
 	: entityMan(entMan) {}
 
-	ECS::Entity_t& createPlayer(uint32_t x, uint32_t y) const;
-	ECS::Entity_t& createBlade(uint32_t x, uint32_t y) const;
+	ECS::Entity_t& createPlayer(uint32_t x, uint32_t y)    const;
+	ECS::Entity_t& createBlade(uint32_t x, uint32_t y) 	   const;
+	ECS::Entity_t& createPlatform(uint32_t x, uint32_t y) const;
 
 	// Programacion generica
 	template<typename CALLABLE>
@@ -39,7 +40,7 @@ struct GOFactory {
 
 	    auto& collcmp         = entityMan.addCmp<ColliderCmp_t>(spwnEnt);
 	    collcmp.boxRoot.box   = { 0, 40, 0, 40 };
-	    collcmp.maskCollision = 0; // collide with nothing.
+	    collcmp.maskCollision = ColliderCmp_t::NO_LAYER; // collide with nothing.
 
 	    return spwnEnt;
 	}

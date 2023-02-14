@@ -119,7 +119,7 @@ bool CollisionSys_t<GameCTX_t>::update(GameCTX_t& contx) const
         for (uint32_t cmpj=cmpi+1; cmpj<size; ++cmpj) 
         {   
             auto& collcmp2 = collcmps[cmpj];
-            // comprobar si tienen capa de mascara en comun
+            // comprobar si tienen capa de mascara en comun para colisionar
             if ( !(collcmp1.maskCollision & collcmp2.maskCollision) ) continue;
 
             auto* phycmp2  = contx.template getRequiredCmp<PhysicsCmp_t>(collcmp2);

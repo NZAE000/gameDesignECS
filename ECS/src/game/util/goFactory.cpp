@@ -8,7 +8,7 @@
 
 
 ECS::Entity_t& 
-GOFactory::createEntity(uint32_t x, uint32_t y, const std::string_view filename) const
+GOFactory_t::createEntity(uint32_t x, uint32_t y, const std::string_view filename) const
 { 
     auto& ent = entityMan.createEntity();
 
@@ -28,7 +28,27 @@ GOFactory::createEntity(uint32_t x, uint32_t y, const std::string_view filename)
 }
 
 ECS::Entity_t& 
-GOFactory::createPlayer(uint32_t x, uint32_t y) const
+GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
+{
+    auto& plataform = entityMan.createEntity();
+
+    auto& rencmp = entityMan.addCmp<RenderCmp_t>(plataform);
+    rencmp.loadFromPng("./assets/platform.png");
+
+    auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(plataform);
+    phycmp.x     = x;
+    phycmp.y     = y;
+    phycmp.vx = phycmp.vy = 0;
+
+    auto& collcmp = entityMan.addCmp<ColliderCmp_t>(plataform);
+    collcmp.boxRoot.box   = { 0, rencmp.w, 0, rencmp.h }; // default
+    collcmp.maskCollision = ColliderCmp_t::PLATFORM_LAYER;
+
+    return plataform;
+}
+
+ECS::Entity_t& 
+GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 {
     auto& principalCharac = createEntity(x, y, "./assets/deadpool2.png");
     entityMan.addCmp<InputCmp_t>(principalCharac);
@@ -68,7 +88,11 @@ GOFactory::createPlayer(uint32_t x, uint32_t y) const
 }
 
 ECS::Entity_t& 
-GOFactory::createBlade(uint32_t x, uint32_t y) const
+GOFactory_t::createBlade(uint32_t x, uint32_t y) const
 {
-    return createEntity(x, y, "./assets/blade.png");
+    auto& blade   = createEntity(x, y, "./assets/blade.png");
+    auto* collcmp = blade.getCmp<ColliderCmp_t>();
+    collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER;
+
+    return blade;
 }
