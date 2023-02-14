@@ -4,6 +4,7 @@
 extern "C" {
 	#include <tinyPTC.ua/src/tinyptc.h>
 }
+#include <iostream>
 
 
 template<typename GameCTX_t>
@@ -25,12 +26,20 @@ bool InputSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 		if (!phycmp) continue;
 
 		auto& phy = *(phycmp);
-		phy.vx = phy.vy = 0; // 
+		std::cout<<"VY Player: "<< phy.vy <<"\n";
+		phy.vx = 0; // vy actua la gravedad y los saltos
 
-		if ( keyboard.isKeyPress(input.key_UP)   ) phy.vy = -1;
-		if ( keyboard.isKeyPress(input.key_DOWN) ) phy.vy =  1;
 		if ( keyboard.isKeyPress(input.key_LEFT) ) phy.vx = -1;
 		if ( keyboard.isKeyPress(input.key_RIGHT)) phy.vx =  1;
+		if ( keyboard.isKeyPress(input.key_UP)   ) 
+		{
+			if (phy.jumpIndexPhase == phy.JUMPS_PHASES.size() &&
+				phy.countVyZero == phy.TIMES_VY_ZERO ){
+				phy.jumpIndexPhase = 0;
+			}
+			//phy.vy = ;
+		}
+		//if ( keyboard.isKeyPress(input.key_DOWN) ) phy.vy =  1;
 	}
 
 	return !ptc_process_events();

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <game/sys/renderSys.cpp>
 #include <game/sys/physicsSys.cpp>
 #include <game/sys/collisionSys.cpp>
@@ -8,16 +9,20 @@
 //#include <ecs/man/entityManager.hpp>
 #include <game/util/goFactory.hpp>
 
+// Statics by default
 constexpr uint32_t WIDTH  { 640 };  
 constexpr uint32_t HEIGHT { 360 };
+constexpr uint32_t FPS    { 60  };
+constexpr 
+std::chrono::duration<double> timePF { 1000ms/FPS };
 
 
 int 
 main(void)
 try {
 
-    ECS::EntityManager_t EntityMan;     // Manager of entities and components
-    GOFactory_t GoFactory { EntityMan };  // Game objects (entities) factory
+    ECS::EntityManager_t EntityMan;         // Manager of entities and components
+    GOFactory_t GoFactory { EntityMan };    // Game objects (entities) factory
 
     // --------- Entities ------------
     GoFactory.createPlayer(1, 1);
@@ -40,6 +45,7 @@ try {
 
         auto& ent  = GoFactory.createBlade(phycmp->x,phycmp->y);
         phycmp     = ent.getCmp<PhysicsCmp_t>(); // los blades generados solo se desplazan en la ordenada
+        phycmp->vx = 2;
         phycmp->vy = 0;
     });
 
@@ -51,14 +57,23 @@ try {
     const SpawnSys_t<ECS::EntityManager_t>     Spawn     {};
     const HealthSys_t<ECS::EntityManager_t>    Health    {};
 
-    Render.setDebugDraw(true); // marcado de bounding box en las entidades (solo las que tienen collider de componente)
+    Render.setDebugDraw(true); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 
-    while (Input.update(EntityMan)){
+    using clk = std::chrono::steady_clock;
+    clk::time_point lastTime;
+
+    while (Input.update(EntityMan))
+    {   
+        lastTime = clk::now();
+
         Render.update(EntityMan);
         Physic.update(EntityMan);
         Collision.update(EntityMan);
         Health.update(EntityMan);
         Spawn.update(EntityMan);
+
+        const auto deltaTime = clk::now() - lastTime; //const std::chrono::duration
+        if (deltaTime < timePF) std::this_thread::sleep_for(timePF-deltaTime);
     }
 
     return 0;

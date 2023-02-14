@@ -30,11 +30,16 @@ checkBoundingScreenCollision(const ColliderCmp_t& collcmp, PhysicsCmp_t& phycmp)
 
     // Horizontal boundig verification
     if (xL > wScreen || xR > wScreen) {
-        phycmp.x -= phycmp.vx; phycmp.vx *= -1; 
+        phycmp.x -= phycmp.vx; 
+        phycmp.vx *= -1; 
     }
     // Vertical boundig verification
-    if (yU > hScreen || yD > hScreen) {
-        phycmp.y -= phycmp.vy; phycmp.vy *= -1; 
+    if (yU > hScreen || yD > hScreen) 
+    {
+        phycmp.y -= phycmp.vy; 
+
+        if (phycmp.g)   phycmp.vy  =  0;  // Las entidades que tengan gravedad, entonces frenan en los limites (suelo o limite superior)
+        else            phycmp.vy *= -1;  // De lo contrario las demas entidades rebotan.
     }
 
     /*if ( phycmp.x > (wScreen - rencmp->w) ) { // phycmp.x > wScreen || phycmp.x + rencmp->w > wScreen
