@@ -54,6 +54,8 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
     entityMan.addCmp<InputCmp_t>(principalCharac);
 
     auto* collcmp = principalCharac.getCmp<ColliderCmp_t>();
+
+    // set boundign boxes on my principal sprite player
     collcmp->boxRoot.box = { 0, 48, 0, 112 }; // 1. bounding principal
 
     collcmp->boxRoot.subBoxes = {
@@ -83,6 +85,9 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 
     auto* healthcmp   = principalCharac.getCmp<HealthCmp_t>();
     healthcmp->health = 100; // set to 100 health for my player
+
+    auto* phycmp = principalCharac.getCmp<PhysicsCmp_t>();
+    phycmp->g = PhysicsCmp_t::GRAVITY; // set gravity for my player
 
     return principalCharac;
 }
