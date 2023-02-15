@@ -21,7 +21,7 @@ struct RenderSys_t {
     explicit RenderSys_t(uint32_t w, uint32_t h);
     ~RenderSys_t();
 
-    bool update(GameCTX_t&) const;
+    constexpr bool update(GameCTX_t&) const;
 
     // static constexpr uint32_t sprite[8*8] = {
     //     kG,kG,kG,kG,kG,kG,kG,kG

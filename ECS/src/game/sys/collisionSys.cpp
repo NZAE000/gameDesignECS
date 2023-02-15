@@ -98,7 +98,7 @@ chekCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, cons
 
 
 template<typename GameCTX_t>
-bool CollisionSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+bool CollisionSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
 {
     auto& collcmps = contx.template getCmps<ColliderCmp_t>();
     uint32_t size  = collcmps.size();

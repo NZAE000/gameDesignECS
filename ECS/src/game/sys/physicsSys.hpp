@@ -10,7 +10,7 @@ struct PhysicsSys_t {
     // explicit: no puede implicitamenete hacer una conversion de tipo, o algo quese pareza a PhysicsSys_t
     explicit PhysicsSys_t() = default;
     
-    bool update(GameCTX_t&) const;
+    constexpr bool update(GameCTX_t&) const noexcept;
 
 private:
     

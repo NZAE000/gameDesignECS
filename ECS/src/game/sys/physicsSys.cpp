@@ -3,7 +3,7 @@
 #include <algorithm>
 
 template<typename GameCTX_t>
-bool PhysicsSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+constexpr bool PhysicsSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
 {
     for (auto& phycmp : contx.template getCmps<PhysicsCmp_t>())
     {   

@@ -196,7 +196,7 @@ void RenderSys_t<GameCTX_t>::drawAll(const GameCTX_t& contx) const
 }
 
 template<typename GameCTX_t>
-bool RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+constexpr bool RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 {
     const uint32_t size = widthScr*heightScr;
     auto screen         = frameBuffer.get();

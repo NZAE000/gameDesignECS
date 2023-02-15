@@ -7,7 +7,7 @@ struct ColliderCmp_t;
 
 
 template<typename GameCTX_t>
-void SpawnSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+constexpr void SpawnSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
 {
 	using clk = std::chrono::steady_clock;
 	auto& spawncmps = contx.template getCmps<SpawnCmp_t>();

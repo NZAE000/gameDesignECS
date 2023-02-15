@@ -4,7 +4,7 @@
 #include <iostream>
 
 template<typename GameCTX_t>
-constexpr bool HealthSys_t<GameCTX_t>::isLeafNodeCollide(const BoundingBNode& bNode) const
+constexpr bool HealthSys_t<GameCTX_t>::isLeafNodeCollide(const BoundingBNode& bNode) const noexcept
 {
 	if (bNode.subBoxes.empty()) { // leaf node, check is bounding collided
 		return bNode.isCollided;
@@ -16,7 +16,7 @@ constexpr bool HealthSys_t<GameCTX_t>::isLeafNodeCollide(const BoundingBNode& bN
 }
 
 template<typename GameCTX_t>
-constexpr void HealthSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+constexpr void HealthSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
 {
 	auto& healthCmps = contx.template getCmps<HealthCmp_t>();
 

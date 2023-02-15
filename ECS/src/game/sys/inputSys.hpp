@@ -7,7 +7,7 @@ struct InputSys_t {
 
 	explicit InputSys_t();
 
-	bool update(GameCTX_t&) const;
+	constexpr bool update(GameCTX_t&) const;
 
 private:
 

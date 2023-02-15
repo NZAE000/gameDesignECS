@@ -30,9 +30,9 @@ try {
     //GoFactory.createBlade(140, 70);
 
     // Platforms
-    GoFactory.createPlatform(138, 320);
-    GoFactory.createPlatform(276, 320);
-    GoFactory.createPlatform(414, 320);
+    GoFactory.createPlatform(138, 319);
+    GoFactory.createPlatform(276, 319);
+    GoFactory.createPlatform(414, 319);
     GoFactory.createPlatform(320, 185); // floating
 
     // Entidad spawner que genera n entidades cada cierto lapso de tiempo

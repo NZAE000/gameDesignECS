@@ -14,7 +14,7 @@ struct CollisionSys_t {
     : wScreen(wscr), hScreen(hscr) 
     {};
 
-    bool update(GameCTX_t&) const;
+    bool update(GameCTX_t&) const noexcept;
 
 private:
 

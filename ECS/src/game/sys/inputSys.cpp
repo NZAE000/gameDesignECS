@@ -16,7 +16,7 @@ InputSys_t<GameCTX_t>::InputSys_t()
 }
 
 template<typename GameCTX_t>
-bool InputSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+constexpr bool InputSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 {
 	auto& inputCmps = contx.template getCmps<InputCmp_t>();
 

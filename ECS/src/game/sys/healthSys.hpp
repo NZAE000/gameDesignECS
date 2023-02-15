@@ -7,9 +7,9 @@ struct BoundingBNode;
 template<typename GameCTX_t>
 struct HealthSys_t {
 
-	constexpr void update(GameCTX_t&) const;
+	constexpr void update(GameCTX_t&) const noexcept;
 
 private:
-	constexpr bool isLeafNodeCollide(const BoundingBNode&) const;
+	constexpr bool isLeafNodeCollide(const BoundingBNode&) const noexcept;
 
 };
