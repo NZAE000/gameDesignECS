@@ -14,13 +14,14 @@ struct CollisionSys_t {
     : wScreen(wscr), hScreen(hscr) 
     {};
 
-    bool update(GameCTX_t&) const noexcept;
+    void update(GameCTX_t&) const noexcept;
 
 private:
 
-    constexpr void checkBoundingScreenCollision(const ColliderCmp_t&, PhysicsCmp_t&) const noexcept;
+    constexpr void checkBoundingScreenCollision(const BoundingBox&, PhysicsCmp_t&) const noexcept;
     constexpr BoundingBox transformToScreenCoordinates(const BoundingBox&, uint32_t x, uint32_t y) const noexcept;
-    constexpr void chekCollisionEntities(const PhysicsCmp_t&, BoundingBNode&, const PhysicsCmp_t&, BoundingBNode&) const noexcept;
+    constexpr bool isCollisionEntities(const PhysicsCmp_t&, BoundingBNode&, const PhysicsCmp_t&, BoundingBNode&) const noexcept;
+    constexpr void actBetweenEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
 
     const uint32_t wScreen {0}, hScreen {0};
 };

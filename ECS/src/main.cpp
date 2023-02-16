@@ -33,7 +33,7 @@ try {
     GoFactory.createPlatform(138, 319);
     GoFactory.createPlatform(276, 319);
     GoFactory.createPlatform(414, 319);
-    GoFactory.createPlatform(320, 185); // floating
+    GoFactory.createPlatform(320, 185); // floating plataform
 
     // Entidad spawner que genera n entidades cada cierto lapso de tiempo
     // Ultimo argumento es un llamable que es la accion al momento de spawnear,

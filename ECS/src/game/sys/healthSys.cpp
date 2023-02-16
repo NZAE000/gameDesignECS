@@ -20,18 +20,35 @@ constexpr void HealthSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
 {
 	auto& healthCmps = contx.template getCmps<HealthCmp_t>();
 
-	for (auto& healthcmp : healthCmps) {
-		auto* collcmp = contx.template getRequiredCmp<ColliderCmp_t>(healthcmp);
+	for (auto& healthcmp : healthCmps) 
+	{
+		auto id = healthcmp.getEntityID();
 
-		if ((healthcmp.health > 0) && isLeafNodeCollide(collcmp->boxRoot)) {
-
-			if (--healthcmp.health == 0){
+		if (healthcmp.cumulativeDmg) 
+		{
+			if (healthcmp.cumulativeDmg >= healthcmp.health) {
 				contx.destroyEntity(healthcmp.getEntityID());
+				std::cout<<"Entity "<<id<<" destroyed\n";
 			}
 			else {
-				std::cout<< "Entity "<< healthcmp.getEntityID()<<" hl: "<<healthcmp.health<<"\n";
+				healthcmp.health -= healthcmp.cumulativeDmg;
+				healthcmp.cumulativeDmg = 0;
+				std::cout<< "Entity "<<id<<" hl: "<<healthcmp.health<<"\n";
 			}
-		}
+		} 
+		/*auto* collcmp = contx.template getRequiredCmp<ColliderCmp_t>(healthcmp);
+
+		if ((healthcmp.health > 0) && isLeafNodeCollide(collcmp->boxRoot)) 
+		{
+			auto id = healthcmp.getEntityID();
+			if (--healthcmp.health == 0){
+				contx.destroyEntity(healthcmp.getEntityID());
+			 	std::cout<<"Entity "<<id<<" destroyed\n";
+			}
+			else {
+				std::cout<< "Entity "<<id<<" hl: "<<healthcmp.health<<"\n";
+			}
+		}*/
 	}
 
 }

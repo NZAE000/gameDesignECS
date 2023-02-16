@@ -43,6 +43,7 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     auto& collcmp = entityMan.addCmp<ColliderCmp_t>(plataform);
     collcmp.boxRoot.box   = { 0, rencmp.w, 0, rencmp.h }; // default
     collcmp.maskCollision = ColliderCmp_t::PLATFORM_LAYER;
+    collcmp.property      = ColliderCmp_t::SOLID_PROP;
 
     return plataform;
 }
@@ -57,7 +58,6 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 
     // set boundign boxes on my principal sprite player
     collcmp->boxRoot.box = { 0, 48, 0, 112 }; // 1. bounding principal
-
     collcmp->boxRoot.subBoxes = {
         { { 11, 47,  1,  39 }, false, // 2. subbox
             {
@@ -83,6 +83,9 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
         }
     };
 
+    collcmp->maskCollision = ColliderCmp_t::FULL_LAYER; // Colisiona con todo por defecto. 
+    collcmp->property      = ColliderCmp_t::PLAYER_PROP;
+
     auto* healthcmp   = principalCharac.getCmp<HealthCmp_t>();
     healthcmp->health = 100; // set to 100 health for my player
 
@@ -96,8 +99,14 @@ ECS::Entity_t&
 GOFactory_t::createBlade(uint32_t x, uint32_t y) const
 {
     auto& blade   = createEntity(x, y, "./assets/blade.png");
+
     auto* collcmp = blade.getCmp<ColliderCmp_t>();
     collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER;
+    collcmp->property      = ColliderCmp_t::DAMAGE_PROP;
+
+    auto* healthcmp = blade.getCmp<HealthCmp_t>();
+    healthcmp->selfDmgOnInfliction = 1;
+    healthcmp->inflictedDmg        = 1;
 
     return blade;
 }

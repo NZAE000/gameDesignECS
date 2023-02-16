@@ -129,8 +129,6 @@ constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox& box, uint3
     }
 }
 
-
-
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox, uint32_t x, uint32_t y, uint32_t color) const
 {
