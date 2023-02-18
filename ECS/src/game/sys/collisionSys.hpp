@@ -21,7 +21,9 @@ private:
     constexpr void checkBoundingScreenCollision(const BoundingBox&, PhysicsCmp_t&) const noexcept;
     constexpr BoundingBox transformToScreenCoordinates(const BoundingBox&, uint32_t x, uint32_t y) const noexcept;
     constexpr bool isCollisionEntities(const PhysicsCmp_t&, BoundingBNode&, const PhysicsCmp_t&, BoundingBNode&) const noexcept;
-    constexpr void actBetweenEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
+    constexpr void reactBetweenEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
+    constexpr void applyDamageEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
+    constexpr void undoCollision(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
 
     const uint32_t wScreen {0}, hScreen {0};
 };

@@ -17,8 +17,8 @@ struct PhysicsCmp_t : ECS::ComponentBase_t<PhysicsCmp_t> {
 	static constexpr int32_t MAX_VX  {  4 };
 
 	// Non-type template parameter: passing a literal to template, to know the size of the array
-	static constexpr std::array <int32_t, 14> 
-	JUMPS_PHASES = {-7, -7, -7, -6, -6, -6, -6, -5, -5, -5, -4, -4, -3, -3}; 
+	static constexpr std::array //<int32_t, 14> 
+	JUMPS_PHASES = {-9,-9,-9,-8,-8,-8,-7,-7,-7,-6,-6,-6,-6,-5,-5,-5,-4,-4,-3,-3};
 
 	// When zero velocity is counted n times, then the entity is on the ground
 	static constexpr uint8_t TIMES_VY_ZERO { 3 };

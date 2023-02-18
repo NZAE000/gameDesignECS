@@ -10,7 +10,7 @@ extern "C" {
 template<typename GameCTX_t>
 InputSys_t<GameCTX_t>::InputSys_t()
 {
-	// set pointer to func
+	// Set pointer to func
 	ptc_set_on_keypress(onKeyPress);
 	ptc_set_on_keyrelease(onKeyRelease);
 }
@@ -26,14 +26,17 @@ constexpr bool InputSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 		if (!phycmp) continue;
 
 		auto& phy = *(phycmp);
-		//std::cout<<"VY Player: "<< phy.vy <<"\n";
+		//std::cout<<"VY Player: "<< phy.vy <<" phase: " <<static_cast<uint32_t>(phy.jumpIndexPhase)<<" countvy0: "<<static_cast<uint32_t>(phy.countVyZero)<<"\n";
 		phy.vx = 0; // vy actua la gravedad y los saltos
 
 		if ( keyboard.isKeyPress(input.key_LEFT) ) phy.vx = -1;
 		if ( keyboard.isKeyPress(input.key_RIGHT)) phy.vx =  1;
 		if ( keyboard.isKeyPress(input.key_UP)	 ) 
 		{
-			if (phy.isJumpEnabled()) phy.startJumpPhase(); // se habilita el salto iniciando su primera fase de salto.
+			if (phy.isJumpEnabled()) {
+				//std::cout<<"JUMP ENABLE\n";
+				phy.startJumpPhase(); // Se habilita el salto iniciando su primera fase de salto.
+			}
 		}
 		//if ( keyboard.isKeyPress(input.key_DOWN) ) phy.vy =  1;
 	}

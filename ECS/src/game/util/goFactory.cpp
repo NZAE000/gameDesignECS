@@ -66,19 +66,19 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
                 { { 15, 43, 31, 38 }, false, {} }  // 3.
             } 
         },
-        { {  1, 47, 39, 82 }, false, // 2.
+        { { 1, 47, 39, 82 }, false, // 2.
             {
                 { { 4,  43, 40, 50 }, false, {} }, // 3.
                 { { 2,  14, 50, 81 }, false, {} }, // 3.
                 { { 21, 45, 50, 81 }, false, {} }  // 3.
             } 
         }, 
-        { {  4, 47, 82, 111 }, false, // 2.
+        { { 7, 45, 82, 111 }, false, // 2.
             {
-                { {  9, 24,  83,  100 }, false, {} }, // 3.
-                { { 31, 44,  83, 104 }, false, {} }, // 3.
-                { {  5, 17, 100, 110 }, false, {} }, // 3.
-                { { 33, 46, 104, 110 }, false, {} }  // 3.
+                //{ {  9, 24,  83,  100 }, false, {} }, // 3.
+                //{ { 31, 44,  83, 104 }, false, {} }, // 3.
+                //{ {  5, 17, 100, 110 }, false, {} }, // 3.
+                //{ { 33, 46, 104, 110 }, false, {} }  // 3.
             }
         }
     };
@@ -91,6 +91,7 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 
     auto* phycmp = principalCharac.getCmp<PhysicsCmp_t>();
     phycmp->g = PhysicsCmp_t::GRAVITY; // set gravity for my player
+    phycmp->vx = 10;
 
     return principalCharac;
 }

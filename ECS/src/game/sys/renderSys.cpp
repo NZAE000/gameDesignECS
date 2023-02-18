@@ -22,66 +22,80 @@ RenderSys_t<GameCTX_t>::~RenderSys_t(){ ptc_close(); }
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const
 {
-
     // Clipping
     uint32_t left_off { 0 };
     uint32_t up_off   { 0 };
+
     // Drawing Coordinates and size
-    uint32_t x { phycmp.x };
-    uint32_t y { phycmp.y };
-    uint32_t w { rencmp.w };
-    uint32_t h { rencmp.h };
+    uint32_t xSpr { phycmp.x };
+    uint32_t ySpr { phycmp.y };
+    uint32_t wSpr { rencmp.w };
+    uint32_t hSpr { rencmp.h };
 
-    // Horizontal clipping rules: cuando el sprite se pasa de los 4 lados/limites de screen
+    // Horizontal clipping rules: cuando el sprite se pasa de los 2 lados/limites de screen 
+    // (sucede cuando se le asigna un bounding box con ancho de menor dimension e interno al sprite).
 
-    if (x >= widthScr) {                 // Left clipping
-        left_off = 0 - x;
-        if (left_off >= w) return;      // Nothing to draw
-        x = 0;
-        w -= left_off;
+    // Left clipping: cuando la posicion realtiva al screen del scprite se pasa del limite izquiedo,
+    // sucede que aquel numero de posicion será un valor muy grande (ya que las posiciones son valores sin signo,
+    // p.ejem: 0 - 1 = 42949672965, por lo que se daria la vuelta a su valor maximo de un uint32_t).
+    if (xSpr > widthScr){                
+        left_off = 0 - xSpr;               // Ejm: si xSpr esta a -3 px del limite izquierdo, entonces xSpr = 42949672963. Por lo que si se resta 0 - 42949672963 se da la vuelta y da 3.
+        if (left_off >= wSpr) return;      // Nothing to draw
+        wSpr -= left_off;                  // Del ejemplo, el ancho del sprite se debe recortar 3 pixeles.
+        xSpr = 0;                          // Como se paso del limite izquierdo, ya no se parte pintando de una posiscion fuera del limite, sino dellimite minimo 0 del screen.
     }
-    else if (x + w >= widthScr) {       // Right clipping
-        uint32_t right_off = x + w - widthScr;
-        if (right_off >= w) return;     // Nothing to draw
-        w -= right_off;
+    // Right clipping: recordar que la posicion x,y del sprite se encuntra en la esquina superior izquierda del sprite,
+    // por lo tanto, para saber si se ah pasado del limite derecho, a la posicion x se debe sumar el ancho del sprite, y comparar si es mayo al ancho del screeen.
+    else if (xSpr + wSpr > widthScr){
+        uint32_t right_off = xSpr + wSpr - widthScr; // Ejm: si x esta a 630px y w del sprite es 50px, y el ancho del screen es 640, entonces la posicion mas el ancho del sprite daria 680px, por lo que es > a 640 y se estaria pasando 40px.
+        if (right_off >= wSpr) return;     // Nothing to draw
+        wSpr -= right_off;                 // Del ejemplo, el ancho del sprite se debe recortar 40 pixeles, quedando con 10px de ancho para dibujar.  
+        // La posicion x no cambia, ya que sigue estando en el rango del ancho de screen.                                    
     }
 
-    // Vertical clipping rules
-    if (y >= heightScr) {               // Up clipping
-        up_off = 0 - y;
-        if (up_off > h) return;         // Nothing to draw
-        y = 0;
-        h -= up_off;
+    // Vertical clipping rules: cuando el sprite se pasa del limite inferior o superior del screen (analogo con lo que sucede en los limites izquierdo y derecho).
+    // (sucede cuando se le asigna un bounding box con alto de menor dimension e interno al sprite).
+
+    // Up clipping
+    if (ySpr > heightScr){
+        up_off = 0 - ySpr;
+        if (up_off >= hSpr) return;        // Nothing to draw
+        hSpr -= up_off;
+        ySpr  = 0;
     }
-    else if (y + h >= heightScr) {      // Down clipping
-        uint32_t down_off = y + h - heightScr;
-        if (down_off >= h) return;      // Nothing to draw
-        h -= down_off;
+    // Down clipping
+    else if (ySpr + hSpr > heightScr){
+        uint32_t down_off = ySpr + hSpr - heightScr;
+        if (down_off >= hSpr) return;      // Nothing to draw
+        hSpr -= down_off;
     }
     
-    // Render the entity
-    auto ptr_toScr = getPosition(x, y);
-    auto sprite_it = begin(rencmp.sprite) + up_off*rencmp.w + left_off;
+    // Render the sprite of entity
+    /* Si se paso del lim.izqu, x=0,
+       si se paso del lim.dere, x se mantiene, 
+       si se paso del lim.sup, y=0,
+       si se paso del lim.inf, y se mantiene*/
+    auto* ptr_toScr = getPosition(xSpr, ySpr);
+    auto sprite_it  = begin(rencmp.sprite) + up_off*rencmp.w + left_off;
 
-    while(h--) 
+    while(hSpr--) 
     {
-        for (uint32_t i=0; i<w; ++i) {
+        for (uint32_t i=0; i<wSpr; ++i){
             // Draw only if transparency != 0 (not blending)
             if (*sprite_it & 0xFF000000) *ptr_toScr = *sprite_it;
             ++sprite_it;
             ++ptr_toScr;
         }
-        sprite_it += rencmp.w - w;
-        ptr_toScr += widthScr - w;
+        sprite_it += rencmp.w - wSpr;
+        ptr_toScr += widthScr - wSpr;
     }
 }
 
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const
 {
-    while(length > 0) {
+    while(length-- > 0) {
         *ptr_toScr = color;
-        --length;
         ptr_toScr += displacement;
     }
 }
@@ -89,7 +103,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawLineBox(uint32_t* ptr_toScr, uint32_t
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox& box, uint32_t x, uint32_t y, uint32_t color) const
 {
-    // Coordinates sprite convertion to screen coordinates
+    // Coordinates bounding convertion to screen coordinates
     uint32_t xL { x + box.xLeft  };
     uint32_t xR { x + box.xRight };
     uint32_t yU { y + box.yUp    };
@@ -99,13 +113,13 @@ constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox& box, uint32_t 
     uint32_t widthBox  = xR - xL;
     uint32_t heightBox = yD - yU;
 
-    // up line
+    // Up line
     drawLineBox(getPosition(xL, yU), widthBox, 1, color);
-    // left line
+    // Left line
     drawLineBox(getPosition(xL, yU), heightBox, widthScr, color);
-    // right line
+    // Right line
     drawLineBox(getPosition(xR-1, yU), heightBox, widthScr, color);
-    // down line
+    // Down line
     drawLineBox(getPosition(xL, yD-1), widthBox, 1, color);
 }
 
@@ -122,18 +136,17 @@ constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox& box, uint3
     uint32_t widthBox  = xR - xL;
     uint32_t heightBox = yD - yU;
 
-    while (heightBox > 0){
+    while (heightBox-- > 0){
         drawLineBox(getPosition(xL, yU), widthBox, 1, color);
         ++yU;
-        --heightBox;
     }
 }
 
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox, uint32_t x, uint32_t y, uint32_t color) const
 {
-    if (treeBox.isCollided)
-        drawFillBox(treeBox.box, x, y, color); // when a box collide, then filled box whit his color.
+    if (treeBox.isCollided) // When a box collide, then filled box with his color.
+        drawFillBox(treeBox.box, x, y, color);
 
     else drawBox(treeBox.box, x, y, color);
 
@@ -168,14 +181,13 @@ void RenderSys_t<GameCTX_t>::drawAll(const GameCTX_t& contx) const
         {
             drawSpriteClipped(rendercmp, *phycmp);
 
-            // if debug is active, also render the bounding box 
+            // If debug is active, also render the bounding box.
             if (debugDraw) {
                 auto* collcmp = contx.template getRequiredCmp<ColliderCmp_t>(*phycmp);
                 if (!collcmp) return;
 
                 //drawBox(collcmp->boxRoot.box, phycmp->x, phycmp->y, RED);
                 drawBoxTree(collcmp->boxRoot, phycmp->x, phycmp->y, RED);
-
             }
         }
         /*{
