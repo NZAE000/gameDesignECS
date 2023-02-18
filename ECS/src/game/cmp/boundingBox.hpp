@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <vector>
 
-struct BoundingBox {
+struct BoundingBox { // plane structure (aggregate)
 	
 	uint32_t xLeft  { 0 };
 	uint32_t xRight { 0 };

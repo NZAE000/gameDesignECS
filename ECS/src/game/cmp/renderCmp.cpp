@@ -50,4 +50,5 @@ void RenderCmp_t::loadFromPng(const std::string_view filename)
     
     w = width;
     h = height;
+    
 }

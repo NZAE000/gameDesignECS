@@ -46,7 +46,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     }
     // Right clipping: recordar que la posicion x,y del sprite se encuntra en la esquina superior izquierda del sprite,
     // por lo tanto, para saber si se ah pasado del limite derecho, a la posicion x se debe sumar el ancho del sprite, y comparar si es mayo al ancho del screeen.
-    else if (xSpr + wSpr > widthScr){
+    else if (xSpr + wSpr >= widthScr){
         uint32_t right_off = xSpr + wSpr - widthScr; // Ejm: si x esta a 630px y w del sprite es 50px, y el ancho del screen es 640, entonces la posicion mas el ancho del sprite daria 680px, por lo que es > a 640 y se estaria pasando 40px.
         if (right_off >= wSpr) return;     // Nothing to draw
         wSpr -= right_off;                 // Del ejemplo, el ancho del sprite se debe recortar 40 pixeles, quedando con 10px de ancho para dibujar.  
@@ -64,7 +64,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
         ySpr  = 0;
     }
     // Down clipping
-    else if (ySpr + hSpr > heightScr){
+    else if (ySpr + hSpr >= heightScr){
         uint32_t down_off = ySpr + hSpr - heightScr;
         if (down_off >= hSpr) return;      // Nothing to draw
         hSpr -= down_off;
@@ -101,6 +101,32 @@ constexpr void RenderSys_t<GameCTX_t>::drawLineBox(uint32_t* ptr_toScr, uint32_t
 }
 
 template<typename GameCTX_t>
+constexpr void RenderSys_t<GameCTX_t>::drawAlignedLineClipped(uint32_t x1, uint32_t x2, uint32_t y, bool isYaxis, uint32_t color) const
+{
+    // Default values for clipping X axis
+    uint32_t maxX         { widthScr    };
+    uint32_t maxY         { heightScr   };
+    uint32_t displacement { 1 };
+    uint32_t* ptr_toScr   { nullptr };
+
+    if (isYaxis){
+        maxX = heightScr;
+        maxY = widthScr;
+        displacement = widthScr;
+    }
+
+    if (y >= maxY || (x1 >= maxX && x2 >= maxX )) return;
+
+    if (x1 > maxX ) x1 = 0;
+    if (x2 >= maxX) x2 = maxX-1;
+
+    if (isYaxis) ptr_toScr = getPosition(y, x1);
+    else         ptr_toScr = getPosition(x1, y);
+    
+    drawLineBox(ptr_toScr, x2-x1+1, displacement, color);
+}
+
+template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox& box, uint32_t x, uint32_t y, uint32_t color) const
 {
     // Coordinates bounding convertion to screen coordinates
@@ -110,34 +136,39 @@ constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox& box, uint32_t 
     uint32_t yD { y + box.yDown  };
 
     // Side sizes box
-    uint32_t widthBox  = xR - xL;
-    uint32_t heightBox = yD - yU;
+    //uint32_t widthBox  = xR - xL+1;
+    //uint32_t heightBox = yD - yU+1;
 
     // Up line
-    drawLineBox(getPosition(xL, yU), widthBox, 1, color);
+    //drawLineBox(getPosition(xL, yU), widthBox, 1, color);
+    drawAlignedLineClipped(xL, xR, yU, false, color);
     // Left line
-    drawLineBox(getPosition(xL, yU), heightBox, widthScr, color);
+    //drawLineBox(getPosition(xL, yU), heightBox, widthScr, color);
+    drawAlignedLineClipped(yU, yD, xL, true, color);
     // Right line
-    drawLineBox(getPosition(xR-1, yU), heightBox, widthScr, color);
+    //drawLineBox(getPosition(xR, yU), heightBox, widthScr, color);
+    drawAlignedLineClipped(yU, yD, xR, true, color);
     // Down line
-    drawLineBox(getPosition(xL, yD-1), widthBox, 1, color);
+    //drawLineBox(getPosition(xL, yD), widthBox, 1, color);
+    drawAlignedLineClipped(xL, xR, yD, false, color);
 }
 
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox& box, uint32_t x, uint32_t y, uint32_t color) const
 {
-    // Coordinates sprite convertion to screen coordinates
+    // Coordinates bounding convertion to screen coordinates
     uint32_t xL { x + box.xLeft  };
     uint32_t xR { x + box.xRight };
     uint32_t yU { y + box.yUp    };
     uint32_t yD { y + box.yDown  };
 
     // Side sizes box
-    uint32_t widthBox  = xR - xL;
-    uint32_t heightBox = yD - yU;
+    //uint32_t widthBox  = xR - xL;
+    uint32_t heightBox = yD - yU+1;
 
     while (heightBox-- > 0){
-        drawLineBox(getPosition(xL, yU), widthBox, 1, color);
+        drawAlignedLineClipped(xL, xR, yU, false, color);
+        //drawLineBox(getPosition(xL, yU), widthBox, 1, color);
         ++yU;
     }
 }
@@ -206,7 +237,7 @@ void RenderSys_t<GameCTX_t>::drawAll(const GameCTX_t& contx) const
 }
 
 template<typename GameCTX_t>
-constexpr bool RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+constexpr void RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 {
     const uint32_t size = widthScr*heightScr;
     auto screen         = frameBuffer.get();
@@ -214,6 +245,4 @@ constexpr bool RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
     std::fill(screen, screen+size, BLACK);
     drawAll(contx);
     ptc_update(screen);
-
-    return true;
 }

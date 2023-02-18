@@ -31,12 +31,12 @@ checkBoundingScreenCollision(const BoundingBox& box, PhysicsCmp_t& phycmp) const
     uint32_t yD { boxTransToSrc.yDown  };
 
     // Horizontal boundig verification
-    if (xL > wScreen || xR > wScreen) {
+    if (xL > wScreen || xR >= wScreen) {
         phycmp.x -= phycmp.vx; 
         phycmp.vx *= -1; 
     }
     // Vertical boundig verification
-    if (yU > hScreen || yD > hScreen) 
+    if (yU > hScreen || yD >= hScreen) 
     {
         phycmp.y -= phycmp.vy;
         phycmp.jumpIndexPhase = phycmp.JUMPS_PHASES.size(); // interrumpir salto

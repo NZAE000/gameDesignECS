@@ -25,7 +25,7 @@ try {
     GOFactory_t GoFactory { EntityMan };    // Game objects (entities) factory
 
     // --------- Entities ------------
-    GoFactory.createPlayer(1, 1);
+    GoFactory.createPlayer(0, 0);
     //GoFactory.createBlade(20, 40);
     //GoFactory.createBlade(140, 70);
 
@@ -39,15 +39,15 @@ try {
     // Entidad spawner que genera n entidades cada cierto lapso de tiempo
     // Ultimo argumento es un llamable que es la accion al momento de spawnear,
     // que en este caso es crear un nuevo blade.
-    GoFactory.createSpawner(580, 1, [&](const SpawnCmp_t& spcp)
+    GoFactory.createSpawner(605, 1, [&](const SpawnCmp_t& spcp)
     {
         auto* phycmp = EntityMan.getRequiredCmp<PhysicsCmp_t>(spcp);
         if (!phycmp) return;
 
         auto& ent  = GoFactory.createBlade(phycmp->x,phycmp->y);
         phycmp     = ent.getCmp<PhysicsCmp_t>(); // los blades generados solo se desplazan en la ordenada
-        phycmp->vx = 2;
-        phycmp->vy = 0;
+        phycmp->vx = -2;
+        phycmp->vy =  0;
     });
 
     // Systems

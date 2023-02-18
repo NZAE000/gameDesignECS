@@ -41,7 +41,7 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     phycmp.vx = phycmp.vy = 0;
 
     auto& collcmp = entityMan.addCmp<ColliderCmp_t>(plataform);
-    collcmp.boxRoot.box   = { 0, rencmp.w, 0, rencmp.h }; // default
+    collcmp.boxRoot.box   = { 0, rencmp.w-1, 0, rencmp.h-1 }; // default
     collcmp.maskCollision = ColliderCmp_t::PLATFORM_LAYER;
     collcmp.property      = ColliderCmp_t::SOLID_PROP;
 

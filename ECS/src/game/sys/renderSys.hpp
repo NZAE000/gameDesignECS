@@ -21,7 +21,7 @@ struct RenderSys_t {
     explicit RenderSys_t(uint32_t w, uint32_t h);
     ~RenderSys_t();
 
-    constexpr bool update(GameCTX_t&) const;
+    constexpr void update(GameCTX_t&) const;
 
     // static constexpr uint32_t sprite[8*8] = {
     //     kG,kG,kG,kG,kG,kG,kG,kG
@@ -46,6 +46,7 @@ private:
     constexpr void drawBox(const BoundingBox&, uint32_t x, uint32_t y, uint32_t color) const;
     constexpr void drawFillBox(const BoundingBox&, uint32_t x, uint32_t y, uint32_t color) const;
     constexpr void drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const;
+    constexpr void drawAlignedLineClipped(uint32_t x1, uint32_t x2, uint32_t y, bool isYaxis, uint32_t color) const;
 
     uint32_t* getPosition(uint32_t x, uint32_t y) const { return frameBuffer.get() + widthScr*y + x; }
 

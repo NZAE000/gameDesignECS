@@ -4,7 +4,7 @@
 extern "C" {
 	#include <tinyPTC.ua/src/tinyptc.h>
 }
-#include <iostream>
+//#include <iostream>
 
 
 template<typename GameCTX_t>
