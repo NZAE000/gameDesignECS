@@ -26,11 +26,12 @@ constexpr bool InputSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 		if (!phycmp) continue;
 
 		auto& phy = *(phycmp);
+		//std::cout<<"y: "<<phy.y<<" VY: "<<phy.vy<<"\n";
 		//std::cout<<"VY Player: "<< phy.vy <<" phase: " <<static_cast<uint32_t>(phy.jumpIndexPhase)<<" countvy0: "<<static_cast<uint32_t>(phy.countVyZero)<<"\n";
-		phy.vx = 0; // vy actua la gravedad y los saltos
+		phy.ax = 0; // only entitie with input cmp
 
-		if ( keyboard.isKeyPress(input.key_LEFT) ) phy.vx = -1;
-		if ( keyboard.isKeyPress(input.key_RIGHT)) phy.vx =  1;
+		if ( keyboard.isKeyPress(input.key_LEFT) ) phy.ax = -phy.STD_AX;
+		if ( keyboard.isKeyPress(input.key_RIGHT)) phy.ax =  phy.STD_AX;
 		if ( keyboard.isKeyPress(input.key_UP)	 ) 
 		{
 			if (phy.isJumpEnabled()) {

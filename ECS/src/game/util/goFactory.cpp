@@ -5,7 +5,7 @@
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/spawnCmp.hpp>
 #include <game/cmp/healthCmp.hpp>
-
+#include <iostream>
 
 ECS::Entity_t& 
 GOFactory_t::createEntity(uint32_t x, uint32_t y, const std::string_view filename) const
@@ -33,12 +33,12 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     auto& plataform = entityMan.createEntity();
 
     auto& rencmp = entityMan.addCmp<RenderCmp_t>(plataform);
-    rencmp.loadFromPng("./assets/platform.png");
+    rencmp.loadFromPng("./assets/platform2.png");
 
     auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(plataform);
     phycmp.x     = x;
     phycmp.y     = y;
-    phycmp.vx = phycmp.vy = 0;
+    phycmp.friction = 0.9f;
 
     auto& collcmp = entityMan.addCmp<ColliderCmp_t>(plataform);
     collcmp.boxRoot.box   = { 0, rencmp.w-1, 0, rencmp.h-1 }; // default
@@ -91,7 +91,6 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 
     auto* phycmp = principalCharac.getCmp<PhysicsCmp_t>();
     phycmp->g = PhysicsCmp_t::GRAVITY; // set gravity for my player
-    phycmp->vx = 10;
 
     return principalCharac;
 }
@@ -100,6 +99,9 @@ ECS::Entity_t&
 GOFactory_t::createBlade(uint32_t x, uint32_t y) const
 {
     auto& blade   = createEntity(x, y, "./assets/blade.png");
+
+    auto* phycmp = blade.getCmp<PhysicsCmp_t>();
+    phycmp->vx = 2; 
 
     auto* collcmp = blade.getCmp<ColliderCmp_t>();
     collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER;
@@ -111,3 +113,67 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
 
     return blade;
 }
+
+void GOFactory_t::createLevel1() const
+{
+    // --------- Entities ------------
+    constexpr std::array level = {
+            0b00000000
+        ,   0b00000000
+        ,   0b00000000
+        ,   0b01100001
+        ,   0b00000001
+        ,   0b00000011
+        ,   0b00000111
+        ,   0b00001111
+        ,   0b11101111
+        ,   0b10000001
+        ,   0b10000001
+        ,   0b10000001
+        ,   0b10000001
+        ,   0b10111011
+        ,   0b10010011
+        ,   0b10010011
+        ,   0b10010011
+        ,   0b10010001
+        ,   0b11011111
+        ,   0b10000001
+        ,   0b10000001
+        ,   0b10000001
+        ,   0b10000001
+        ,   0b10000001
+        ,   0b11111111
+    };
+
+    uint32_t y {0};
+    for (auto row: level){
+        for (uint32_t x=0; x<8*100; x+=100){
+            if (row & 0x80) createPlatform(x, y);
+            row <<= 1;
+        }
+        y+=41;
+    }
+
+    // Platforms (w=100, h=41)
+    //createPlatform(138, 319);
+    //createPlatform(276, 319);
+    //createPlatform(414, 319);
+    //createPlatform(215, 150); // floating plataform
+    //createPlatform(414, 240); // floating plataform
+
+    // Entidad spawner que genera n entidades cada cierto lapso de tiempo
+    // Ultimo argumento es un llamable que es la accion al momento de spawnear,
+    // que en este caso es crear un nuevo blade.
+    createSpawner(605, 1, [&](const SpawnCmp_t& spcp)
+    {
+        auto* phycmp = entityMan.getRequiredCmp<PhysicsCmp_t>(spcp);
+        if (!phycmp) return;
+
+        auto& ent  = createBlade(phycmp->x,phycmp->y);
+        phycmp     = ent.getCmp<PhysicsCmp_t>(); // los blades generados solo se desplazan en la ordenada
+        phycmp->vx *= -1;
+    });
+
+    createPlayer(0, 0);
+}
+

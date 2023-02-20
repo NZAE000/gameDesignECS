@@ -1,7 +1,7 @@
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/healthCmp.hpp>
 #include <game/sys/healthSys.hpp>
-#include <iostream>
+//#include <iostream>
 
 template<typename GameCTX_t>
 constexpr bool HealthSys_t<GameCTX_t>::isLeafNodeCollide(const BoundingBNode& bNode) const noexcept
@@ -22,18 +22,18 @@ constexpr void HealthSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
 
 	for (auto& healthcmp : healthCmps) 
 	{
-		auto id = healthcmp.getEntityID();
+		//auto id = healthcmp.getEntityID();
 
 		if (healthcmp.cumulativeDmg) 
 		{
 			if (healthcmp.cumulativeDmg >= healthcmp.health) {
 				contx.destroyEntity(healthcmp.getEntityID());
-				std::cout<<"Entity "<<id<<" destroyed\n";
+				//std::cout<<"Entity "<<id<<" destroyed\n";
 			}
 			else {
 				healthcmp.health -= healthcmp.cumulativeDmg;
 				healthcmp.cumulativeDmg = 0;
-				std::cout<< "Entity "<<id<<" hl: "<<healthcmp.health<<"\n";
+				//std::cout<< "Entity "<<id<<" hl: "<<healthcmp.health<<"\n";
 			}
 		} 
 		/*auto* collcmp = contx.template getRequiredCmp<ColliderCmp_t>(healthcmp);

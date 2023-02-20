@@ -6,7 +6,8 @@ extern "C" {
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/colliderCmp.hpp>
 #include <algorithm>
-
+#include <cmath>
+//#include <iostream>
 
 template<typename GameCTX_t>
 RenderSys_t<GameCTX_t>::RenderSys_t(uint32_t w, uint32_t h) 
@@ -27,15 +28,25 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     uint32_t up_off   { 0 };
 
     // Drawing Coordinates and size
-    uint32_t xSpr { phycmp.x };
-    uint32_t ySpr { phycmp.y };
+    // OJO!! ARM
+    uint32_t xSpr { 
+        (phycmp.x >= 0)? static_cast<uint32_t>(std::round(phycmp.x)) 
+        : -static_cast<uint32_t>(std::abs(std::round(phycmp.x)))                  
+    };
+    uint32_t ySpr { 
+        (phycmp.y >= 0)? static_cast<uint32_t>(std::round(phycmp.y)) 
+        : -static_cast<uint32_t>(std::abs(std::round(phycmp.y))) 
+    };
+
     uint32_t wSpr { rencmp.w };
     uint32_t hSpr { rencmp.h };
+
+    //std::cout<<"x: "<<xSpr<<" y: "<<ySpr<<"\n";
 
     // Horizontal clipping rules: cuando el sprite se pasa de los 2 lados/limites de screen 
     // (sucede cuando se le asigna un bounding box con ancho de menor dimension e interno al sprite).
 
-    // Left clipping: cuando la posicion realtiva al screen del scprite se pasa del limite izquiedo,
+    // Left clipping: cuando la posicion relativa al screen del scprite se pasa del limite izquiedo,
     // sucede que aquel numero de posicion será un valor muy grande (ya que las posiciones son valores sin signo,
     // p.ejem: 0 - 1 = 42949672965, por lo que se daria la vuelta a su valor maximo de un uint32_t).
     if (xSpr > widthScr){                
@@ -174,12 +185,22 @@ constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox& box, uint3
 }
 
 template<typename GameCTX_t>
-constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox, uint32_t x, uint32_t y, uint32_t color) const
-{
-    if (treeBox.isCollided) // When a box collide, then filled box with his color.
-        drawFillBox(treeBox.box, x, y, color);
+constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox, float x, float y, uint32_t color) const
+{   
+    // OJO!! ARM
+    uint32_t xSpr { 
+        (x >= 0)? static_cast<uint32_t>(std::round(x)) 
+        : -static_cast<uint32_t>(std::abs(std::round(x)))                  
+    };
+    uint32_t ySpr { 
+        (y >= 0)? static_cast<uint32_t>(std::round(y)) 
+        : -static_cast<uint32_t>(std::abs(std::round(y))) 
+    };
 
-    else drawBox(treeBox.box, x, y, color);
+    if (treeBox.isCollided) // When a box collide, then filled box with his color.
+        drawFillBox(treeBox.box, xSpr, ySpr, color);
+
+    else drawBox(treeBox.box, xSpr, ySpr, color);
 
     for (const BoundingBNode& BBN : treeBox.subBoxes) drawBoxTree(BBN, x, y, color>>1);
 }

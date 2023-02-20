@@ -44,6 +44,8 @@ struct GOFactory_t {
 	    return spwnEnt;
 	}
 
+	void createLevel1() const;
+
 private:
 
 	ECS::Entity_t& createEntity(uint32_t x, uint32_t y, const std::string_view filename) const;

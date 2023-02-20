@@ -42,7 +42,7 @@ private:
     // Helper functions
     void drawAll(const GameCTX_t&) const;
     constexpr void drawSpriteClipped(const RenderCmp_t&, const PhysicsCmp_t&) const;
-    constexpr void drawBoxTree(const BoundingBNode&, uint32_t x, uint32_t y, uint32_t color) const;
+    constexpr void drawBoxTree(const BoundingBNode&, float x, float y, uint32_t color) const;
     constexpr void drawBox(const BoundingBox&, uint32_t x, uint32_t y, uint32_t color) const;
     constexpr void drawFillBox(const BoundingBox&, uint32_t x, uint32_t y, uint32_t color) const;
     constexpr void drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const;

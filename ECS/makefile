@@ -15,11 +15,11 @@ CC        := g++
 CFLAGS	  := -std=c++17 -Wall -pedantic
 
 ifdef DEBUG
-	CFLAGS+=-g
+	CFLAGS+=-O1 -g
 else ifdef SANITIZE
 	CFLAGS+=-fsanitize=address -fno-omit-frame-pointer -O1 -g
 else
-	CFLAGS+=-O3
+	CFLAGS+=
 endif
 
 

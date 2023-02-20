@@ -5,16 +5,28 @@
 #include <game/cmp/healthCmp.hpp>
 #include <algorithm>
 #include <functional>
+#include <cmath>
+#include <iostream>
 
 template<typename GameCTX_t>
 constexpr BoundingBox CollisionSys_t<GameCTX_t>::
-transformToScreenCoordinates(const BoundingBox& box, uint32_t x, uint32_t y) const noexcept
-{
+transformToScreenCoordinates(const BoundingBox& box, float x, float y) const noexcept
+{   
+    // OJO!! ARM
+    uint32_t xSpr { 
+        (x >= 0)? static_cast<uint32_t>(std::round(x)) 
+        : -static_cast<uint32_t>(std::abs(std::round(x)))                  
+    };
+    uint32_t ySpr { 
+        (y >= 0)? static_cast<uint32_t>(std::round(y)) 
+        : -static_cast<uint32_t>(std::abs(std::round(y))) 
+    };
+
     return BoundingBox {
-            x + box.xLeft
-        ,   x + box.xRight
-        ,   y + box.yUp
-        ,   y + box.yDown 
+            xSpr + box.xLeft
+        ,   xSpr + box.xRight
+        ,   ySpr + box.yUp
+        ,   ySpr + box.yDown 
     };
 }
 
@@ -39,7 +51,7 @@ checkBoundingScreenCollision(const BoundingBox& box, PhysicsCmp_t& phycmp) const
     if (yU > hScreen || yD >= hScreen) 
     {
         phycmp.y -= phycmp.vy;
-        phycmp.jumpIndexPhase = phycmp.JUMPS_PHASES.size(); // interrumpir salto
+        phycmp.jumpIndexPhase = phycmp.JUMPS_PHASES.size(); // Interrumpir salto
         if (phycmp.g)   phycmp.vy  =  0;  // Las entidades que tengan gravedad, entonces frenan en los limites (suelo o limite superior)
         else            phycmp.vy *= -1;  // De lo contrario las demas entidades rebotan.
     }
@@ -229,8 +241,12 @@ undoCollision(GameCTX_t& contx, const ColliderCmp_t& mobilecmp, const ColliderCm
     };
 
     if (undo.x == 0 || (undo.y != 0 && std::abs(undo.y) <= std::abs(undo.x))){
-        phycmpMobile->y += undo.y;
-        phycmpMobile->vy = 0;
+        //std::cout<<"undo y: "<<undo.y<<"\n";
+        phycmpMobile->y  += undo.y;
+        phycmpMobile->vy  = 0;
+        phycmpMobile->vx *= phycmpSolid->friction;
+
+        phycmpMobile->onPlatform = (undo.y < 0); // cuando el desacido en y es negativo, significa que estamos encima de un solido, no de lo contrario.
         phycmpMobile->jumpIndexPhase = phycmpMobile->JUMPS_PHASES.size();
     } else {
         phycmpMobile->x += undo.x;
