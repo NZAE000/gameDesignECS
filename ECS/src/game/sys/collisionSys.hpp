@@ -18,7 +18,7 @@ struct CollisionSys_t {
 private:
 
     constexpr void checkBoundingScreenCollision(const BoundingBox<uint32_t>&, PhysicsCmp_t&) const noexcept;
-    constexpr BoundingBox<float> transformToScreenCoordinates(const BoundingBox<uint32_t>&, float x, float y) const noexcept;
+    constexpr BoundingBox<float> transformToWorldCoordinates(const BoundingBox<uint32_t>&, float x, float y) const noexcept;
     constexpr bool isCollisionEntities(const PhysicsCmp_t&, BoundingBNode&, const PhysicsCmp_t&, BoundingBNode&) const noexcept;
     constexpr void reactBetweenEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
     constexpr void applyDamageEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;

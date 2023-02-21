@@ -19,7 +19,7 @@ struct GOFactory_t {
 	ECS::Entity_t& createPlayer(uint32_t x, uint32_t y)    const;
 	ECS::Entity_t& createBlade(uint32_t x, uint32_t y) 	   const;
 	ECS::Entity_t& createPlatform(uint32_t x, uint32_t y)  const;
-	ECS::Entity_t& createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h) const;
+	ECS::Entity_t& createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, ECS::EntityID_t) const;
 
 	// Programacion generica
 	template<typename CALLABLE>
@@ -41,6 +41,7 @@ struct GOFactory_t {
 
 	    auto& collcmp         = entityMan.addCmp<ColliderCmp_t>(spwnEnt);
 	    collcmp.boxRoot.box   = { 0, 5, 0, 5 };
+	    collcmp.maskCollision = ColliderCmp_t::BOUNDARY_LAYER;
 
 	    return spwnEnt;
 	}

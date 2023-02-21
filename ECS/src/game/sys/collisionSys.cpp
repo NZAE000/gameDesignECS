@@ -10,7 +10,7 @@
 
 template<typename GameCTX_t>
 constexpr BoundingBox<float> CollisionSys_t<GameCTX_t>::
-transformToScreenCoordinates(const BoundingBox<uint32_t>& box, float x, float y) const noexcept
+transformToWorldCoordinates(const BoundingBox<uint32_t>& box, float x, float y) const noexcept
 {   
     // OJO!! ARM
     /*uint32_t xSpr { 
@@ -35,7 +35,7 @@ constexpr void CollisionSys_t<GameCTX_t>::
 checkBoundingScreenCollision(const BoundingBox<uint32_t>& box, PhysicsCmp_t& phycmp) const noexcept
 {
     // Bounding coordinates convertion to screen coordinates
-    BoundingBox<float> boxTransToSrc = transformToScreenCoordinates(box, phycmp.x, phycmp.y);
+    BoundingBox<float> boxTransToSrc = transformToWorldCoordinates(box, phycmp.x, phycmp.y);
     
     float xL { boxTransToSrc.xLeft  };
     float xR { boxTransToSrc.xRight };
@@ -68,8 +68,8 @@ template<typename GameCTX_t>
 constexpr bool CollisionSys_t<GameCTX_t>::
 isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const PhysicsCmp_t& phycmp2, BoundingBNode& boxNode2) const noexcept
 {
-    BoundingBox box1 = transformToScreenCoordinates(boxNode1.box, phycmp1.x, phycmp1.y);
-    BoundingBox box2 = transformToScreenCoordinates(boxNode2.box, phycmp2.x, phycmp2.y);
+    BoundingBox<float> box1 = transformToWorldCoordinates(boxNode1.box, phycmp1.x, phycmp1.y);
+    BoundingBox<float> box2 = transformToWorldCoordinates(boxNode2.box, phycmp2.x, phycmp2.y);
 
     // collision on intervals (two forms):
     /*
@@ -80,7 +80,7 @@ isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const 
                                         L2             R2   L2              R2 
     */
 
-    auto isCollisionIntervals = [](uint32_t L1, uint32_t R1, uint32_t L2, uint32_t R2) 
+    auto isCollisionIntervals = [](float L1, float R1, float L2, float R2) 
     {
         return (L2 > R1 || L1 > R2)? false : true;
     };
@@ -131,8 +131,9 @@ void CollisionSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
         auto* phycmp1  = contx.template getRequiredCmp<PhysicsCmp_t>(collcmp1);
         if (!phycmp1) continue;
 
-        // Fisrt check collision with screen sides ...
-        checkBoundingScreenCollision(collcmp1.boxRoot.box, *phycmp1);
+        // Fisrt check collision with screen sides (only entities with compatible mask collision) ...
+        if (collcmp1.maskCollision & ColliderCmp_t::BOUNDARY_LAYER)
+            checkBoundingScreenCollision(collcmp1.boxRoot.box, *phycmp1);
 
         // then, check collision beetween cmpcollider of an entity with cmpcollider+1 of other entity.
         for (uint32_t cmpj=cmpi+1; cmpj<size; ++cmpj) 
@@ -198,8 +199,8 @@ undoCollision(GameCTX_t& contx, const ColliderCmp_t& mobilecmp, const ColliderCm
     auto* phycmpSolid  = contx.template getRequiredCmp<PhysicsCmp_t>(solidcmp); 
     if (!phycmpMobile || !phycmpSolid) return;   
 
-    BoundingBox boxMobile = transformToScreenCoordinates(mobilecmp.boxRoot.box, phycmpMobile->x, phycmpMobile->y);
-    BoundingBox boxSolid  = transformToScreenCoordinates(solidcmp.boxRoot.box, phycmpSolid->x, phycmpSolid->y);
+    BoundingBox<float> boxMobile = transformToWorldCoordinates(mobilecmp.boxRoot.box, phycmpMobile->x, phycmpMobile->y);
+    BoundingBox<float> boxSolid  = transformToWorldCoordinates(solidcmp.boxRoot.box, phycmpSolid->x, phycmpSolid->y);
 
     /* COLLISION CASES IN XAXIS (analogous for Yaxis):
     
@@ -218,8 +219,8 @@ undoCollision(GameCTX_t& contx, const ColliderCmp_t& mobilecmp, const ColliderCm
     // Tener en cuenta que si se posa en el centro por arriba o abajo, se desplaza 0px en eje X,
     // o 0px en eje Y si esta justo al centro por los lados.
 
-    auto deltaIntervals = [](uint32_t mobileL, uint32_t mobileR, uint32_t solidL, uint32_t solidR) 
-    -> int32_t  // Trailing return type
+    auto deltaIntervals = [](float mobileL, float mobileR, float solidL, float solidR) 
+    -> float  // Trailing return type
     {
         // if it is a collision from the left
         if ( (mobileL < solidL) && (mobileR < solidR) ){
@@ -234,7 +235,7 @@ undoCollision(GameCTX_t& contx, const ColliderCmp_t& mobilecmp, const ColliderCm
     };
 
     // type + variable + initializer
-    struct { int32_t x, y; } undo 
+    struct { float x, y; } undo 
     {
         deltaIntervals(boxMobile.xLeft, boxMobile.xRight, boxSolid.xLeft, boxSolid.xRight), 
         deltaIntervals(boxMobile.yUp, boxMobile.yDown, boxSolid.yUp, boxSolid.yDown)

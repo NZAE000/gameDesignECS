@@ -8,7 +8,7 @@ extern "C" {
 #include <game/cmp/cameraCmp.hpp>
 #include <algorithm>
 #include <cmath>
-//#include <iostream>
+#include <iostream>
 
 template<typename GameCTX_t>
 RenderSys_t<GameCTX_t>::RenderSys_t(uint32_t w, uint32_t h) 
@@ -59,7 +59,6 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
         ,   phycmp.y                  // up
         ,   phycmp.y + rencmp.h       // down
     };
-
     // SPRITE COORDINATES REF TO CAMERA (POSSPRITEWRLD - POSCAMWRLD)
     sprRef.camera = {
             sprRef.world.xLeft  - phyCmpOfCam.x
@@ -87,6 +86,13 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
         ,   rencmp.w - static_cast<uint32_t>(std::round(sprRef.camWithClipping.left_off + sprRef.camWithClipping.right_off))   // w
         ,   rencmp.h - static_cast<uint32_t>(std::round(sprRef.camWithClipping.up_off + sprRef.camWithClipping.down_off))      // h
     };
+
+     if (phycmp.getEntityID() == 1) {
+        std::cout<<"\ncamXwrld: "<<phyCmpOfCam.x<<" camYwrld: "<<phyCmpOfCam.y<<"\n";
+        std::cout<<"xwrld: "<<phycmp.x<<" ywrld: "<<phycmp.y<<"\n";
+        std::cout<<"xrefCam: "<<sprRef.camera.xLeft<<" yrefCam: "<<sprRef.camera.yUp<<"\n";
+        std::cout<<"xrefScr: "<<sprRef.screen.x<<" yrefScr: "<<sprRef.screen.y<<"\n";
+    }
 
     // Render the sprite of entity
        //Si se paso del lim.izqu, x=0,

@@ -13,5 +13,7 @@ struct CameraCmp_t : ECS::ComponentBase_t<CameraCmp_t> {
 	uint32_t height { 0 };
 	uint32_t xScr   { 0 };
 	uint32_t yScr   { 0 };
+	
+	ECS::EntityID_t followEntID;
 
 };

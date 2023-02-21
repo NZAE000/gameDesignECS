@@ -84,7 +84,7 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
         }
     };
 
-    collcmp->maskCollision = ColliderCmp_t::FULL_LAYER; // Colisiona con todo por defecto. 
+    collcmp->maskCollision = ColliderCmp_t::FULL_LAYER ^ ColliderCmp_t::BOUNDARY_LAYER; // Colisiona con todo por defecto (evitando la colision con los limites del screen). 
     collcmp->property      = ColliderCmp_t::PLAYER_PROP;
 
     auto* healthcmp   = principalCharac.getCmp<HealthCmp_t>();
@@ -105,7 +105,7 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
     phycmp->vx = 2; 
 
     auto* collcmp = blade.getCmp<ColliderCmp_t>();
-    collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER;
+    collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER | ColliderCmp_t::BOUNDARY_LAYER; // Mascara compatible entre blades y limites de screen.
     collcmp->property      = ColliderCmp_t::DAMAGE_PROP;
 
     auto* healthcmp = blade.getCmp<HealthCmp_t>();
@@ -116,13 +116,14 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
 }
 
 ECS::Entity_t& 
-GOFactory_t::createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h) const
+GOFactory_t::createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, ECS::EntityID_t eid) const
 {
     auto& cam = entityMan.createEntity();
 
     auto& camcmp = entityMan.addCmp<CameraCmp_t>(cam);
     camcmp.xScr  = x; camcmp.yScr   = y;
     camcmp.width = w; camcmp.height = h;
+    camcmp.followEntID = eid;
 
     [[maybe_unused]] auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(cam);
 
@@ -132,6 +133,10 @@ GOFactory_t::createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h) const
 void GOFactory_t::createLevel1() const
 {
     // --------- Entities ------------
+
+    auto& player = createPlayer(0, 0);
+    createCamera(0, 0, 640, 360, player.getEntityID());
+    
     constexpr std::array level = {
             0b00000000
         ,   0b00000000
@@ -143,7 +148,7 @@ void GOFactory_t::createLevel1() const
         ,   0b00001111
         ,   0b11101111
         ,   0b10000001
-        ,   0b10010001
+        ,   0b10000001
         ,   0b10000001
         ,   0b10000001
         ,   0b10111011
@@ -188,8 +193,5 @@ void GOFactory_t::createLevel1() const
         phycmp     = ent.getCmp<PhysicsCmp_t>(); // los blades generados solo se desplazan en la ordenada
         phycmp->vx *= -1;
     });
-
-    createPlayer(0, 0);
-    createCamera(0, 0, 640, 360);
 }
 

@@ -6,7 +6,7 @@
 struct ColliderCmp_t : ECS::ComponentBase_t<ColliderCmp_t> {
 
     // Para que solo entre algunas entidades halla colision
-	enum { NO_LAYER = 0X00, BLADE_LAYER = 0X01, PLATFORM_LAYER = 0X02, FULL_LAYER = 0xFF };
+	enum { NO_LAYER = 0X00, BLADE_LAYER = 0X01, PLATFORM_LAYER = 0X02, BOUNDARY_LAYER = 0X04, FULL_LAYER = 0xFF };
 
 	// Para diferenciar entre tipos de colisiones: si se colisona con el que tiene 
 	// la propiedad DAMAGE, se sabe que hace daño a la entidad.

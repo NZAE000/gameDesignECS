@@ -6,6 +6,7 @@
 #include <game/sys/inputSys.cpp>
 #include <game/sys/spawnSys.cpp>
 #include <game/sys/healthSys.cpp>
+#include <game/sys/cameraSys.cpp>
 //#include <ecs/man/entityManager.hpp>
 #include <game/util/goFactory.hpp>
 
@@ -34,6 +35,7 @@ try {
     const CollisionSys_t<ECS::EntityManager_t> Collision { WIDTH, HEIGHT };
     const SpawnSys_t<ECS::EntityManager_t>     Spawn     {};
     const HealthSys_t<ECS::EntityManager_t>    Health    {};
+    const CameraSys_t<ECS::EntityManager_t>    Camera    {};
 
     //Render.setDebugDraw(true); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 
@@ -49,6 +51,7 @@ try {
         Collision.update(EntityMan);
         Health.update(EntityMan);
         Spawn.update(EntityMan);
+        Camera.update(EntityMan);
 
         const auto deltaTime = clk::now() - lastTime; //const std::chrono::duration
         if (deltaTime < timePF) std::this_thread::sleep_for(timePF-deltaTime);
