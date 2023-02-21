@@ -9,46 +9,46 @@
 #include <iostream>
 
 template<typename GameCTX_t>
-constexpr BoundingBox CollisionSys_t<GameCTX_t>::
-transformToScreenCoordinates(const BoundingBox& box, float x, float y) const noexcept
+constexpr BoundingBox<float> CollisionSys_t<GameCTX_t>::
+transformToScreenCoordinates(const BoundingBox<uint32_t>& box, float x, float y) const noexcept
 {   
     // OJO!! ARM
-    uint32_t xSpr { 
+    /*uint32_t xSpr { 
         (x >= 0)? static_cast<uint32_t>(std::round(x)) 
         : -static_cast<uint32_t>(std::abs(std::round(x)))                  
     };
     uint32_t ySpr { 
         (y >= 0)? static_cast<uint32_t>(std::round(y)) 
         : -static_cast<uint32_t>(std::abs(std::round(y))) 
-    };
+    };*/
 
-    return BoundingBox {
-            xSpr + box.xLeft
-        ,   xSpr + box.xRight
-        ,   ySpr + box.yUp
-        ,   ySpr + box.yDown 
+    return BoundingBox<float> {
+            x + box.xLeft
+        ,   x + box.xRight
+        ,   y + box.yUp
+        ,   y + box.yDown 
     };
 }
 
 template<typename GameCTX_t>
 constexpr void CollisionSys_t<GameCTX_t>::
-checkBoundingScreenCollision(const BoundingBox& box, PhysicsCmp_t& phycmp) const noexcept
+checkBoundingScreenCollision(const BoundingBox<uint32_t>& box, PhysicsCmp_t& phycmp) const noexcept
 {
     // Bounding coordinates convertion to screen coordinates
-    BoundingBox boxTransToSrc = transformToScreenCoordinates(box, phycmp.x, phycmp.y);
+    BoundingBox<float> boxTransToSrc = transformToScreenCoordinates(box, phycmp.x, phycmp.y);
     
-    uint32_t xL { boxTransToSrc.xLeft  };
-    uint32_t xR { boxTransToSrc.xRight };
-    uint32_t yU { boxTransToSrc.yUp    };
-    uint32_t yD { boxTransToSrc.yDown  };
+    float xL { boxTransToSrc.xLeft  };
+    float xR { boxTransToSrc.xRight };
+    float yU { boxTransToSrc.yUp    };
+    float yD { boxTransToSrc.yDown  };
 
     // Horizontal boundig verification
-    if (xL > wScreen || xR >= wScreen) {
+    if (xL >= wScreen || xR < 0) {
         phycmp.x -= phycmp.vx; 
         phycmp.vx *= -1; 
     }
     // Vertical boundig verification
-    if (yU > hScreen || yD >= hScreen) 
+    if (yU >= hScreen || yD < 0)
     {
         phycmp.y -= phycmp.vy;
         phycmp.jumpIndexPhase = phycmp.JUMPS_PHASES.size(); // Interrumpir salto

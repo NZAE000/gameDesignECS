@@ -43,7 +43,7 @@ struct PhysicsCmp_t : ECS::ComponentBase_t<PhysicsCmp_t> {
 	// VARIABLES
 	float  x { 0 },  y { 0 };    	// position
 	float vx { 0 }, vy { 0 };   	// speed
-	float ax { 0 };					// x acceleration
+	float ax { 0 };					// x acceleration (0 default)
 	float g  { 0 };    	  		    // y acceleration (gravity) (0 default)
 	float friction { 1.0f };        // rozamiento
 

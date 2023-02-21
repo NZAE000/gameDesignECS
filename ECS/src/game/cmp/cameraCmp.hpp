@@ -1,5 +1,5 @@
 #pragma once
-#include <ecs/cmp/component>
+#include <ecs/cmp/component.hpp>
 #include <cstdint>
 
 

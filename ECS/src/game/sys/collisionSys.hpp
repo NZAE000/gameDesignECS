@@ -1,11 +1,10 @@
 #pragma once
 #include <cstdint>
+#include <game/cmp/colliderCmp.hpp>
 
 // forward declaration
-struct ColliderCmp_t;
 struct PhysicsCmp_t;
-struct BoundingBox;
-struct BoundingBNode;
+
 
 template<typename GameCTX_t>
 struct CollisionSys_t {
@@ -18,8 +17,8 @@ struct CollisionSys_t {
 
 private:
 
-    constexpr void checkBoundingScreenCollision(const BoundingBox&, PhysicsCmp_t&) const noexcept;
-    constexpr BoundingBox transformToScreenCoordinates(const BoundingBox&, float x, float y) const noexcept;
+    constexpr void checkBoundingScreenCollision(const BoundingBox<uint32_t>&, PhysicsCmp_t&) const noexcept;
+    constexpr BoundingBox<float> transformToScreenCoordinates(const BoundingBox<uint32_t>&, float x, float y) const noexcept;
     constexpr bool isCollisionEntities(const PhysicsCmp_t&, BoundingBNode&, const PhysicsCmp_t&, BoundingBNode&) const noexcept;
     constexpr void reactBetweenEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
     constexpr void applyDamageEntities(GameCTX_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;

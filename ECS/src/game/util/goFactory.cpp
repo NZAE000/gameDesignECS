@@ -5,6 +5,7 @@
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/spawnCmp.hpp>
 #include <game/cmp/healthCmp.hpp>
+#include <game/cmp/cameraCmp.hpp>
 #include <iostream>
 
 ECS::Entity_t& 
@@ -114,6 +115,20 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
     return blade;
 }
 
+ECS::Entity_t& 
+GOFactory_t::createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h) const
+{
+    auto& cam = entityMan.createEntity();
+
+    auto& camcmp = entityMan.addCmp<CameraCmp_t>(cam);
+    camcmp.xScr  = x; camcmp.yScr   = y;
+    camcmp.width = w; camcmp.height = h;
+
+    [[maybe_unused]] auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(cam);
+
+    return cam;
+}
+
 void GOFactory_t::createLevel1() const
 {
     // --------- Entities ------------
@@ -128,7 +143,7 @@ void GOFactory_t::createLevel1() const
         ,   0b00001111
         ,   0b11101111
         ,   0b10000001
-        ,   0b10000001
+        ,   0b10010001
         ,   0b10000001
         ,   0b10000001
         ,   0b10111011
@@ -175,5 +190,6 @@ void GOFactory_t::createLevel1() const
     });
 
     createPlayer(0, 0);
+    createCamera(0, 0, 640, 360);
 }
 

@@ -35,7 +35,7 @@ try {
     const SpawnSys_t<ECS::EntityManager_t>     Spawn     {};
     const HealthSys_t<ECS::EntityManager_t>    Health    {};
 
-    Render.setDebugDraw(true); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
+    //Render.setDebugDraw(true); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 
     using clk = std::chrono::steady_clock;
     clk::time_point lastTime;

@@ -2,18 +2,20 @@
 #include <cstdint>
 #include <vector>
 
+
+template<typename Type>
 struct BoundingBox { // plane structure (aggregate)
 	
-	uint32_t xLeft  { 0 };
-	uint32_t xRight { 0 };
-	uint32_t yUp    { 0 };
-	uint32_t yDown  { 0 };
+	Type xLeft  { 0 };
+	Type xRight { 0 };
+	Type yUp    { 0 };
+	Type yDown  { 0 };
 };
 
 // Composite pattern
 struct BoundingBNode {
 		
-	BoundingBox box;
+	BoundingBox<uint32_t> box;
 	bool isCollided { false };
 	std::vector<BoundingBNode> subBoxes;
 };

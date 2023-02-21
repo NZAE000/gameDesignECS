@@ -5,6 +5,7 @@ extern "C" {
 #include <game/cmp/renderCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/colliderCmp.hpp>
+#include <game/cmp/cameraCmp.hpp>
 #include <algorithm>
 #include <cmath>
 //#include <iostream>
@@ -21,8 +22,93 @@ template<typename GameCTX_t>
 RenderSys_t<GameCTX_t>::~RenderSys_t(){ ptc_close(); }
 
 template<typename GameCTX_t>
-constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const
+constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const noexcept
 {
+    // CURRENT IMPLEMETATION (camera added)
+    // COORDINATES TRANSFORMTION:
+
+    //   SPRT     -->     WORLD      -->      CAMERA      -->     SCREEN
+    //     (0,0 + POSSPR)       (-CAMPOSWRLD)         (+CAMPOSSCR)
+
+    // Verify and get current camera components
+    if (!currentCam.camcmp || !currentCam.phycmp) return;
+    auto& camCmp      = *currentCam.camcmp;
+    auto& phyCmpOfCam = *currentCam.phycmp;
+
+    struct SprRefTo {   // Sprite coordinates reference to ..
+
+        BoundingBox<float> world  {};
+        BoundingBox<float> camera {};
+        
+        struct CamWithClipping {
+            float left_off { 0 }, right_off { 0 };
+            float up_off   { 0 }, down_off { 0 };
+        } camWithClipping {};
+
+        struct Screen {
+            uint32_t x {}, y {};    // coordinates ref to screen
+            uint32_t w {}, h {};    // new sprite dimensions (smaller or equal)
+        } screen{};
+
+    } sprRef {};
+
+    // SPRITE COORDINATES REF TO WORLD (0,0 + POSSPRITE)
+    sprRef.world = {       
+            phycmp.x                  // left
+        ,   phycmp.x + rencmp.w       // right  
+        ,   phycmp.y                  // up
+        ,   phycmp.y + rencmp.h       // down
+    };
+
+    // SPRITE COORDINATES REF TO CAMERA (POSSPRITEWRLD - POSCAMWRLD)
+    sprRef.camera = {
+            sprRef.world.xLeft  - phyCmpOfCam.x
+        ,   sprRef.world.xRight - phyCmpOfCam.x
+        ,   sprRef.world.yUp    - phyCmpOfCam.y
+        ,   sprRef.world.yDown  - phyCmpOfCam.y
+    };
+
+    // Check the coordinates of the sprite referring to the camera is out of bounds of camera.
+    if (   sprRef.camera.xLeft > camCmp.width  || sprRef.camera.xRight < 0
+        || sprRef.camera.yUp   > camCmp.height || sprRef.camera.yDown  < 0 ) return;
+
+    // Maybe only part of the sprite is in the camera..
+    sprRef.camWithClipping = {
+            (sprRef.camera.xLeft  < 0            )? -sprRef.camera.xLeft               : 0 // p.ejem: si left esta a -3px en x de la camara, se debe recortar 3 pixeles.
+        ,   (sprRef.camera.xRight > camCmp.width )?  sprRef.camera.xRight-camCmp.width : 0
+        ,   (sprRef.camera.yUp    < 0            )? -sprRef.camera.yUp                 : 0
+        ,   (sprRef.camera.yDown  > camCmp.height)?  sprRef.camera.yDown-camCmp.height : 0
+    };
+
+    // SPRITE COORDINATES REF TO SCREEN (sprite refcam coord + cam refscreen coord) (clipped) AND NEW DIMENSIONS
+    sprRef.screen = {
+            camCmp.xScr + static_cast<uint32_t>(std::round(sprRef.camera.xLeft + sprRef.camWithClipping.left_off))             // x
+        ,   camCmp.yScr + static_cast<uint32_t>(std::round(sprRef.camera.yUp   + sprRef.camWithClipping.up_off  ))             // y
+        ,   rencmp.w - static_cast<uint32_t>(std::round(sprRef.camWithClipping.left_off + sprRef.camWithClipping.right_off))   // w
+        ,   rencmp.h - static_cast<uint32_t>(std::round(sprRef.camWithClipping.up_off + sprRef.camWithClipping.down_off))      // h
+    };
+
+    // Render the sprite of entity
+       //Si se paso del lim.izqu, x=0,
+       //si se paso del lim.dere, x se mantiene,
+       //si se paso del lim.sup, y=0,
+       //si se paso del lim.inf, y se mantiene
+    auto* ptr_toScr = getPosition(sprRef.screen.x, sprRef.screen.y);
+    auto sprite_it  = begin(rencmp.sprite) + sprRef.camWithClipping.up_off*rencmp.w + sprRef.camWithClipping.left_off;
+
+    while(sprRef.screen.h--) 
+    {
+        for (uint32_t i=0; i<sprRef.screen.w; ++i){
+            // Draw only if transparency != 0 (not blending)
+            if (*sprite_it & 0xFF000000) *ptr_toScr = *sprite_it;
+            ++sprite_it;
+            ++ptr_toScr;
+        }
+        sprite_it += rencmp.w - sprRef.screen.w;
+        ptr_toScr += widthScr - sprRef.screen.w;
+    }
+
+    /*//BEFORE IMPLEMENTED!!!
     // Clipping
     uint32_t left_off { 0 };
     uint32_t up_off   { 0 };
@@ -82,10 +168,10 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     }
     
     // Render the sprite of entity
-    /* Si se paso del lim.izqu, x=0,
-       si se paso del lim.dere, x se mantiene, 
-       si se paso del lim.sup, y=0,
-       si se paso del lim.inf, y se mantiene*/
+       //Si se paso del lim.izqu, x=0,
+       //si se paso del lim.dere, x se mantiene, 
+       //si se paso del lim.sup, y=0,
+       //si se paso del lim.inf, y se mantiene
     auto* ptr_toScr = getPosition(xSpr, ySpr);
     auto sprite_it  = begin(rencmp.sprite) + up_off*rencmp.w + left_off;
 
@@ -99,11 +185,11 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
         }
         sprite_it += rencmp.w - wSpr;
         ptr_toScr += widthScr - wSpr;
-    }
+    }*/
 }
 
 template<typename GameCTX_t>
-constexpr void RenderSys_t<GameCTX_t>::drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const
+constexpr void RenderSys_t<GameCTX_t>::drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const noexcept
 {
     while(length-- > 0) {
         *ptr_toScr = color;
@@ -112,7 +198,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawLineBox(uint32_t* ptr_toScr, uint32_t
 }
 
 template<typename GameCTX_t>
-constexpr void RenderSys_t<GameCTX_t>::drawAlignedLineClipped(uint32_t x1, uint32_t x2, uint32_t y, bool isYaxis, uint32_t color) const
+constexpr void RenderSys_t<GameCTX_t>::drawAlignedLineClipped(uint32_t x1, uint32_t x2, uint32_t y, bool isYaxis, uint32_t color) const noexcept
 {
     // Default values for clipping X axis
     uint32_t maxX         { widthScr    };
@@ -138,7 +224,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawAlignedLineClipped(uint32_t x1, uint3
 }
 
 template<typename GameCTX_t>
-constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox& box, uint32_t x, uint32_t y, uint32_t color) const
+constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox<uint32_t>& box, uint32_t x, uint32_t y, uint32_t color) const noexcept
 {
     // Coordinates bounding convertion to screen coordinates
     uint32_t xL { x + box.xLeft  };
@@ -165,7 +251,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox& box, uint32_t 
 }
 
 template<typename GameCTX_t>
-constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox& box, uint32_t x, uint32_t y, uint32_t color) const
+constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox<uint32_t>& box, uint32_t x, uint32_t y, uint32_t color) const noexcept
 {
     // Coordinates bounding convertion to screen coordinates
     uint32_t xL { x + box.xLeft  };
@@ -185,7 +271,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox& box, uint3
 }
 
 template<typename GameCTX_t>
-constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox, float x, float y, uint32_t color) const
+constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox, float x, float y, uint32_t color) const noexcept
 {   
     // OJO!! ARM
     uint32_t xSpr { 
@@ -206,7 +292,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawBoxTree(const BoundingBNode& treeBox,
 }
 
 template<typename GameCTX_t>
-void RenderSys_t<GameCTX_t>::drawAll(const GameCTX_t& contx) const
+void RenderSys_t<GameCTX_t>::drawAllEntities(const GameCTX_t& contx) const noexcept
 {
     // Lamda Function
     // []  Captura: pasa todo lo que esta en contexto (arma una estructura con la captura). () = parámetros
@@ -231,7 +317,7 @@ void RenderSys_t<GameCTX_t>::drawAll(const GameCTX_t& contx) const
         const auto* phycmp = contx.template getRequiredCmp<PhysicsCmp_t>(rendercmp);
         if (phycmp) 
         {
-            drawSpriteClipped(rendercmp, *phycmp);
+            drawSpriteClipped(rendercmp, *phycmp); // ON CAMERA!!
 
             // If debug is active, also render the bounding box.
             if (debugDraw) {
@@ -258,12 +344,30 @@ void RenderSys_t<GameCTX_t>::drawAll(const GameCTX_t& contx) const
 }
 
 template<typename GameCTX_t>
+constexpr void RenderSys_t<GameCTX_t>::drawAllCameras(const GameCTX_t& contx) const noexcept
+{
+    auto& camcmps = contx.template getCmps<CameraCmp_t>();
+
+    for (const auto& camcmp : camcmps)
+    {
+        auto* phycmp = contx.template getRequiredCmp<PhysicsCmp_t>(camcmp);
+        if (!phycmp) continue;
+
+        currentCam.camcmp = &camcmp;
+        currentCam.phycmp = phycmp;
+
+        drawAllEntities(contx);
+    }
+}
+
+template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 {
     const uint32_t size = widthScr*heightScr;
     auto screen         = frameBuffer.get();
 
     std::fill(screen, screen+size, BLACK);
-    drawAll(contx);
+    drawAllCameras(contx);
+    //drawAll(contx);
     ptc_update(screen);
 }
