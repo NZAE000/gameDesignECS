@@ -25,7 +25,7 @@ template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const noexcept
 {
     // CURRENT IMPLEMETATION (camera added)
-    // COORDINATES TRANSFORMTION:
+    // COORDINATES TRANSFORMATION:
 
     //   SPRT     -->     WORLD      -->      CAMERA      -->     SCREEN
     //     (0,0 + POSSPR)       (-CAMPOSWRLD)         (+CAMPOSSCR)
@@ -41,8 +41,8 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
         BoundingBox<float> camera {};
         
         struct CamWithClipping {
-            float left_off { 0 }, right_off { 0 };
-            float up_off   { 0 }, down_off { 0 };
+            uint32_t left_off { 0 }, right_off { 0 };
+            uint32_t up_off   { 0 }, down_off { 0 };
         } camWithClipping {};
 
         struct Screen {
@@ -52,14 +52,14 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
 
     } sprRef {};
 
-    // SPRITE COORDINATES REF TO WORLD (0,0 + POSSPRITE)
+    // TRANSFORM SPRITE COORDINATES INTO 'WORLD' REF (0,0 + POSSPRITE)
     sprRef.world = {       
             phycmp.x                  // left
         ,   phycmp.x + rencmp.w       // right  
         ,   phycmp.y                  // up
         ,   phycmp.y + rencmp.h       // down
     };
-    // SPRITE COORDINATES REF TO CAMERA (POSSPRITEWRLD - POSCAMWRLD)
+    // TRANSFORM SPRITE COORDINATES INTO 'CAMERA' REF (POSSPRITEWRLD - POSCAMWRLD)
     sprRef.camera = {
             sprRef.world.xLeft  - phyCmpOfCam.x
         ,   sprRef.world.xRight - phyCmpOfCam.x
@@ -68,37 +68,40 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     };
 
     // Check the coordinates of the sprite referring to the camera is out of bounds of camera.
-    if (   sprRef.camera.xLeft > camCmp.width  || sprRef.camera.xRight < 0
-        || sprRef.camera.yUp   > camCmp.height || sprRef.camera.yDown  < 0 ) return;
+    if (   sprRef.camera.xLeft >= camCmp.width  || sprRef.camera.xRight < 0
+        || sprRef.camera.yUp   >= camCmp.height || sprRef.camera.yDown  < 0 ) return;
 
     // Maybe only part of the sprite is in the camera..
     sprRef.camWithClipping = {
-            (sprRef.camera.xLeft  < 0            )? -sprRef.camera.xLeft               : 0 // p.ejem: si left esta a -3px en x de la camara, se debe recortar 3 pixeles.
-        ,   (sprRef.camera.xRight > camCmp.width )?  sprRef.camera.xRight-camCmp.width : 0
-        ,   (sprRef.camera.yUp    < 0            )? -sprRef.camera.yUp                 : 0
-        ,   (sprRef.camera.yDown  > camCmp.height)?  sprRef.camera.yDown-camCmp.height : 0
+            static_cast<uint32_t>(std::round((sprRef.camera.xLeft  < 0             )?  -sprRef.camera.xLeft              : 0)) // p.ejem: si left esta a -3px en x de la camara, se debe recortar 3 pixeles.
+        ,   static_cast<uint32_t>(std::round((sprRef.camera.xRight >= camCmp.width )?  sprRef.camera.xRight-camCmp.width : 0))
+        ,   static_cast<uint32_t>(std::round((sprRef.camera.yUp    < 0             )?  -sprRef.camera.yUp                : 0))
+        ,   static_cast<uint32_t>(std::round((sprRef.camera.yDown  >= camCmp.height)?  sprRef.camera.yDown-camCmp.height : 0))
     };
 
-    // SPRITE COORDINATES REF TO SCREEN (sprite refcam coord + cam refscreen coord) (clipped) AND NEW DIMENSIONS
+    // TRANSFORM SPRITE COORDINATES INTO SCREEN REF (sprite refcam coord + cam refscreen coord) (clipped) AND NEW DIMENSIONS
     sprRef.screen = {
-            camCmp.xScr + static_cast<uint32_t>(std::round(sprRef.camera.xLeft + sprRef.camWithClipping.left_off))             // x
-        ,   camCmp.yScr + static_cast<uint32_t>(std::round(sprRef.camera.yUp   + sprRef.camWithClipping.up_off  ))             // y
-        ,   rencmp.w - static_cast<uint32_t>(std::round(sprRef.camWithClipping.left_off + sprRef.camWithClipping.right_off))   // w
-        ,   rencmp.h - static_cast<uint32_t>(std::round(sprRef.camWithClipping.up_off + sprRef.camWithClipping.down_off))      // h
+            camCmp.xScr + static_cast<uint32_t>(std::round(sprRef.camera.xLeft) + sprRef.camWithClipping.left_off)     // x
+        ,   camCmp.yScr + static_cast<uint32_t>(std::round(sprRef.camera.yUp)   + sprRef.camWithClipping.up_off)      // y
+        ,   rencmp.w    - (sprRef.camWithClipping.left_off + sprRef.camWithClipping.right_off)                            // w
+        ,   rencmp.h    - (sprRef.camWithClipping.up_off + sprRef.camWithClipping.down_off)                               // h
     };
 
-     if (phycmp.getEntityID() == 1) {
-        std::cout<<"\ncamXwrld: "<<phyCmpOfCam.x<<" camYwrld: "<<phyCmpOfCam.y<<"\n";
-        std::cout<<"xwrld: "<<phycmp.x<<" ywrld: "<<phycmp.y<<"\n";
+    /*if (phycmp.getEntityID() == 1) { // show player coords
+        std::cout<<"\ncamXscr: "<<camCmp.xScr<<" camYscr: "<<camCmp.yScr<<"\n";
+        std::cout<<"camXwrld: "<<phyCmpOfCam.x<<" camYwrld: "<<phyCmpOfCam.y<<"\n";
+        std::cout<<"xrefWrld: "<<phycmp.x<<" yrefWrld: "<<phycmp.y<<"\n";
         std::cout<<"xrefCam: "<<sprRef.camera.xLeft<<" yrefCam: "<<sprRef.camera.yUp<<"\n";
         std::cout<<"xrefScr: "<<sprRef.screen.x<<" yrefScr: "<<sprRef.screen.y<<"\n";
-    }
+    }*/
 
-    // Render the sprite of entity
-       //Si se paso del lim.izqu, x=0,
-       //si se paso del lim.dere, x se mantiene,
-       //si se paso del lim.sup, y=0,
-       //si se paso del lim.inf, y se mantiene
+    // RENDER BOUNDS OF CAM
+    drawLineBox(getPosition(camCmp.xScr, camCmp.yScr), camCmp.height, widthScr, RED);                // left
+    drawLineBox(getPosition(camCmp.xScr+camCmp.width-1, camCmp.yScr), camCmp.height, widthScr, RED); // right
+    drawLineBox(getPosition(camCmp.xScr, camCmp.yScr), camCmp.width, 1, RED);                       // up
+    drawLineBox(getPosition(camCmp.xScr, camCmp.yScr+camCmp.height-1), camCmp.width, 1, RED);       // down
+
+    // RENDER SPRITE
     auto* ptr_toScr = getPosition(sprRef.screen.x, sprRef.screen.y);
     auto sprite_it  = begin(rencmp.sprite) + sprRef.camWithClipping.up_off*rencmp.w + sprRef.camWithClipping.left_off;
 

@@ -26,7 +26,9 @@ try {
     GOFactory_t GoFactory { EntityMan };    // Game objects (entities) factory
 
     // LEVEL 1!!
-    GoFactory.createLevel1();
+    //GoFactory.loadLevelFromJSON("./assets/levels/level1.json");
+    //GoFactory.createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
+    GoFactory.loadLevelFromBin("./assets/levels/Level1.bin");
 
     // Systems
     const RenderSys_t<ECS::EntityManager_t>    Render    { WIDTH, HEIGHT };
@@ -58,8 +60,13 @@ try {
     }
 
     return 0;
-    
-} catch(...){
+
+} 
+catch(const std::exception& e){
+    std::cerr <<"[[Exception]]: "<< e.what() << '\n';
+    return 1;
+}   
+catch(...){
     std::cerr << "ERRO"<< '\n';
     return 1;
 }

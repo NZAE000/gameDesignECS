@@ -48,6 +48,10 @@ struct GOFactory_t {
 
 	void createLevel1() const;
 
+	void loadLevelFromJSON(const std::string_view path) const;
+	void createBinLevelFromJSON(const std::string_view jsonpath, const std::string_view binpath) const;
+	void loadLevelFromBin(const std::string_view path) const;
+	
 private:
 
 	ECS::Entity_t& createEntity(uint32_t x, uint32_t y, const std::string_view filename) const;
