@@ -9,13 +9,13 @@
 #include <game/sys/cameraSys.cpp>
 //#include <ecs/man/entityManager.hpp>
 #include <game/util/goFactory.hpp>
+#include <game/util/gameTimer.hpp>
 
 // Statics by default
 constexpr uint32_t WIDTH  { 640 };  
 constexpr uint32_t HEIGHT { 360 };
 constexpr uint32_t FPS    { 60  };
-constexpr 
-std::chrono::duration<double> timePF { 1000ms/FPS };
+constexpr uint64_t timePF { 1000000000UL/FPS };
 
 
 int 
@@ -25,10 +25,16 @@ try {
     ECS::EntityManager_t EntityMan;         // Manager of entities and components
     GOFactory_t GoFactory { EntityMan };    // Game objects (entities) factory
 
+    auto measureTimeToProcc = [](auto&& proccess) -> double { // Trailing return type
+        GameTimer_t timer {};
+        proccess();
+        return static_cast<double>(timer.timePassed())/1000; // ms
+    };
+
     // LEVEL 1!!
-    //GoFactory.loadLevelFromJSON("./assets/levels/level1.json");
+    //std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromJSON("./assets/levels/level1.json"); })<<"\n";
     //GoFactory.createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
-    GoFactory.loadLevelFromBin("./assets/levels/Level1.bin");
+    std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
 
     // Systems
     const RenderSys_t<ECS::EntityManager_t>    Render    { WIDTH, HEIGHT };
@@ -41,13 +47,10 @@ try {
 
     //Render.setDebugDraw(true); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 
-    using clk = std::chrono::steady_clock;
-    clk::time_point lastTime;
+    GameTimer_t timer {};
 
     while (Input.update(EntityMan))
     {   
-        lastTime = clk::now();
-
         Render.update(EntityMan);
         Physic.update(EntityMan);
         Collision.update(EntityMan);
@@ -55,8 +58,8 @@ try {
         Spawn.update(EntityMan);
         Camera.update(EntityMan);
 
-        const auto deltaTime = clk::now() - lastTime; //const std::chrono::duration
-        if (deltaTime < timePF) std::this_thread::sleep_for(timePF-deltaTime);
+        timer.waitForUntil_ns(timePF);
+        timer.start();
     }
 
     return 0;

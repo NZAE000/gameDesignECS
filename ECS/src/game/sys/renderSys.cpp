@@ -328,7 +328,7 @@ void RenderSys_t<GameCTX_t>::drawAllEntities(const GameCTX_t& contx) const noexc
         {
             drawSpriteClipped(rendercmp, *phycmp); // ON CAMERA!!
 
-            // If debug is active, also render the bounding box.
+            // If debug is active, also render the bounding box (need to implement with camera).
             if (debugDraw) {
                 auto* collcmp = contx.template getRequiredCmp<ColliderCmp_t>(*phycmp);
                 if (!collcmp) return;
@@ -365,17 +365,18 @@ constexpr void RenderSys_t<GameCTX_t>::drawAllCameras(const GameCTX_t& contx) co
         currentCam.camcmp = &camcmp;
         currentCam.phycmp = phycmp;
 
-        drawAllEntities(contx);
+        drawAllEntities(contx); // ON CAMERA!!
     }
+
 }
 
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 {
     const uint32_t size = widthScr*heightScr;
-    auto screen         = frameBuffer.get();
+    auto* screen         = frameBuffer.get();
 
-    std::fill(screen, screen+size, BLACK);
+    std::fill(screen, screen+size, 0xFF000000);
     drawAllCameras(contx);
     //drawAll(contx);
     ptc_update(screen);

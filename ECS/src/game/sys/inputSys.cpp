@@ -41,7 +41,6 @@ constexpr bool InputSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 		}
 		//if ( keyboard.isKeyPress(input.key_DOWN) ) phy.vy =  1;
 	}
-
 	return !ptc_process_events();
 }
 

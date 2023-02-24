@@ -213,6 +213,11 @@ void GOFactory_t::loadLevelFromJSON(const std::string_view jsonpath) const
 
     if (width*height != map.size()) throw std::runtime_error("Map size error"); 
 
+
+    // CAMBIAR
+    /*auto& player = createPlayer(0, 0);
+    createCamera(0, 0, 640, 360, player.getEntityID());
+
     uint32_t x {0}, y{0};
     for (const auto& elem : map)
     {   
@@ -221,7 +226,7 @@ void GOFactory_t::loadLevelFromJSON(const std::string_view jsonpath) const
         if (++x == width) { x=0; ++y; };
     }
 
-    createLevel1();
+    createLevel1();*/
 }
 
 
@@ -303,20 +308,21 @@ void GOFactory_t::loadLevelFromBin(const std::string_view path) const
     auto& player = createPlayer(0, 0);
     createCamera(0, 0, 640, 360, player.getEntityID());
     
-    /*uint32_t x{0}, y{0};
-    while(ptrLevel++ != (levelData.data() + sizeFile-1))
+    uint32_t x{0}, y{0};
+    while(ptrLevel != (levelData.data() + sizeFile-1))
     {   
        if (*ptrLevel) createPlatform(x*100, y*41);
        if (++x == width) { x=0; ++y; }
-    }*/
+       ++ptrLevel;
+    }
 
-    for (uint32_t y=0; y<height; ++y){
+    /*for (uint32_t y=0; y<height; ++y){
         for (uint32_t x=0; x<width; ++x)
         {
             if (*ptrLevel==1) createPlatform(x*100, y*41);
             ptrLevel++;
         }
-    }
+    }*/
 
     createLevel1();
 }
