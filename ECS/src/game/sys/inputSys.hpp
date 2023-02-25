@@ -8,6 +8,7 @@ struct InputSys_t {
 	explicit InputSys_t();
 
 	constexpr bool update(GameCTX_t&) const;
+	constexpr bool isKeyPress(KeySym) const;
 
 private:
 

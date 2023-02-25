@@ -44,7 +44,7 @@ checkBoundingScreenCollision(const BoundingBox<uint32_t>& box, PhysicsCmp_t& phy
 
     // Horizontal boundig verification
     if (xL >= wScreen || xR < 0) {
-        phycmp.x -= phycmp.vx; 
+        phycmp.x  -= phycmp.vx; 
         phycmp.vx *= -1; 
     }
     // Vertical boundig verification

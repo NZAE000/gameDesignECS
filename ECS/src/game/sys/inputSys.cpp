@@ -13,6 +13,15 @@ InputSys_t<GameCTX_t>::InputSys_t()
 	// Set pointer to func
 	ptc_set_on_keypress(onKeyPress);
 	ptc_set_on_keyrelease(onKeyRelease);
+
+	// Set all keys to realease
+	keyboard.reset();
+}
+
+template<typename GameCTX_t>
+constexpr bool InputSys_t<GameCTX_t>::isKeyPress(KeySym key) const
+{
+	return keyboard.isKeyPress(key);
 }
 
 template<typename GameCTX_t>

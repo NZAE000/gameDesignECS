@@ -306,7 +306,7 @@ void GOFactory_t::loadLevelFromBin(const std::string_view path) const
 
     // CAMBIAR
     auto& player = createPlayer(0, 0);
-    createCamera(0, 0, 640, 360, player.getEntityID());
+    createCamera(0, 0, 639, 359, player.getEntityID());
     
     uint32_t x{0}, y{0};
     while(ptrLevel != (levelData.data() + sizeFile-1))

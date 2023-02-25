@@ -46,8 +46,8 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
         } camWithClipping {};
 
         struct Screen {
-            uint32_t x {}, y {};    // coordinates ref to screen
-            uint32_t w {}, h {};    // new sprite dimensions (smaller or equal)
+            uint32_t x {0}, y {0};    // coordinates ref to screen
+            uint32_t w {0}, h {0};    // new sprite dimensions (smaller or equal)
         } screen{};
 
     } sprRef {};
@@ -81,10 +81,10 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
 
     // TRANSFORM SPRITE COORDINATES INTO SCREEN REF (sprite refcam coord + cam refscreen coord) (clipped) AND NEW DIMENSIONS
     sprRef.screen = {
-            camCmp.xScr + static_cast<uint32_t>(std::round(sprRef.camera.xLeft) + sprRef.camWithClipping.left_off)     // x
+            camCmp.xScr + static_cast<uint32_t>(std::round(sprRef.camera.xLeft) + sprRef.camWithClipping.left_off)    // x
         ,   camCmp.yScr + static_cast<uint32_t>(std::round(sprRef.camera.yUp)   + sprRef.camWithClipping.up_off)      // y
-        ,   rencmp.w    - (sprRef.camWithClipping.left_off + sprRef.camWithClipping.right_off)                            // w
-        ,   rencmp.h    - (sprRef.camWithClipping.up_off + sprRef.camWithClipping.down_off)                               // h
+        ,   rencmp.w    - (sprRef.camWithClipping.left_off + sprRef.camWithClipping.right_off)                        // w
+        ,   rencmp.h    - (sprRef.camWithClipping.up_off + sprRef.camWithClipping.down_off)                           // h
     };
 
     /*if (phycmp.getEntityID() == 1) { // show player coords
@@ -98,8 +98,8 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     // RENDER BOUNDS OF CAM
     drawLineBox(getPosition(camCmp.xScr, camCmp.yScr), camCmp.height, widthScr, RED);                // left
     drawLineBox(getPosition(camCmp.xScr+camCmp.width-1, camCmp.yScr), camCmp.height, widthScr, RED); // right
-    drawLineBox(getPosition(camCmp.xScr, camCmp.yScr), camCmp.width, 1, RED);                       // up
-    drawLineBox(getPosition(camCmp.xScr, camCmp.yScr+camCmp.height-1), camCmp.width, 1, RED);       // down
+    drawLineBox(getPosition(camCmp.xScr, camCmp.yScr), camCmp.width, 1, RED);                        // up
+    drawLineBox(getPosition(camCmp.xScr, camCmp.yScr+camCmp.height-1), camCmp.width, 1, RED);        // down
 
     // RENDER SPRITE
     auto* ptr_toScr = getPosition(sprRef.screen.x, sprRef.screen.y);
@@ -367,17 +367,16 @@ constexpr void RenderSys_t<GameCTX_t>::drawAllCameras(const GameCTX_t& contx) co
 
         drawAllEntities(contx); // ON CAMERA!!
     }
-
 }
 
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 {
-    const uint32_t size = widthScr*heightScr;
+    const uint32_t size  = widthScr*heightScr;
     auto* screen         = frameBuffer.get();
 
-    std::fill(screen, screen+size, 0xFF000000);
+    std::fill(screen, screen+size, BLACK);
     drawAllCameras(contx);
-    //drawAll(contx);
+
     ptc_update(screen);
 }
