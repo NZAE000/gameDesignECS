@@ -10,13 +10,39 @@
 //#include <ecs/man/entityManager.hpp>
 #include <game/util/goFactory.hpp>
 #include <game/util/gameTimer.hpp>
+#include <game/man/stateManager.hpp>
 #include <game/man/state.hpp>
+
 
 // Statics by default
 constexpr uint32_t WIDTH  { 640 };  
 constexpr uint32_t HEIGHT { 360 };
 constexpr uint32_t FPS    { 60  };
 constexpr uint64_t timePF { 1000000000UL/FPS };
+
+
+struct Pause_t : State_t {
+
+    explicit Pause_t() = default;
+
+    void update() final override
+    {
+        char c {};
+        std::cout<<"PAUSE..\n\n";
+        std::cin.get(c);
+
+        std::cin.ignore(1000000000, '\n');
+        std::cin.clear();
+
+        activeState = false;
+    }
+
+    bool isActiveState() final override { return activeState; }
+
+private:
+    bool activeState { true };
+
+};
 
 
 // OJO: int&& a = 5; <-- Referencia a un rvalue o valor temporal. En cambio, en el procesos de deducción de un parametro 'auto' en un lamda
@@ -29,14 +55,13 @@ auto measureTimeToProcc = [](auto&& proccess) -> double { // Trailing return typ
 
 struct GameMan_t : State_t {
 
-	explicit GameMan_t() {
+	explicit GameMan_t(StateManager_t& sm) 
+    : stMan{sm} {
 
 	    // LEVEL 1!!
 	    //std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromJSON("./assets/levels/level1.json"); })<<"\n";
 	    //GoFactory.createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
 	    std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
-
-	    //Render.setDebugDraw(true); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 	}
 
 	void update() final override
@@ -54,6 +79,8 @@ struct GameMan_t : State_t {
         timer.waitForUntil_ns(timePF);
 
         if (Input.isKeyPress(XK_Escape)) activeState = false;
+        if (Input.isKeyPress(XK_p))      stMan.pushState<Pause_t>();
+        if (Input.isKeyPress(XK_d))      Render.setDebugDraw(debugDraw=!debugDraw); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 	}
 
 	bool isActiveState() final override { return activeState; }
@@ -73,6 +100,7 @@ private:
     const CameraSys_t<ECS::EntityManager_t>    Camera    {};
 
     GameTimer_t timer {};
-    bool activeState { true };
+    StateManager_t& stMan;
+    bool activeState {true}, debugDraw {false};
 
 };

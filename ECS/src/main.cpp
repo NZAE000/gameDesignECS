@@ -19,7 +19,7 @@ struct Menu_t : State_t {
         std::cin>>op;
         switch(op)
         {
-        case 1:     stMan.pushState<GameMan_t>(); break;
+        case 1:     stMan.pushState<GameMan_t>(stMan); break;
         case 2:     break;
         default:    activeState=false;
         }
@@ -31,6 +31,7 @@ private:
     bool activeState { true };
     StateManager_t& stMan;
 };
+
 
 int 
 main(void)

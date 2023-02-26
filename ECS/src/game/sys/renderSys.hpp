@@ -46,14 +46,16 @@ struct RenderSys_t {
 private:
 
     // Helper functions
+    constexpr BoundingBox<float> transformToWorldCoordinates(const BoundingBox<uint32_t>& box, float x, float y) const noexcept;
     void drawAllEntities(const GameCTX_t&) const noexcept;
     constexpr void drawAllCameras(const GameCTX_t&) const noexcept;
     constexpr void drawSpriteClipped(const RenderCmp_t&, const PhysicsCmp_t&) const noexcept;
     constexpr void drawBoxTree(const BoundingBNode&, float x, float y, uint32_t color) const noexcept;
-    constexpr void drawBox(const BoundingBox<uint32_t>&, uint32_t x, uint32_t y, uint32_t color) const noexcept;
-    constexpr void drawFillBox(const BoundingBox<uint32_t>&, uint32_t x, uint32_t y, uint32_t color) const noexcept;
+    constexpr void drawBox(const BoundingBox<uint32_t>&, float x, float y, uint32_t color) const noexcept;
+    constexpr void drawFillBox(const BoundingBox<uint32_t>&, float x, float y, uint32_t color) const noexcept;
     constexpr void drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const noexcept;
-    constexpr void drawAlignedLineClipped(uint32_t x1, uint32_t x2, uint32_t y, bool isYaxis, uint32_t color) const noexcept;
+    constexpr void drawAlignedLineClipped(float x, float y, uint32_t length, bool isYaxis, uint32_t color) const noexcept;
+    constexpr auto transformCoordsToScreenRef(float x, float y, uint32_t width, uint32_t height) const noexcept;
 
     uint32_t* getPosition(uint32_t x, uint32_t y) const noexcept { return frameBuffer.get() + widthScr*y + x; }
 
