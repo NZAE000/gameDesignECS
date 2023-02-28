@@ -2,7 +2,11 @@
 #include <thread>
 #include <game/man/game.hpp>
 #include <game/man/stateManager.hpp>
+#include <game/util/gameBuffer.hpp>
+#include <memory>
 
+//static constexpr uint32_t WIDTH  { 640 };
+//static constexpr uint32_t HEIGHT { 360 };
 
 struct Menu_t : State_t {
 
@@ -37,7 +41,7 @@ int
 main(void)
 try {
 
-    StateManager_t stateMan {};
+    StateManager_t stateMan   {};
     stateMan.pushState<Menu_t>(stateMan);    
 
     while(stateMan.thereAnyState()) stateMan.update();

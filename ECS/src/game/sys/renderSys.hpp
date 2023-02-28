@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <memory>
 #include <game/cmp/colliderCmp.hpp>
-
+#include <game/util/gameBuffer.hpp>
 
 // fordward declaration: al compilador se le dice que existe un simbolo GameContext_t como struct.
 //struct GameContext_t;
@@ -24,7 +24,7 @@ struct RenderSys_t {
     static constexpr uint32_t BLACK = 0x00000000;
 
     // explicit: no puede implicitamenete hacer una conversion de tipo, o algo que se pareza a RenderSys_T
-    explicit RenderSys_t(uint32_t w, uint32_t h);
+    explicit RenderSys_t(FrameBuffer_t&);
     ~RenderSys_t();
 
     constexpr void update(GameCTX_t&) const;
@@ -40,8 +40,8 @@ struct RenderSys_t {
     //     ,kG,kG,kG,kG,kG,kG,kG,kG
     // };
 
-    constexpr void setDebugDraw(bool state)      const noexcept { debugDraw  = state; }
-    constexpr void setDebugColor(uint32_t color) const noexcept { debugColor = color; }
+    constexpr void setDebugDraw(bool state)          const noexcept { debugDraw   = state;   }
+    constexpr void setDebugColor(uint32_t color)     const noexcept { debugColor  = color;   }
 
 private:
 
@@ -57,10 +57,10 @@ private:
     constexpr void drawAlignedLineClipped(float x, float y, uint32_t length, bool isYaxis, uint32_t color) const noexcept;
     constexpr auto transformCoordsToScreenRef(float x, float y, uint32_t width, uint32_t height) const noexcept;
 
-    uint32_t* getPosition(uint32_t x, uint32_t y) const noexcept { return frameBuffer.get() + widthScr*y + x; }
+    uint32_t* getPosition(uint32_t x, uint32_t y) const noexcept { return fBuff.get() + fBuff.width*y + x; }
 
     const uint32_t widthScr { 0 }, heightScr { 0 };
-    std::unique_ptr<uint32_t[]> frameBuffer { nullptr };
+    FrameBuffer_t& fBuff; //std::unique_ptr<uint32_t[]> frameBuffer { nullptr };
 
     mutable bool debugDraw  { false };
     mutable uint32_t debugColor { RED };

@@ -10,6 +10,12 @@ extern "C" {
 template<typename GameCTX_t>
 InputSys_t<GameCTX_t>::InputSys_t()
 {
+
+}
+
+template<typename GameCTX_t>
+constexpr void InputSys_t<GameCTX_t>::setOn() const
+{
 	// Set pointer to func
 	ptc_set_on_keypress(onKeyPress);
 	ptc_set_on_keyrelease(onKeyRelease);

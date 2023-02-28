@@ -12,14 +12,17 @@
 #include <game/util/gameTimer.hpp>
 #include <game/man/stateManager.hpp>
 #include <game/man/state.hpp>
+#include <game/util/gameBuffer.hpp>
+extern "C" {
+    #include <tinyPTC.ua/src/tinyptc.h>
+}
 
 
 // Statics by default
-constexpr uint32_t WIDTH  { 640 };  
-constexpr uint32_t HEIGHT { 360 };
 constexpr uint32_t FPS    { 60  };
 constexpr uint64_t timePF { 1000000000UL/FPS };
-
+static constexpr uint32_t WIDTH  { 640 };
+static constexpr uint32_t HEIGHT { 360 };
 
 struct Pause_t : State_t {
 
@@ -61,20 +64,27 @@ struct GameMan_t : State_t {
 	    // LEVEL 1!!
 	    //std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromJSON("./assets/levels/level1.json"); })<<"\n";
 	    //GoFactory.createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
-	    std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
-	}
+	   
+       std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
+	   //ptc_open("game1", WIDTH, HEIGHT);
+
+       //Render.setFrameBuffer(stMan.getBufferPtr());
+       Input.setOn();
+    }
+
+    //~GameMan_t() { ptc_close(); }
 
 	void update() final override
 	{
 		timer.start();
 
-        Render.update(EntityMan);
-        Physic.update(EntityMan);
-        Input.update(EntityMan);
-        Collision.update(EntityMan);
-        Health.update(EntityMan);
-        Spawn.update(EntityMan);
-        Camera.update(EntityMan);
+        std::cout << " [REN]: " << measureTimeToProcc([&](){ Render.update(EntityMan);    });
+        std::cout << " [PHY]: " << measureTimeToProcc([&](){ Physic.update(EntityMan);    });
+        std::cout << " [IN]: " << measureTimeToProcc([&](){ Input.update(EntityMan);     }) ;
+        std::cout << " [COLL]: " << measureTimeToProcc([&](){ Collision.update(EntityMan); });
+        std::cout << " [HTH]: " << measureTimeToProcc([&](){ Health.update(EntityMan);    });
+        std::cout << " [SPW]: " << measureTimeToProcc([&](){ Spawn.update(EntityMan);     });
+        std::cout << " [CAM]: " << measureTimeToProcc([&](){ Camera.update(EntityMan);    })<<"\n\n";
 
         timer.waitForUntil_ns(timePF);
 
@@ -87,11 +97,14 @@ struct GameMan_t : State_t {
 
 private:
 
-	ECS::EntityManager_t EntityMan;         // Manager of entities and components
+	ECS::EntityManager_t EntityMan {1000};  // Manager of entities and components
     GOFactory_t GoFactory { EntityMan };    // Game objects (entities) factory
+    //std::unique_ptr<uint32_t[]> FrameBuffer { std::make_unique<uint32_t[]>(WIDTH*HEIGHT) };
+
+    FrameBuffer_t FrameBuffer { WIDTH, HEIGHT };
 
     // Systems
-    const RenderSys_t<ECS::EntityManager_t>    Render    { WIDTH, HEIGHT };
+    const RenderSys_t<ECS::EntityManager_t>    Render    { FrameBuffer };
     InputSys_t<ECS::EntityManager_t>           Input     {};
     const PhysicsSys_t<ECS::EntityManager_t>   Physic    {};
     const CollisionSys_t<ECS::EntityManager_t> Collision { WIDTH, HEIGHT };

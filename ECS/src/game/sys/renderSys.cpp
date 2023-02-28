@@ -13,15 +13,14 @@ extern "C" {
 #include <iostream>
 
 template<typename GameCTX_t>
-RenderSys_t<GameCTX_t>::RenderSys_t(uint32_t w, uint32_t h) 
-    : widthScr {w}, heightScr {h}
-    , frameBuffer { std::make_unique<uint32_t[]>(widthScr*heightScr) }
+RenderSys_t<GameCTX_t>::RenderSys_t(FrameBuffer_t& buff) 
+    : fBuff{buff}
 {   
-    ptc_open("game", widthScr, heightScr);
+    //ptc_open("game", fBuff.width, fBuff.height);
 }
 
 template<typename GameCTX_t>
-RenderSys_t<GameCTX_t>::~RenderSys_t(){ ptc_close(); }
+RenderSys_t<GameCTX_t>::~RenderSys_t(){ }//ptc_close(); }
 
 template<typename GameCTX_t>
 constexpr BoundingBox<float> RenderSys_t<GameCTX_t>::
@@ -155,7 +154,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
             ++ptr_toScr;
         }
         sprite_it += rencmp.w - newWidth;
-        ptr_toScr += widthScr - newWidth;
+        ptr_toScr += fBuff.width - newWidth;
     }
 
     /*//BEFORE IMPLEMENTED!!!
@@ -185,7 +184,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     // Left clipping: cuando la posicion relativa al screen del scprite se pasa del limite izquiedo,
     // sucede que aquel numero de posicion será un valor muy grande (ya que las posiciones son valores sin signo,
     // p.ejem: 0 - 1 = 42949672965, por lo que se daria la vuelta a su valor maximo de un uint32_t).
-    if (xSpr > widthScr){                
+    if (xSpr > fBuff.width){                
         left_off = 0 - xSpr;               // Ejm: si xSpr esta a -3 px del limite izquierdo, entonces xSpr = 42949672963. Por lo que si se resta 0 - 42949672963 se da la vuelta y da 3.
         if (left_off >= wSpr) return;      // Nothing to draw
         wSpr -= left_off;                  // Del ejemplo, el ancho del sprite se debe recortar 3 pixeles.
@@ -193,8 +192,8 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     }
     // Right clipping: recordar que la posicion x,y del sprite se encuntra en la esquina superior izquierda del sprite,
     // por lo tanto, para saber si se ah pasado del limite derecho, a la posicion x se debe sumar el ancho del sprite, y comparar si es mayo al ancho del screeen.
-    else if (xSpr + wSpr >= widthScr){
-        uint32_t right_off = xSpr + wSpr - widthScr; // Ejm: si x esta a 630px y w del sprite es 50px, y el ancho del screen es 640, entonces la posicion mas el ancho del sprite daria 680px, por lo que es > a 640 y se estaria pasando 40px.
+    else if (xSpr + wSpr >= fBuff.width){
+        uint32_t right_off = xSpr + wSpr - fBuff.width; // Ejm: si x esta a 630px y w del sprite es 50px, y el ancho del screen es 640, entonces la posicion mas el ancho del sprite daria 680px, por lo que es > a 640 y se estaria pasando 40px.
         if (right_off >= wSpr) return;     // Nothing to draw
         wSpr -= right_off;                 // Del ejemplo, el ancho del sprite se debe recortar 40 pixeles, quedando con 10px de ancho para dibujar.  
         // La posicion x no cambia, ya que sigue estando en el rango del ancho de screen.                                    
@@ -204,15 +203,15 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
     // (sucede cuando se le asigna un bounding box con alto de menor dimension e interno al sprite).
 
     // Up clipping
-    if (ySpr > heightScr){
+    if (ySpr > fBuff.height){
         up_off = 0 - ySpr;
         if (up_off >= hSpr) return;        // Nothing to draw
         hSpr -= up_off;
         ySpr  = 0;
     }
     // Down clipping
-    else if (ySpr + hSpr >= heightScr){
-        uint32_t down_off = ySpr + hSpr - heightScr;
+    else if (ySpr + hSpr >= fBuff.height){
+        uint32_t down_off = ySpr + hSpr - fBuff.height;
         if (down_off >= hSpr) return;      // Nothing to draw
         hSpr -= down_off;
     }
@@ -234,7 +233,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawSpriteClipped(const RenderCmp_t& renc
             ++ptr_toScr;
         }
         sprite_it += rencmp.w - wSpr;
-        ptr_toScr += widthScr - wSpr;
+        ptr_toScr += fBuff.width - wSpr;
     }*/
 }
 
@@ -252,15 +251,15 @@ constexpr void RenderSys_t<GameCTX_t>::drawAlignedLineClipped(float xLine, float
 {
     // BEFORE IMPLEMENTATION!!
     // Default values for clipping X axis
-    /*uint32_t maxX         { widthScr    };
-    uint32_t maxY         { heightScr   };
+    /*uint32_t maxX         { fBuff.width    };
+    uint32_t maxY         { fBuff.height   };
     uint32_t displacement { 1 };
     uint32_t* ptr_toScr   { nullptr };
 
     if (isYaxis){
-        maxX = heightScr;
-        maxY = widthScr;
-        displacement = widthScr;
+        maxX = fBuff.height;
+        maxY = fBuff.width;
+        displacement = fBuff.width;
     }
 
     if (y >= maxY || (x1 >= maxX && x2 >= maxX )) return;
@@ -281,7 +280,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawAlignedLineClipped(float xLine, float
     if (isYaxis){
         width        = 1;
         height       = length;
-        displacement = widthScr;
+        displacement = fBuff.width;
     }
 
     auto optTuple { transformCoordsToScreenRef(x, y, width, height) };
@@ -317,10 +316,10 @@ constexpr void RenderSys_t<GameCTX_t>::drawBox(const BoundingBox<uint32_t>& box,
     //drawLineBox(getPosition(xL, yU), widthBox, 1, color);
     drawAlignedLineClipped(xL, yU, widthBox, false, color);
     // Left line
-    //drawLineBox(getPosition(xL, yU), heightBox, widthScr, color);
+    //drawLineBox(getPosition(xL, yU), heightBox, fBuff.width, color);
     drawAlignedLineClipped(xL, yU, heightBox, true, color);
     // Right line
-    //drawLineBox(getPosition(xR, yU), heightBox, widthScr, color);
+    //drawLineBox(getPosition(xR, yU), heightBox, fBuff.width, color);
     drawAlignedLineClipped(xR, yU, heightBox, true, color);
     // Down line
     //drawLineBox(getPosition(xL, yD), widthBox, 1, color);
@@ -352,7 +351,7 @@ constexpr void RenderSys_t<GameCTX_t>::drawFillBox(const BoundingBox<uint32_t>& 
 
     while (newHeight-- > 0){
         drawLineBox(ptr_toScr, newWidth, 1, color);
-        ptr_toScr += widthScr;
+        ptr_toScr += fBuff.width;
     }
 }
 
@@ -387,7 +386,7 @@ void RenderSys_t<GameCTX_t>::drawAllEntities(const GameCTX_t& contx) const noexc
     // [&algo] (especifico)
     // por defecto trata la captura como cost. Para modificar, usar 'mutable'
     /*auto getPosition = [&](uint32_t x, uint32_t y){ // <- aca 
-        return frameBuffer.get() + widthScr*y + x; // desplazarse tantas filas, luego desplazarlo en columna
+        return fBuff + fBuff.width*y + x; // desplazarse tantas filas, luego desplazarlo en columna
     };*/
     
     auto& renderCmpts = contx.template getCmps<RenderCmp_t>();
@@ -422,7 +421,7 @@ void RenderSys_t<GameCTX_t>::drawAllEntities(const GameCTX_t& contx) const noexc
             { 
                 std::copy(sprite_it, sprite_it + rendercmp.w, ptr_toScr); // Copiar cada fila del sprite en una fila del screen
                 sprite_it += rendercmp.w;
-                ptr_toScr += widthScr;
+                ptr_toScr += fBuff.width;
             }
         }*/
         }
@@ -440,8 +439,8 @@ constexpr void RenderSys_t<GameCTX_t>::drawAllCameras(const GameCTX_t& contx) co
         if (!phycmp) continue;
 
         // RENDER BOUNDS OF CAM
-        drawLineBox(getPosition(camcmp.xScr, camcmp.yScr), camcmp.height, widthScr, RED);                // left
-        drawLineBox(getPosition(camcmp.xScr+camcmp.width-1, camcmp.yScr), camcmp.height, widthScr, RED); // right
+        drawLineBox(getPosition(camcmp.xScr, camcmp.yScr), camcmp.height, fBuff.width, RED);                // left
+        drawLineBox(getPosition(camcmp.xScr+camcmp.width-1, camcmp.yScr), camcmp.height, fBuff.width, RED); // right
         drawLineBox(getPosition(camcmp.xScr, camcmp.yScr), camcmp.width, 1, RED);                        // up
         drawLineBox(getPosition(camcmp.xScr, camcmp.yScr+camcmp.height-1), camcmp.width, 1, RED);        // down
 
@@ -455,11 +454,12 @@ constexpr void RenderSys_t<GameCTX_t>::drawAllCameras(const GameCTX_t& contx) co
 template<typename GameCTX_t>
 constexpr void RenderSys_t<GameCTX_t>::update(GameCTX_t& contx) const
 {
-    const uint32_t size  = widthScr*heightScr;
-    auto* screen         = frameBuffer.get();
+    const uint32_t size  = fBuff.width*fBuff.height;
+    auto* screen         = fBuff.get();
 
     std::fill(screen, screen+size, BLACK);
     drawAllCameras(contx);
 
-    ptc_update(screen);
+    fBuff.update();
+    //ptc_update(screen);
 }

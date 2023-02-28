@@ -3,10 +3,12 @@
 #include "state.hpp"
 #include <memory>
 #include <type_traits>
+#include <cstdint>
+#include <game/util/gameBuffer.hpp>
 
 struct StateManager_t {
 
-	explicit StateManager_t() = default;
+	explicit StateManager_t() {}
 
 	template<typename STATE, typename... PARAMS> 	// Type state and args types for constructor.
 	void pushState(PARAMS&&... params) 				// With universal references (coulding be lvalues or rvalues)
@@ -27,6 +29,12 @@ struct StateManager_t {
 
 	bool thereAnyState() const { return !states.empty(); }
 
+	//auto& getBufferPtr() noexcept { return frameBuffer; }
+
 private:
 	std::stack<std::unique_ptr<State_t>> states;
+
+	// SYSTEM_MANAGER	
+	// GOFACTORY
+	// FrameBuffer_t& frameBuffer; // BUFFER
 };
