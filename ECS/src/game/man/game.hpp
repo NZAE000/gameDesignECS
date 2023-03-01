@@ -1,18 +1,16 @@
 #pragma once
 #include <thread>
-#include <game/sys/renderSys.cpp>
-#include <game/sys/physicsSys.cpp>
-#include <game/sys/collisionSys.cpp>
-#include <game/sys/inputSys.cpp>
-#include <game/sys/spawnSys.cpp>
-#include <game/sys/healthSys.cpp>
-#include <game/sys/cameraSys.cpp>
-//#include <ecs/man/entityManager.hpp>
-#include <game/util/goFactory.hpp>
+#include <game/sys/game/renderSys.hpp>
+#include <game/sys/game/physicsSys.hpp>
+#include <game/sys/game/collisionSys.hpp>
+#include <game/sys/game/inputSys.hpp>
+#include <game/sys/game/spawnSys.hpp>
+#include <game/sys/game/healthSys.hpp>
+#include <game/sys/game/cameraSys.hpp>
+#include <ecs/man/entityManager.hpp>
 #include <game/util/gameTimer.hpp>
 #include <game/man/stateManager.hpp>
 #include <game/man/state.hpp>
-#include <game/util/gameBuffer.hpp>
 extern "C" {
     #include <tinyPTC.ua/src/tinyptc.h>
 }
@@ -21,8 +19,6 @@ extern "C" {
 // Statics by default
 constexpr uint32_t FPS    { 60  };
 constexpr uint64_t timePF { 1000000000UL/FPS };
-static constexpr uint32_t WIDTH  { 640 };
-static constexpr uint32_t HEIGHT { 360 };
 
 struct Pause_t : State_t {
 
@@ -58,18 +54,24 @@ auto measureTimeToProcc = [](auto&& proccess) -> double { // Trailing return typ
 
 struct GameMan_t : State_t {
 
-	explicit GameMan_t(StateManager_t& sm) 
-    : stMan{sm} {
-
+	explicit GameMan_t(StateManager_t& sm)
+    : stateMan{sm} 
+    // GET ALL SYSTEMS REF TO USE
+    ,   RenSys { stateMan.getSys<const RenderSys_t>()    }
+    ,   PhySys { stateMan.getSys<const PhysicsSys_t>()   }
+    ,   InpSys { stateMan.getSys<const InputSys_t>()     }
+    ,   ColSys { stateMan.getSys<const CollisionSys_t>() }
+    ,   HthSys { stateMan.getSys<const HealthSys_t>()    }
+    ,   SpwSys { stateMan.getSys<const SpawnSys_t>()     }
+    ,   CamSys { stateMan.getSys<const CameraSys_t>()    }
+    {
 	    // LEVEL 1!!
-	    //std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromJSON("./assets/levels/level1.json"); })<<"\n";
-	    //GoFactory.createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
+	    //std::cout << measureTimeToProcc([&](){ stateMan.getFactory().loadLevelFromJSON("./assets/levels/level1.json"); })<<"\n";
+	    //stateMan.getFactory().createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
 	   
-       std::cout << measureTimeToProcc([&](){ GoFactory.loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
-	   //ptc_open("game1", WIDTH, HEIGHT);
-
-       //Render.setFrameBuffer(stMan.getBufferPtr());
-       Input.setOn();
+        stateMan.setManager(entityMan);
+        stateMan.getSys<const InputSys_t>().setOn();
+        std::cout << measureTimeToProcc([&](){ stateMan.getFactory().loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
     }
 
     //~GameMan_t() { ptc_close(); }
@@ -78,42 +80,45 @@ struct GameMan_t : State_t {
 	{
 		timer.start();
 
-        std::cout << " [REN]: " << measureTimeToProcc([&](){ Render.update(EntityMan);    });
-        std::cout << " [PHY]: " << measureTimeToProcc([&](){ Physic.update(EntityMan);    });
-        std::cout << " [IN]: " << measureTimeToProcc([&](){ Input.update(EntityMan);     }) ;
-        std::cout << " [COLL]: " << measureTimeToProcc([&](){ Collision.update(EntityMan); });
-        std::cout << " [HTH]: " << measureTimeToProcc([&](){ Health.update(EntityMan);    });
-        std::cout << " [SPW]: " << measureTimeToProcc([&](){ Spawn.update(EntityMan);     });
-        std::cout << " [CAM]: " << measureTimeToProcc([&](){ Camera.update(EntityMan);    })<<"\n\n";
+        RenSys.update(entityMan);
+        PhySys.update(entityMan);
+        InpSys.update(entityMan);
+        ColSys.update(entityMan);
+        HthSys.update(entityMan);
+        SpwSys.update(entityMan);
+        CamSys.update(entityMan);
+        /*std::cout << " [REN]: "  << measureTimeToProcc([&](){  RendSys.update(entityMan); });
+        std::cout << " [PHY]: "  << measureTimeToProcc([&](){  PhySys.update(entityMan);  });
+        std::cout << " [IN]: "   << measureTimeToProcc([&](){  InpSys.update(entityMan);  }) ;
+        std::cout << " [COLL]: " << measureTimeToProcc([&](){  ColSys.update(entityMan); });
+        std::cout << " [HTH]: "  << measureTimeToProcc([&](){  HthSys.update(entityMan);  });
+        std::cout << " [SPW]: "  << measureTimeToProcc([&](){  SpwSys.update(entityMan);  });
+        std::cout << " [CAM]: "  << measureTimeToProcc([&](){  CamSys.update(entityMan);  }) <<"\n\n";*/
 
         timer.waitForUntil_ns(timePF);
 
-        if (Input.isKeyPress(XK_Escape)) activeState = false;
-        if (Input.isKeyPress(XK_p))      stMan.pushState<Pause_t>();
-        if (Input.isKeyPress(XK_d))      Render.setDebugDraw(debugDraw=!debugDraw); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
+        if (InpSys.isKeyPress(XK_Escape)) activeState = false;
+        if (InpSys.isKeyPress(XK_p))      stateMan.pushState<Pause_t>();
+        if (InpSys.isKeyPress(XK_d))      RenSys.setDebugDraw(debugDraw=!debugDraw); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 	}
 
 	bool isActiveState() final override { return activeState; }
 
 private:
 
-	ECS::EntityManager_t EntityMan {1000};  // Manager of entities and components
-    GOFactory_t GoFactory { EntityMan };    // Game objects (entities) factory
-    //std::unique_ptr<uint32_t[]> FrameBuffer { std::make_unique<uint32_t[]>(WIDTH*HEIGHT) };
+	ECS::EntityManager_t entityMan { 1000 };  // Manager of entities and components
+    StateManager_t& stateMan;
 
-    FrameBuffer_t FrameBuffer { WIDTH, HEIGHT };
-
-    // Systems
-    const RenderSys_t<ECS::EntityManager_t>    Render    { FrameBuffer };
-    InputSys_t<ECS::EntityManager_t>           Input     {};
-    const PhysicsSys_t<ECS::EntityManager_t>   Physic    {};
-    const CollisionSys_t<ECS::EntityManager_t> Collision { WIDTH, HEIGHT };
-    const SpawnSys_t<ECS::EntityManager_t>     Spawn     {};
-    const HealthSys_t<ECS::EntityManager_t>    Health    {};
-    const CameraSys_t<ECS::EntityManager_t>    Camera    {};
+    // SYSTEMS TO USE
+    const RenderSys_t&    RenSys;
+    const PhysicsSys_t&   PhySys;
+    const InputSys_t&     InpSys;
+    const CollisionSys_t& ColSys;
+    const HealthSys_t&    HthSys;
+    const SpawnSys_t&     SpwSys;
+    const CameraSys_t&    CamSys;
 
     GameTimer_t timer {};
-    StateManager_t& stMan;
     bool activeState {true}, debugDraw {false};
 
 };

@@ -1,10 +1,10 @@
-#include <game/sys/cameraSys.hpp>
+#include <game/sys/game/cameraSys.hpp>
+#include <ecs/man/entityManager.cpp>
 #include <game/cmp/cameraCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/renderCmp.hpp>
 
-template<typename GameCTX_t>
-void CameraSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
+void CameraSys_t::update(ECS::EntityManager_t& contx) const
 {
 	auto& camcmps = contx.template getCmps<CameraCmp_t>();
 

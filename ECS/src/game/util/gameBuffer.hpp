@@ -13,10 +13,10 @@ struct FrameBuffer_t {
 		ptc_open("game1", width, height);
 	}
 
-	~FrameBuffer_t()    { ptc_close(); }
+	~FrameBuffer_t() { ptc_close(); }
 
 	void   update()    const { ptc_update(frameBuff.get()); }
-	uint32_t* get() noexcept { return frameBuff.get(); }
+	uint32_t* get() noexcept { return frameBuff.get();      }
 
 	const uint32_t width{0}, height{0};
 

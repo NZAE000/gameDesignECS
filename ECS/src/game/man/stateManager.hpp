@@ -1,14 +1,16 @@
 #pragma once
-#include <stack>
 #include "state.hpp"
+#include <stack>
 #include <memory>
 #include <type_traits>
 #include <cstdint>
-#include <game/util/gameBuffer.hpp>
+#include <ecs/man/systemManager.hpp>
+#include <game/util/goFactory.hpp>
 
 struct StateManager_t {
 
-	explicit StateManager_t() {}
+	explicit StateManager_t(ECS::SystemManager_t& sm, GOFactory_t& gf) 
+	: sysMan{sm}, goFact{gf} {}
 
 	template<typename STATE, typename... PARAMS> 	// Type state and args types for constructor.
 	void pushState(PARAMS&&... params) 				// With universal references (coulding be lvalues or rvalues)
@@ -17,7 +19,7 @@ struct StateManager_t {
 		states.push(std::make_unique<STATE>(std::forward<decltype(params)>(params)...));      // forward: if params be lvalue, then pass lvalue reference, or if params rvalue, pass how rvalue reference.
 	}
 
-	void update() 
+	void update()
 	{
 		auto& statePriority { states.top() };
 
@@ -29,12 +31,18 @@ struct StateManager_t {
 
 	bool thereAnyState() const { return !states.empty(); }
 
-	//auto& getBufferPtr() noexcept { return frameBuffer; }
+	template<typename SYS_t>
+	constexpr SYS_t& getSys() { return sysMan.getSys<SYS_t>(); }
 
+	template<typename SYS_t>
+	constexpr const SYS_t& getSys() const { return sysMan.getSys<SYS_t>(); }
+
+	void setManager(ECS::EntityManager_t& em) { goFact.setManager(em); }
+	const auto& getFactory() const { return goFact; }
+	auto& getFactory() 			   { return goFact; }
+ 
 private:
 	std::stack<std::unique_ptr<State_t>> states;
-
-	// SYSTEM_MANAGER	
-	// GOFACTORY
-	// FrameBuffer_t& frameBuffer; // BUFFER
+	ECS::SystemManager_t& sysMan;					// SYSTEM_MANAGER ref
+	GOFactory_t& goFact;							// GAME OBJECT FACTORY ref
 };

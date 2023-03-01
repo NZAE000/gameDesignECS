@@ -1,10 +1,10 @@
-#include <game/sys/physicsSys.hpp>
+#include <game/sys/game/physicsSys.hpp>
 #include <game/cmp/physicsCmp.hpp>
+#include <ecs/man/entityManager.cpp>
 #include <algorithm>
 #include <cmath>
 
-template<typename GameCTX_t>
-constexpr bool PhysicsSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
+void PhysicsSys_t::update(ECS::EntityManager_t& contx) const
 {
     for (auto& phycmp : contx.template getCmps<PhysicsCmp_t>())
     {   
@@ -19,13 +19,13 @@ constexpr bool PhysicsSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
         // Verify if we are not still on platform (current solution)
         if (std::abs(phycmp.vy) > phycmp.MINVY_ONPLATFORM) phycmp.onPlatform = false;
 
-
         // Set jump to next jump phase
         auto& jumpPhase = phycmp.jumpIndexPhase;
         if (phycmp.isInJumpPhase()) phycmp.vy = phycmp.JUMPS_PHASES[jumpPhase++];
             
         // Set speed with on gravity (change only some entities with g > 0)
         phycmp.applyAccelerationY();
+        
         // CLAMP: para que no se pase de un limite minimo o maximo de velocidad en y
         phycmp.vy = std::clamp(phycmp.vy, phycmp.MIN_VY, phycmp.MAX_VY);
         //if (phycmp.vy > PhysicsCmp_t::MAX_VY) phycmp.vy = PhysicsCmp_t::MAX_VY;
@@ -39,6 +39,4 @@ constexpr bool PhysicsSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
         phycmp.x += phycmp.vx;
         phycmp.y += phycmp.vy;
     }
-    
-    return true;
 }

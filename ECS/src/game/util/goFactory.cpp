@@ -1,9 +1,5 @@
 #include <game/util/goFactory.hpp>
-#include <game/cmp/renderCmp.hpp>
-#include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/inputCmp.hpp>
-#include <game/cmp/colliderCmp.hpp>
-#include <game/cmp/spawnCmp.hpp>
 #include <game/cmp/healthCmp.hpp>
 #include <game/cmp/cameraCmp.hpp>
 #include <picoJSON.ua/picojson.hpp>
@@ -12,19 +8,19 @@
 ECS::Entity_t& 
 GOFactory_t::createEntity(uint32_t x, uint32_t y, const std::string_view filename) const
 { 
-    auto& ent = entityMan.createEntity();
+    auto& ent = entityMan->createEntity();
 
-    auto& rencmp = entityMan.addCmp<RenderCmp_t>(ent);
+    auto& rencmp = entityMan->addCmp<RenderCmp_t>(ent);
     rencmp.loadFromPng(filename);
 
-    auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(ent);
+    auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(ent);
     phycmp.x     = x;
     phycmp.y     = y;
 
-    auto& collcmp = entityMan.addCmp<ColliderCmp_t>(ent);
+    auto& collcmp = entityMan->addCmp<ColliderCmp_t>(ent);
     collcmp.boxRoot.box = { 5, rencmp.w-5, 5, rencmp.h-5 }; // default
 
-    [[maybe_unused]]auto& healthcmp = entityMan.addCmp<HealthCmp_t>(ent);
+    [[maybe_unused]]auto& healthcmp = entityMan->addCmp<HealthCmp_t>(ent);
 
     return ent;
 }
@@ -32,17 +28,17 @@ GOFactory_t::createEntity(uint32_t x, uint32_t y, const std::string_view filenam
 ECS::Entity_t& 
 GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
 {
-    auto& plataform = entityMan.createEntity();
+    auto& plataform = entityMan->createEntity();
 
-    auto& rencmp = entityMan.addCmp<RenderCmp_t>(plataform);
+    auto& rencmp = entityMan->addCmp<RenderCmp_t>(plataform);
     rencmp.loadFromPng("./assets/platform2.png");
 
-    auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(plataform);
+    auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(plataform);
     phycmp.x     = x;
     phycmp.y     = y;
     phycmp.friction = 0.85f;
 
-    auto& collcmp = entityMan.addCmp<ColliderCmp_t>(plataform);
+    auto& collcmp = entityMan->addCmp<ColliderCmp_t>(plataform);
     collcmp.boxRoot.box   = { 0, rencmp.w-1, 0, rencmp.h-1 }; // default
     collcmp.maskCollision = ColliderCmp_t::PLATFORM_LAYER;
     collcmp.property      = ColliderCmp_t::SOLID_PROP;
@@ -54,7 +50,7 @@ ECS::Entity_t&
 GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 {
     auto& principalCharac = createEntity(x, y, "./assets/deadpool2.png");
-    entityMan.addCmp<InputCmp_t>(principalCharac);
+    entityMan->addCmp<InputCmp_t>(principalCharac);
 
     auto* collcmp = principalCharac.getCmp<ColliderCmp_t>();
 
@@ -119,14 +115,14 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
 ECS::Entity_t& 
 GOFactory_t::createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, ECS::EntityID_t eid) const
 {
-    auto& cam = entityMan.createEntity();
+    auto& cam = entityMan->createEntity();
 
-    auto& camcmp = entityMan.addCmp<CameraCmp_t>(cam);
+    auto& camcmp = entityMan->addCmp<CameraCmp_t>(cam);
     camcmp.xScr  = x; camcmp.yScr   = y;
     camcmp.width = w; camcmp.height = h;
     camcmp.followEntID = eid;
 
-    [[maybe_unused]] auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(cam);
+    [[maybe_unused]] auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(cam);
 
     return cam;
 }
@@ -177,7 +173,7 @@ void GOFactory_t::createLevel1() const
     // que en este caso es crear un nuevo blade.
     [[maybe_unused]]auto& spawner = createSpawner(605, 1, [&](const SpawnCmp_t& spcp)
     {
-        auto* phycmp = entityMan.getRequiredCmp<PhysicsCmp_t>(spcp);
+        auto* phycmp = entityMan->getRequiredCmp<PhysicsCmp_t>(spcp);
         if (!phycmp) return;
 
         auto& ent  = createBlade(phycmp->x,phycmp->y);

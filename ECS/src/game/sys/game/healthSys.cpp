@@ -1,10 +1,10 @@
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/healthCmp.hpp>
-#include <game/sys/healthSys.hpp>
+#include <game/sys/game/healthSys.hpp>
+#include <ecs/man/entityManager.cpp>
 //#include <iostream>
 
-template<typename GameCTX_t>
-constexpr bool HealthSys_t<GameCTX_t>::isLeafNodeCollide(const BoundingBNode& bNode) const noexcept
+bool HealthSys_t::isLeafNodeCollide(const BoundingBNode& bNode) const noexcept
 {
 	if (bNode.subBoxes.empty()) { // leaf node, check is bounding collided
 		return bNode.isCollided;
@@ -15,8 +15,7 @@ constexpr bool HealthSys_t<GameCTX_t>::isLeafNodeCollide(const BoundingBNode& bN
 	return false;
 }
 
-template<typename GameCTX_t>
-constexpr void HealthSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
+void HealthSys_t::update(ECS::EntityManager_t& contx) const
 {
 	auto& healthCmps = contx.template getCmps<HealthCmp_t>();
 

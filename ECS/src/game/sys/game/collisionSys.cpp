@@ -1,5 +1,5 @@
-#include <game/sys/collisionSys.hpp>
-//#include <ecs/cmp/entity.hpp>
+#include <game/sys/game/collisionSys.hpp>
+#include <ecs/man/entityManager.cpp>
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/healthCmp.hpp>
@@ -8,8 +8,7 @@
 #include <cmath>
 #include <iostream>
 
-template<typename GameCTX_t>
-constexpr BoundingBox<float> CollisionSys_t<GameCTX_t>::
+constexpr BoundingBox<float> CollisionSys_t::
 transformToWorldCoordinates(const BoundingBox<uint32_t>& box, float x, float y) const noexcept
 {   
     // OJO!! ARM
@@ -30,9 +29,8 @@ transformToWorldCoordinates(const BoundingBox<uint32_t>& box, float x, float y) 
     };
 }
 
-template<typename GameCTX_t>
-constexpr void CollisionSys_t<GameCTX_t>::
-checkBoundingScreenCollision(const BoundingBox<uint32_t>& box, PhysicsCmp_t& phycmp) const noexcept
+constexpr void CollisionSys_t::
+checkBoundingScreenCollision(BoundingBox<uint32_t>const& box, PhysicsCmp_t& phycmp) const noexcept
 {
     // Bounding coordinates convertion to screen coordinates
     BoundingBox<float> boxTransToSrc = transformToWorldCoordinates(box, phycmp.x, phycmp.y);
@@ -51,7 +49,7 @@ checkBoundingScreenCollision(const BoundingBox<uint32_t>& box, PhysicsCmp_t& phy
     if (yU >= hScreen || yD < 0)
     {
         phycmp.y -= phycmp.vy;
-        phycmp.jumpIndexPhase = phycmp.JUMPS_PHASES.size(); // Interrumpir salto
+        //phycmp.jumpIndexPhase = phycmp.JUMPS_PHASES.size(); // Interrumpir salto
         if (phycmp.g)   phycmp.vy  =  0;  // Las entidades que tengan gravedad, entonces frenan en los limites (suelo o limite superior)
         else            phycmp.vy *= -1;  // De lo contrario las demas entidades rebotan.
     }
@@ -64,8 +62,7 @@ checkBoundingScreenCollision(const BoundingBox<uint32_t>& box, PhysicsCmp_t& phy
     }*/
 }
 
-template<typename GameCTX_t>
-constexpr bool CollisionSys_t<GameCTX_t>::
+constexpr bool CollisionSys_t::
 isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const PhysicsCmp_t& phycmp2, BoundingBNode& boxNode2) const noexcept
 {
     BoundingBox<float> box1 = transformToWorldCoordinates(boxNode1.box, phycmp1.x, phycmp1.y);
@@ -80,7 +77,7 @@ isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const 
                                         L2             R2   L2              R2 
     */
 
-    auto isCollisionIntervals = [](float L1, float R1, float L2, float R2) 
+    constexpr auto isCollisionIntervals = [](float L1, float R1, float L2, float R2) -> bool
     {
         return (L2 > R1 || L1 > R2)? false : true;
     };
@@ -95,25 +92,27 @@ isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const 
             3. Bn1 sea hoja, Bn2 tenga hijos
             4. Bn2 sea hoja, Bn1 tenga hijos
         */
+
+        // First setON collision for these boxes (for that render system detect collision).
         boxNode1.isCollided = true;
         boxNode2.isCollided = true;
 
-        if (!boxNode1.subBoxes.empty()){
+        if (!boxNode1.subBoxes.empty()){    // si box1 tuviese una o mas subcajas, chequear colision con aquellas junto a box2.
             for (auto& b : boxNode1.subBoxes) 
                 if (isCollisionEntities(phycmp1, b, phycmp2, boxNode2)) return true;
         }
-        else if (!boxNode2.subBoxes.empty()){
+        else if (!boxNode2.subBoxes.empty()){ // lo mimso para box2.
             for (auto& b : boxNode2.subBoxes) 
                 if (isCollisionEntities(phycmp1, boxNode1, phycmp2, b)) return true;
         }
-        else  return true;  // cuando ambos son nodo hojas
+        else  return true;  // cuando ambos son nodo hojas, entonces hubo colision hacia una parte especifica de la entidad.
     }
+    
     return false;
 }
 
 
-template<typename GameCTX_t>
-void CollisionSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
+void CollisionSys_t::update(ECS::EntityManager_t& contx) const
 {
     auto& collcmps = contx.template getCmps<ColliderCmp_t>();
     uint32_t size  = collcmps.size();
@@ -153,9 +152,8 @@ void CollisionSys_t<GameCTX_t>::update(GameCTX_t& contx) const noexcept
     }
 }
 
-template<typename GameCTX_t>
-constexpr void CollisionSys_t<GameCTX_t>::
-reactBetweenEntities(GameCTX_t& contx, const ColliderCmp_t& collcmp1, const ColliderCmp_t& collcmp2) const noexcept
+constexpr void CollisionSys_t::
+reactBetweenEntities(ECS::EntityManager_t& contx, const ColliderCmp_t& collcmp1, const ColliderCmp_t& collcmp2) const noexcept
 {
     auto* playercmp = &collcmp1;
     auto* othercmp  = &collcmp2;
@@ -178,9 +176,8 @@ reactBetweenEntities(GameCTX_t& contx, const ColliderCmp_t& collcmp1, const Coll
     }
 }
 
-template<typename GameCTX_t>
-constexpr void CollisionSys_t<GameCTX_t>::
-applyDamageEntities(GameCTX_t& contx, const ColliderCmp_t& playercmp, const ColliderCmp_t& othercmp) const noexcept
+void CollisionSys_t::
+applyDamageEntities(ECS::EntityManager_t& contx, const ColliderCmp_t& playercmp, const ColliderCmp_t& othercmp) const noexcept
 {
     // Get health components
     auto* healthPlayer { contx.template getRequiredCmp<HealthCmp_t>(playercmp) };
@@ -191,9 +188,8 @@ applyDamageEntities(GameCTX_t& contx, const ColliderCmp_t& playercmp, const Coll
     healthOther->cumulativeDmg  += healthOther->selfDmgOnInfliction;
 }
 
-template<typename GameCTX_t>
-constexpr void CollisionSys_t<GameCTX_t>::
-undoCollision(GameCTX_t& contx, const ColliderCmp_t& mobilecmp, const ColliderCmp_t& solidcmp) const noexcept
+void CollisionSys_t::
+undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const ColliderCmp_t& solidcmp) const noexcept
 {   
     auto* phycmpMobile = contx.template getRequiredCmp<PhysicsCmp_t>(mobilecmp);
     auto* phycmpSolid  = contx.template getRequiredCmp<PhysicsCmp_t>(solidcmp); 
