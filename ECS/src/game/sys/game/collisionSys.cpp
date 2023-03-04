@@ -8,8 +8,8 @@
 #include <cmath>
 #include <iostream>
 
-constexpr BoundingBox<float> CollisionSys_t::
-transformToWorldCoordinates(const BoundingBox<uint32_t>& box, float x, float y) const noexcept
+constexpr Box_t<float> CollisionSys_t::
+transformToWorldCoordinates(const Box_t<uint32_t>& box, float x, float y) const noexcept
 {   
     // OJO!! ARM
     /*uint32_t xSpr { 
@@ -21,24 +21,24 @@ transformToWorldCoordinates(const BoundingBox<uint32_t>& box, float x, float y) 
         : -static_cast<uint32_t>(std::abs(std::round(y))) 
     };*/
 
-    return BoundingBox<float> {
-            x + box.xLeft
-        ,   x + box.xRight
-        ,   y + box.yUp
-        ,   y + box.yDown 
+    return Box_t<float> {
+            x + box.getXLeft()
+        ,   y + box.getYUp()
+        ,   static_cast<float>(box.w)
+        ,   static_cast<float>(box.h)
     };
 }
 
 constexpr void CollisionSys_t::
-checkBoundingScreenCollision(BoundingBox<uint32_t>const& box, PhysicsCmp_t& phycmp) const noexcept
+checkBoundingScreenCollision(Box_t<uint32_t>const& box, PhysicsCmp_t& phycmp) const noexcept
 {
     // Bounding coordinates convertion to screen coordinates
-    BoundingBox<float> boxTransToSrc = transformToWorldCoordinates(box, phycmp.x, phycmp.y);
+    Box_t<float> boxTransToSrc = transformToWorldCoordinates(box, phycmp.x, phycmp.y);
     
-    float xL { boxTransToSrc.xLeft  };
-    float xR { boxTransToSrc.xRight };
-    float yU { boxTransToSrc.yUp    };
-    float yD { boxTransToSrc.yDown  };
+    float xL { boxTransToSrc.x           };
+    float xR { boxTransToSrc.getXRight() };
+    float yU { boxTransToSrc.y           };
+    float yD { boxTransToSrc.getYDown()  };
 
     // Horizontal boundig verification
     if (xL >= wScreen || xR < 0) {
@@ -65,8 +65,8 @@ checkBoundingScreenCollision(BoundingBox<uint32_t>const& box, PhysicsCmp_t& phyc
 constexpr bool CollisionSys_t::
 isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const PhysicsCmp_t& phycmp2, BoundingBNode& boxNode2) const noexcept
 {
-    BoundingBox<float> box1 = transformToWorldCoordinates(boxNode1.box, phycmp1.x, phycmp1.y);
-    BoundingBox<float> box2 = transformToWorldCoordinates(boxNode2.box, phycmp2.x, phycmp2.y);
+    Box_t<float> box1 = transformToWorldCoordinates(boxNode1.box, phycmp1.x, phycmp1.y);
+    Box_t<float> box2 = transformToWorldCoordinates(boxNode2.box, phycmp2.x, phycmp2.y);
 
     // collision on intervals (two forms):
     /*
@@ -83,8 +83,8 @@ isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const 
     };
 
     // Check collision in two axies (x, y)
-    if ( isCollisionIntervals(box1.xLeft, box1.xRight, box2.xLeft, box2.xRight) &&
-         isCollisionIntervals(box1.yUp, box1.yDown, box2.yUp, box2.yDown) ) 
+    if ( isCollisionIntervals(box1.getXLeft(), box1.getXRight(), box2.getXLeft(), box2.getXRight()) &&
+         isCollisionIntervals(box1.getYUp(), box1.getYDown(), box2.getYUp(), box2.getYDown()) ) 
     {
         /* Casos:
             1. Bn1 y Bn2 sean nodo hoja
@@ -121,7 +121,7 @@ void CollisionSys_t::update(ECS::EntityManager_t& contx) const
         boxNode.isCollided = false;
         for (auto& b : boxNode.subBoxes) setFalseCollision(b);
     };
-    // antes, setear cada componente mas sus cajas hijas como "NO COLISIONADO"
+    // Antes, setear cada componente mas sus cajas hijas como "NO COLISIONADO"
     for (auto& collcmp : collcmps) setFalseCollision(collcmp.boxRoot);
 
     for (uint32_t cmpi=0; cmpi<size; ++cmpi)
@@ -140,6 +140,9 @@ void CollisionSys_t::update(ECS::EntityManager_t& contx) const
             auto& collcmp2 = collcmps[cmpj];
             // comprobar si tienen capa de mascara en comun para colisionar
             if ( !(collcmp1.maskCollision & collcmp2.maskCollision) ) continue;
+            // o si son plataformas o ambos de tipo solidos
+            if (collcmp1.property & ColliderCmp_t::SOLID_PROP 
+             && collcmp2.property & ColliderCmp_t::SOLID_PROP) continue; 
 
             auto* phycmp2  = contx.template getRequiredCmp<PhysicsCmp_t>(collcmp2);
             if (!phycmp2) continue;
@@ -195,8 +198,8 @@ undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const
     auto* phycmpSolid  = contx.template getRequiredCmp<PhysicsCmp_t>(solidcmp); 
     if (!phycmpMobile || !phycmpSolid) return;   
 
-    BoundingBox<float> boxMobile = transformToWorldCoordinates(mobilecmp.boxRoot.box, phycmpMobile->x, phycmpMobile->y);
-    BoundingBox<float> boxSolid  = transformToWorldCoordinates(solidcmp.boxRoot.box, phycmpSolid->x, phycmpSolid->y);
+    Box_t<float> boxMobile = transformToWorldCoordinates(mobilecmp.boxRoot.box, phycmpMobile->x, phycmpMobile->y);
+    Box_t<float> boxSolid  = transformToWorldCoordinates(solidcmp.boxRoot.box, phycmpSolid->x, phycmpSolid->y);
 
     /* COLLISION CASES IN XAXIS (analogous for Yaxis):
     
@@ -226,25 +229,28 @@ undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const
         else if (mobileR > solidR){
             return solidR - mobileL; // undo must be positive.
         }
-
         return 0;
     };
 
     // type + variable + initializer
-    struct { float x, y; } undo 
+    struct { const float x, y; } undo 
     {
-        deltaIntervals(boxMobile.xLeft, boxMobile.xRight, boxSolid.xLeft, boxSolid.xRight), 
-        deltaIntervals(boxMobile.yUp, boxMobile.yDown, boxSolid.yUp, boxSolid.yDown)
+        deltaIntervals(boxMobile.getXLeft(), boxMobile.getXRight(), boxSolid.getXLeft(), boxSolid.getXRight()), 
+        deltaIntervals(boxMobile.getYUp(), boxMobile.getYDown(), boxSolid.getYUp(), boxSolid.getYDown())
     };
 
     if (undo.x == 0 || (undo.y != 0 && std::abs(undo.y) <= std::abs(undo.x))){
         //std::cout<<"undo y: "<<undo.y<<"\n";
         phycmpMobile->y  += undo.y;
         phycmpMobile->vy  = 0;
-        phycmpMobile->vx *= phycmpSolid->friction;
+
+        phycmpMobile->vx *= // Si se alcanza una velocidad en frenado muy minima (tanto izquierda o derecha)
+         ( (phycmpMobile->vx > 0 && phycmpMobile->vx < phycmpMobile->MINVX_BRAKING ) 
+        || (phycmpMobile->vx < 0 && phycmpMobile->vx > -phycmpMobile->MINVX_BRAKING))? 0 : phycmpSolid->friction; // de lo contrario seguir aplicando friccion hasta llegar a esas velocidades minimas.
 
         phycmpMobile->onPlatform = (undo.y < 0); // cuando el desacido en y es negativo, significa que estamos encima de un solido, no de lo contrario.
         phycmpMobile->jumpIndexPhase = phycmpMobile->JUMPS_PHASES.size();
+
     } else {
         phycmpMobile->x += undo.x;
         phycmpMobile->vx = 0;
@@ -280,5 +286,4 @@ undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const
     } else if (abs(undoY) <= abs(undoX)){   // desplazar en y
     } else if (abs(undoX) < abs(undoY)){    // desplazar en x
     }*/
-
 }

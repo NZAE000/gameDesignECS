@@ -18,7 +18,7 @@ GOFactory_t::createEntity(uint32_t x, uint32_t y, const std::string_view filenam
     phycmp.y     = y;
 
     auto& collcmp = entityMan->addCmp<ColliderCmp_t>(ent);
-    collcmp.boxRoot.box = { 5, rencmp.w-5, 5, rencmp.h-5 }; // default
+    collcmp.boxRoot.box = { 0, 0, rencmp.w, rencmp.h }; // default
 
     [[maybe_unused]]auto& healthcmp = entityMan->addCmp<HealthCmp_t>(ent);
 
@@ -39,7 +39,7 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     phycmp.friction = 0.85f;
 
     auto& collcmp = entityMan->addCmp<ColliderCmp_t>(plataform);
-    collcmp.boxRoot.box   = { 0, rencmp.w-1, 0, rencmp.h-1 }; // default
+    collcmp.boxRoot.box = { 0, 0, rencmp.w, rencmp.h };
     collcmp.maskCollision = ColliderCmp_t::PLATFORM_LAYER;
     collcmp.property      = ColliderCmp_t::SOLID_PROP;
 
@@ -53,25 +53,26 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
     entityMan->addCmp<InputCmp_t>(principalCharac);
 
     auto* collcmp = principalCharac.getCmp<ColliderCmp_t>();
+    //auto* rencmp  = principalCharac.getCmp<RenderCmp_t>();
 
     // set boundign boxes on my principal sprite player
-    collcmp->boxRoot.box = { 0, 48, 0, 112 }; // 1. bounding principal
+    //collcmp->boxRoot.box = { 0, 0, rencmp.w, rencmp.h }; // 1. bounding principal
     collcmp->boxRoot.subBoxes = {
-        { { 11, 47,  1,  39 }, false, // 2. subbox
+        { { 11, 1, 37, 38 }, false, // 2. subbox
             {
-                { { 16, 43,  2,  8 }, false, {} }, // 3. subbox
-                { { 14, 46,  8, 31 }, false, {} }, // 3.
-                { { 15, 43, 31, 38 }, false, {} }  // 3.
+                { { 16,  2, 28,  6 }, false, {} }, // 3. subbox
+                { { 14,  8, 33, 22 }, false, {} }, // 3.
+                { { 15, 30, 29,  8 }, false, {} }  // 3.
             } 
         },
-        { { 1, 47, 39, 82 }, false, // 2.
+        { { 1, 39, 47, 43 }, false, // 2.
             {
-                { { 4,  43, 40, 50 }, false, {} }, // 3.
-                { { 2,  14, 50, 81 }, false, {} }, // 3.
-                { { 21, 45, 50, 81 }, false, {} }  // 3.
+                { { 4,  40, 40, 10 }, false, {} }, // 3.
+                { { 2,  50, 12, 31 }, false, {} }, // 3.
+                { { 21, 50, 25, 31 }, false, {} }  // 3.
             } 
         }, 
-        { { 7, 45, 82, 111 }, false, // 2.
+        { { 4, 82, 44, 30 }, false, // 2.
             {
                 //{ {  9, 24,  83,  100 }, false, {} }, // 3.
                 //{ { 31, 44,  83, 104 }, false, {} }, // 3.
@@ -102,6 +103,9 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
     phycmp->vx = 2; 
 
     auto* collcmp = blade.getCmp<ColliderCmp_t>();
+    auto* rencmp  = blade.getCmp<RenderCmp_t>();
+
+    collcmp->boxRoot.box = { 5 ,5, rencmp->w, rencmp->h };
     collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER | ColliderCmp_t::BOUNDARY_LAYER; // Mascara compatible entre blades y limites de screen.
     collcmp->property      = ColliderCmp_t::DAMAGE_PROP;
 
@@ -301,16 +305,16 @@ void GOFactory_t::loadLevelFromBin(const std::string_view path) const
     ptrLevel += 8; // 8x8 = 64bits(8 bytes (4 bytes and 4 bytes)) more for pointer.
 
     // CAMBIAR
-    auto& player = createPlayer(0, 0);
+    auto& player = createPlayer(100, 0);
     createCamera(0, 0, 639, 359, player.getEntityID());
     
     uint32_t x{0}, y{0};
-    while(ptrLevel != (levelData.data() + sizeFile-1))
+    do
     {   
        if (*ptrLevel) createPlatform(x*100, y*41);
        if (++x == width) { x=0; ++y; }
-       ++ptrLevel;
-    }
+
+    } while(++ptrLevel != (levelData.data() + sizeFile));
 
     /*for (uint32_t y=0; y<height; ++y){
         for (uint32_t x=0; x<width; ++x)

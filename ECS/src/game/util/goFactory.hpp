@@ -41,7 +41,7 @@ struct GOFactory_t {
 	    phycmp.vy    = 2;
 
 	    auto& collcmp         = entityMan->addCmp<ColliderCmp_t>(spwnEnt);
-	    collcmp.boxRoot.box   = { 0, 5, 0, 5 };
+	    collcmp.boxRoot.box   = { 0, 0, 5, 5 }; // x, y, w, h
 	    collcmp.maskCollision = ColliderCmp_t::BOUNDARY_LAYER;
 
 	    return spwnEnt;

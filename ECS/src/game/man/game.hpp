@@ -44,13 +44,13 @@ private:
 };
 
 
-// OJO: int&& a = 5; <-- Referencia a un rvalue o valor temporal. En cambio, en el procesos de deducción de un parametro 'auto' en un lamda
+/*// OJO: int&& a = 5; <-- Referencia a un rvalue o valor temporal. En cambio, en el procesos de deducción de un parametro 'auto' en un lamda
 //, (que se trata como plantilla) el doble ampresand le dice al compilador que tenga la libertad de decucir si se esta pasando un rvalue, como un lvalue.
 auto measureTimeToProcc = [](auto&& proccess) -> double { // Trailing return type
     GameTimer_t timer {};
     proccess();
-    return static_cast<double>(timer.timePassed())/1000; // ms
-};
+    return static_cast<double>(timer.timePassed())/1000000; // ms
+};*/
 
 struct GameMan_t : State_t {
 
@@ -67,11 +67,13 @@ struct GameMan_t : State_t {
     {
 	    // LEVEL 1!!
 	    //std::cout << measureTimeToProcc([&](){ stateMan.getFactory().loadLevelFromJSON("./assets/levels/level1.json"); })<<"\n";
-	    //stateMan.getFactory().createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
+	    stateMan.getFactory().createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
 	   
         stateMan.setManager(entityMan);
-        stateMan.getSys<const InputSys_t>().setOn();
-        std::cout << measureTimeToProcc([&](){ stateMan.getFactory().loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
+        InpSys.setOn();
+        RenSys.setDebugDraw(false);
+
+        std::cout << timer.measureTimeToProcc([&](){ stateMan.getFactory().loadLevelFromBin("./assets/levels/Level1.bin"); }) <<"\n";
     }
 
     //~GameMan_t() { ptc_close(); }
@@ -87,13 +89,13 @@ struct GameMan_t : State_t {
         HthSys.update(entityMan);
         SpwSys.update(entityMan);
         CamSys.update(entityMan);
-        /*std::cout << " [REN]: "  << measureTimeToProcc([&](){  RendSys.update(entityMan); });
-        std::cout << " [PHY]: "  << measureTimeToProcc([&](){  PhySys.update(entityMan);  });
-        std::cout << " [IN]: "   << measureTimeToProcc([&](){  InpSys.update(entityMan);  }) ;
-        std::cout << " [COLL]: " << measureTimeToProcc([&](){  ColSys.update(entityMan); });
-        std::cout << " [HTH]: "  << measureTimeToProcc([&](){  HthSys.update(entityMan);  });
-        std::cout << " [SPW]: "  << measureTimeToProcc([&](){  SpwSys.update(entityMan);  });
-        std::cout << " [CAM]: "  << measureTimeToProcc([&](){  CamSys.update(entityMan);  }) <<"\n\n";*/
+        /*std::cout << " [REN]: "  << timer.measureTimeToProcc([&](){ RenSys.update(entityMan); });
+        std::cout << " [PHY]: "  << timer.measureTimeToProcc([&](){ PhySys.update(entityMan); });
+        std::cout << " [IN]: "   << timer.measureTimeToProcc([&](){ InpSys.update(entityMan); });
+        std::cout << " [COLL]: " << timer.measureTimeToProcc([&](){ ColSys.update(entityMan); });
+        std::cout << " [HTH]: "  << timer.measureTimeToProcc([&](){ HthSys.update(entityMan); });
+        std::cout << " [SPW]: "  << timer.measureTimeToProcc([&](){ SpwSys.update(entityMan); });
+        std::cout << " [CAM]: "  << timer.measureTimeToProcc([&](){ CamSys.update(entityMan); }) <<"\n\n";*/
 
         timer.waitForUntil_ns(timePF);
 
@@ -106,7 +108,7 @@ struct GameMan_t : State_t {
 
 private:
 
-	ECS::EntityManager_t entityMan { 1000 };  // Manager of entities and components
+	ECS::EntityManager_t entityMan { 800 };  // Manager of entities and components
     StateManager_t& stateMan;
 
     // SYSTEMS TO USE

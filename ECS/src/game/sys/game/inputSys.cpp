@@ -28,14 +28,13 @@ bool InputSys_t::isKeyPress(KeySym key) const
 void InputSys_t::update(ECS::EntityManager_t& contx) const
 {
 	auto& inputCmps = contx.template getCmps<InputCmp_t>();
-
 	for (auto& input : inputCmps) 
 	{
 		auto* phycmp = contx.template getRequiredCmp<PhysicsCmp_t>(input);
 		if (!phycmp) continue;
 
 		auto& phy = *(phycmp);
-		//std::cout<<"y: "<<phy.y<<" VY: "<<phy.vy<<"\n";
+		//std::cout<<"x: "<<phy.x<<" vx: "<<phy.vx<<"\n";
 		//std::cout<<"VY Player: "<< phy.vy <<" phase: " <<static_cast<uint32_t>(phy.jumpIndexPhase)<<" countvy0: "<<static_cast<uint32_t>(phy.countVyZero)<<"\n";
 		phy.ax = 0; // only entities with input cmp
 

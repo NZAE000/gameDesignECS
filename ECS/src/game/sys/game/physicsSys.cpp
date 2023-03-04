@@ -27,13 +27,13 @@ void PhysicsSys_t::update(ECS::EntityManager_t& contx) const
         phycmp.applyAccelerationY();
         
         // CLAMP: para que no se pase de un limite minimo o maximo de velocidad en y
-        phycmp.vy = std::clamp(phycmp.vy, phycmp.MIN_VY, phycmp.MAX_VY);
+        phycmp.vy = std::clamp(phycmp.vy, -phycmp.MAX_VY, phycmp.MAX_VY);
         //if (phycmp.vy > PhysicsCmp_t::MAX_VY) phycmp.vy = PhysicsCmp_t::MAX_VY;
         //if (phycmp.vy < PhysicsCmp_t::MIN_VY) phycmp.vy = PhysicsCmp_t::MIN_VY;
 
         // Set speed with acceleration x (change only some entities with ax > 0)
         phycmp.applyAccelerationX();
-        phycmp.vx = std::clamp(phycmp.vx, phycmp.MIN_VX, phycmp.MAX_VX);
+        phycmp.vx = std::clamp(phycmp.vx, -phycmp.MAX_VX, phycmp.MAX_VX);
 
         // Set positions with on speed
         phycmp.x += phycmp.vx;

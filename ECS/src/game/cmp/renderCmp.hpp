@@ -13,7 +13,7 @@ struct RenderCmp_t : ECS::ComponentBase_t<RenderCmp_t> {
 
     void loadFromPng(const std::string_view filename);
 
-    uint32_t w{0}, h {0};           // dimension
+    uint32_t w{0}, h {0};                // dimension
     ECS::Vec_t<uint32_t> sprite {};      // pixeles del personaje
 
 private:

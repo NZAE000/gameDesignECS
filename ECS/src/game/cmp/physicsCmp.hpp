@@ -10,18 +10,17 @@ struct PhysicsCmp_t : ECS::ComponentBase_t<PhysicsCmp_t> {
 	: ComponentBase_t(eid) {}
 
 	// Gravity constants
-	static constexpr float STD_AX  {  0.5f };
-	static constexpr float MIN_VX  { -4.0f };
-	static constexpr float MAX_VX  {  4.0f };
+	static constexpr float STD_AX  {  0.6f };
+	static constexpr float MAX_VX  {  4.5f };
+	static constexpr float MINVX_BRAKING{ 0.5f*STD_AX }; // MINIMA VX PARA SABER QUE SE HA FRENADO APROXIMANDOSE A 0
 
 	static constexpr float GRAVITY {  0.5f };
-	static constexpr float MIN_VY  { -6.0f };
 	static constexpr float MAX_VY  {  6.0f };
-	static constexpr float MINVY_ONPLATFORM { 2.5f*GRAVITY };
+	static constexpr float MINVY_ONPLATFORM { 3.0f*GRAVITY }; // MINIMA VY PARA SABER QUE SE HA DE ESTAR EN PLATAFORMA
 
 	// Non-type template parameter: passing a literal to template, to know the size of the array
 	static constexpr std::array //<int32_t, 14> 
-	JUMPS_PHASES = {-7,-7,-6,-6,-6,-6,-5,-5,-5,-4,-4,-3,-3};
+	JUMPS_PHASES = {-8,-7,-7,-7,-6,-6,-6,-6,-5,-5,-5,-4,-4,-3,-3};
 
 	// When zero velocity is counted n times, then the entity is on the ground
 	static constexpr uint8_t TIMES_VY_ZERO { 3 };

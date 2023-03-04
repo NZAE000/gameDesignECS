@@ -48,16 +48,17 @@ struct RenderSys_t : ECS::SystemBase_t<RenderSys_t> {
 
 private:
 
-    // Helper functions
+    // Helper functions members
     void drawAllEntities(const ECS::EntityManager_t&) const noexcept;
     void drawAllCameras(const ECS::EntityManager_t&) const noexcept;
     void drawSpriteClipped(const RenderCmp_t&, const PhysicsCmp_t&) const noexcept;
     void drawBoxTree(const BoundingBNode&, float x, float y, uint32_t color) const noexcept;
-    void drawBox(const BoundingBox<uint32_t>&, float x, float y, uint32_t color) const noexcept;
-    void drawFillBox(const BoundingBox<uint32_t>&, float x, float y, uint32_t color) const noexcept;
+    void drawBox(const Box_t<uint32_t>&, float x, float y, uint32_t color) const noexcept;
+    void drawFillBox(const Box_t<uint32_t>&, float x, float y, uint32_t color) const noexcept;
     void drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const noexcept;
     void drawAlignedLineClipped(float x, float y, uint32_t length, bool isYaxis, uint32_t color) const noexcept;
-    constexpr BoundingBox<float> transformToWorldCoordinates(const BoundingBox<uint32_t>& box, float x, float y) const noexcept;
+    
+    constexpr Box_t<float> transformToWorldCoordinates(const Box_t<uint32_t>& box, float x, float y) const noexcept;
     auto transformCoordsToScreenRef(float x, float y, uint32_t width, uint32_t height) const noexcept;
 
     uint32_t* getPosition(uint32_t x, uint32_t y) const noexcept { return fBuff.get() + fBuff.width*y + x; }

@@ -49,22 +49,19 @@ private:
 int 
 main(void)
 try {
-    
+
     ECS::SystemManager_t SysManager {};                  // SYSTEM MANAGER
     GOFactory_t          GOFactory  {};                  // GAME OBJECT FACTORY 
-    FrameBuffer_t        FrameBuff  { WIDTH, HEIGHT };   // MY BUFFER FOR DRAW GAME OBJECTS
-
-    auto initSystems = [&]()
-    {
-        SysManager.createSys<RenderSys_t>(FrameBuff);
-        SysManager.createSys<InputSys_t>();
-        SysManager.createSys<PhysicsSys_t>();
-        SysManager.createSys<CollisionSys_t>(WIDTH, HEIGHT);
-        SysManager.createSys<HealthSys_t>();
-        SysManager.createSys<SpawnSys_t>();
-        SysManager.createSys<CameraSys_t>();
-
-    }; initSystems();
+    FrameBuffer_t        FrameBuff  { WIDTH, HEIGHT };   // MY BUFFER FOR DRAW GAME OBJECTS (tinyptc)
+    
+    // INIT SYSTEMS
+    SysManager.createSys<RenderSys_t>(FrameBuff);
+    SysManager.createSys<InputSys_t>();
+    SysManager.createSys<PhysicsSys_t>();
+    SysManager.createSys<CollisionSys_t>(WIDTH, HEIGHT);
+    SysManager.createSys<HealthSys_t>();
+    SysManager.createSys<SpawnSys_t>();
+    SysManager.createSys<CameraSys_t>();
 
     StateManager_t stateMan   { SysManager, GOFactory };
     stateMan.pushState<Menu_t>(stateMan);

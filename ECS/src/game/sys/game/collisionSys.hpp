@@ -17,8 +17,8 @@ struct CollisionSys_t : ECS::SystemBase_t<CollisionSys_t> {
 
 private:
 
-    constexpr void checkBoundingScreenCollision(BoundingBox<uint32_t>const&, PhysicsCmp_t&) const noexcept;
-    constexpr BoundingBox<float> transformToWorldCoordinates(const BoundingBox<uint32_t>&, float x, float y) const noexcept;
+    constexpr void checkBoundingScreenCollision(Box_t<uint32_t>const&, PhysicsCmp_t&) const noexcept;
+    constexpr Box_t<float> transformToWorldCoordinates(const Box_t<uint32_t>&, float x, float y) const noexcept;
     constexpr bool isCollisionEntities(const PhysicsCmp_t&, BoundingBNode&, const PhysicsCmp_t&, BoundingBNode&) const noexcept;
     constexpr void reactBetweenEntities(ECS::EntityManager_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;
     void applyDamageEntities(ECS::EntityManager_t&, const ColliderCmp_t&, const ColliderCmp_t&) const noexcept;

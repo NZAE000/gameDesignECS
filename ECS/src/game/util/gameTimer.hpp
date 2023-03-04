@@ -30,6 +30,15 @@ struct GameTimer_t {
 		return 0;
 	}
 
+
+	template<typename CALLABLE>
+	auto measureTimeToProcc(CALLABLE proccess)
+	{
+	    GameTimer_t timer {};
+	    proccess();
+	    return static_cast<double>(timer.timePassed())/1000000; // ms
+	};
+
 private:
 	TimePoint m_start;
 };
