@@ -20,7 +20,8 @@ transformToWorldCoordinates(const Box_t<uint32_t>& box, float x, float y) const 
     };
 }
 
-auto RenderSys_t::transformCoordsToScreenRef(float x, float y, uint32_t width, uint32_t height) const noexcept
+auto RenderSys_t::
+transformWorldCoordsToScreenRef(float x, float y, uint32_t width, uint32_t height) const noexcept
 {
     // CURRENT IMPLEMETATION (camera added)
     // COORDINATES TRANSFORMATION:
@@ -43,7 +44,7 @@ auto RenderSys_t::transformCoordsToScreenRef(float x, float y, uint32_t width, u
         
         struct CroppedOnCam {      // pixels to crop if the sprite is not completely relative to the camera
             uint32_t left_off { 0 }, right_off { 0 };
-            uint32_t up_off   { 0 }, down_off { 0 };
+            uint32_t up_off   { 0 }, down_off  { 0 };
         } croppedOnCam {};
 
         struct Screen {            // and coordinates ref to screen.
@@ -56,9 +57,10 @@ auto RenderSys_t::transformCoordsToScreenRef(float x, float y, uint32_t width, u
     sprRef.world = {       
             x
         ,   y
-        ,   static_cast<float>(width+1)
-        ,   static_cast<float>(height+1)
+        ,   static_cast<float>(width)
+        ,   static_cast<float>(height)
     };
+
     // TRANSFORM SPRITE COORDINATES INTO 'CAMERA' REF (POSSPRITEWRLD - POSCAMWRLD)
     sprRef.camera = {
             sprRef.world.x - phyCmpOfCam.x
@@ -74,18 +76,18 @@ auto RenderSys_t::transformCoordsToScreenRef(float x, float y, uint32_t width, u
     float sprCamYDown  { sprRef.camera.getYDown()  };
 
     // Check the coordinates of the sprite referring to the camera is out of bounds of camera.
-    if (   sprCamXLeft >= camCmp.width  || sprCamXRight < 0
-        || sprCamYUp   >= camCmp.height || sprCamYDown  < 0 )
+    if (   sprCamXLeft > (camCmp.width -1) || sprCamXRight < 0
+        || sprCamYUp   > (camCmp.height-1) || sprCamYDown  < 0 )
     {
         optTuple.reset(); return optTuple;
     }
 
     // Maybe only part of the sprite is in the camera..
     sprRef.croppedOnCam = {
-            static_cast<uint32_t>(std::round((sprCamXLeft  < 0             )?  -sprCamXLeft              : 0)) // p.ejem: si left esta a -3px en x de la camara, se debe recortar 3 pixeles (-(-3)=3).
-        ,   static_cast<uint32_t>(std::round((sprCamXRight >= camCmp.width )?  sprCamXRight-camCmp.width : 0))
-        ,   static_cast<uint32_t>(std::round((sprCamYUp    < 0             )?  -sprCamYUp                : 0))
-        ,   static_cast<uint32_t>(std::round((sprCamYDown  >= camCmp.height)?  sprCamYDown-camCmp.height : 0))
+            static_cast<uint32_t>(std::round((sprCamXLeft  < 0               ) ?  -sprCamXLeft                  : 0)) // p.ejem: si left esta a -3px en x de la camara, se debe recortar 3 pixeles (-(-3)=3).))
+        ,   static_cast<uint32_t>(std::round((sprCamXRight > (camCmp.width-1)) ?  sprCamXRight-(camCmp.width-1) : 0))
+        ,   static_cast<uint32_t>(std::round((sprCamYUp    < 0               ) ?  -sprCamYUp                    : 0))
+        ,   static_cast<uint32_t>(std::round((sprCamYDown  > (camCmp.height-1))?  sprCamYDown-(camCmp.height-1) : 0))
     };
 
     // TRANSFORM SPRITE COORDINATES INTO SCREEN REF (sprite refcam coord + cam refscreen coord) (clipped) AND NEW DIMENSIONS
@@ -113,35 +115,26 @@ auto RenderSys_t::transformCoordsToScreenRef(float x, float y, uint32_t width, u
     return optTuple;
 }
 
-void RenderSys_t::drawSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const noexcept
+void RenderSys_t::
+renderSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const noexcept
 {   
-    auto optTuple { transformCoordsToScreenRef(phycmp.x, phycmp.y, rencmp.w, rencmp.h) };
+    auto optTuple { transformWorldCoordsToScreenRef(phycmp.x, phycmp.y, rencmp.w, rencmp.h) };
     if (!optTuple) return;
 
     // New coords sprite to 'screen reference' and pixels_off for sprite redimension.
     auto [xScr, yScr, l_off, r_off, u_off, d_off] = *optTuple;
 
+    // Pixels to crop    
+    uint32_t sidePixelsOff { l_off + r_off };
+    uint32_t suprPixelsOff { u_off + d_off };
+
     // New sprite dimensions (smaller or equal)
-    uint32_t newWidth  { rencmp.w - (l_off + r_off) };
-    uint32_t newHeight { rencmp.h - (u_off + d_off) };
+    uint32_t newWidth  { rencmp.w - sidePixelsOff };
+    uint32_t newHeight { rencmp.h - suprPixelsOff };
 
     // RENDER SPRITE
-    auto* ptr_toScr = getPosition(xScr, yScr);
-    ECS::Vec_t<uint32_t>::const_iterator sprite_it  = begin(rencmp.sprite) + u_off*rencmp.w + l_off;
-
-    while(newHeight--)
-    {
-        for (uint32_t i=0; i<newWidth; ++i){
-            // Draw only if transparency != 0 (not blending)
-            if (*sprite_it & 0xFF000000) *ptr_toScr = *sprite_it;
-            ++sprite_it;
-            ++ptr_toScr;
-        }
-        sprite_it += rencmp.w - newWidth;
-        ptr_toScr += fBuff.width - newWidth;
-    }
-    ptr_toScr = getPosition(xScr, yScr);
-    *ptr_toScr = 0xFFFFFFFF;
+    const uint32_t* sprite_it { rencmp.sprite.data() + u_off*rencmp.w + l_off };
+    fBuff.drawSprite({ xScr, yScr, newWidth, newHeight }, sidePixelsOff, sprite_it);
 
     /*//BEFORE IMPLEMENTED!!!
     // Clipping
@@ -223,15 +216,8 @@ void RenderSys_t::drawSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_
     }*/
 }
 
-void RenderSys_t::drawLineBox(uint32_t* ptr_toScr, uint32_t length, uint32_t displacement, uint32_t color) const noexcept
-{
-    while(length-- > 0) {
-        *ptr_toScr = color;
-        ptr_toScr += displacement;
-    }
-}
-
-void RenderSys_t::drawAlignedLineClipped(float xLine, float yLine, uint32_t length, bool isYaxis, uint32_t color) const noexcept
+void RenderSys_t::
+renderAlignedLineClipped(float xLine, float yLine, uint32_t length, bool isYaxis, uint32_t color) const noexcept
 {
     // BEFORE IMPLEMENTATION!!
     // Default values for clipping X axis
@@ -267,9 +253,9 @@ void RenderSys_t::drawAlignedLineClipped(float xLine, float yLine, uint32_t leng
         displacement = fBuff.width;
     }
 
-    auto optTuple { transformCoordsToScreenRef(x, y, width, height) };
-
+    auto optTuple { transformWorldCoordsToScreenRef(x, y, width, height) };
     if (!optTuple) return;
+
     auto [xScr, yScr, l_off, r_off, u_off, d_off] = *optTuple;
 
     // New sprite dimensions (smaller or equal)
@@ -277,12 +263,13 @@ void RenderSys_t::drawAlignedLineClipped(float xLine, float yLine, uint32_t leng
     uint32_t newHeight { height - (u_off + d_off) };
     uint32_t newLength = isYaxis? newHeight : newWidth;
 
-    // RENDER SPRITE
-    auto* ptr_toScr = getPosition(xScr, yScr);
-    drawLineBox(ptr_toScr, newLength, displacement, color);
+    // RENDER LINE
+    //auto* ptr_toScr = getPosition(xScr, yScr);
+    fBuff.drawAlignedLine(xScr, yScr, newLength, displacement, color);
 }
 
-void RenderSys_t::drawBox(const Box_t<uint32_t>& box, float x, float y, uint32_t color) const noexcept
+void RenderSys_t::
+renderBoxClipped(const Box_t<uint32_t>& box, float x, float y, uint32_t color) const noexcept
 {
     // Coordinates bounding convertion to world coordinates
     Box_t<float> boxWrld { transformToWorldCoordinates(box, x, y) };
@@ -295,17 +282,14 @@ void RenderSys_t::drawBox(const Box_t<uint32_t>& box, float x, float y, uint32_t
     uint32_t widthBox  = box.w;
     uint32_t heightBox = box.h;
 
-    // Up line
-    drawAlignedLineClipped(xL, yU, widthBox, false, color);
-    // Left line
-    drawAlignedLineClipped(xL, yU, heightBox, true, color);
-    // Right line
-    drawAlignedLineClipped(xR, yU, heightBox, true, color);
-    // Down line
-    drawAlignedLineClipped(xL, yD, widthBox, false, color);
+    renderAlignedLineClipped(xL, yU, widthBox, false, color);     // Up line
+    renderAlignedLineClipped(xL, yU, heightBox, true, color);     // Left line
+    renderAlignedLineClipped(xR, yU, heightBox, true, color);     // Right line
+    renderAlignedLineClipped(xL, yD, widthBox, false, color);     // Down line
 }
 
-void RenderSys_t::drawFillBox(const Box_t<uint32_t>& box, float x, float y, uint32_t color) const noexcept
+void RenderSys_t::
+renderFillBoxClipped(const Box_t<uint32_t>& box, float x, float y, uint32_t color) const noexcept
 {
     // X,Y coordinate bounding convertion to world coordinate.
     float xBox { x + box.x  };
@@ -315,7 +299,8 @@ void RenderSys_t::drawFillBox(const Box_t<uint32_t>& box, float x, float y, uint
     uint32_t widthBox  = box.w;
     uint32_t heightBox = box.h;
 
-    auto optTuple { transformCoordsToScreenRef(xBox, yBox, widthBox, heightBox) };
+    // Transform box sprite relative to screen ref
+    auto optTuple { transformWorldCoordsToScreenRef(xBox, yBox, widthBox, heightBox) };
 
     if (!optTuple) return;
     auto [xScr, yScr, l_off, r_off, u_off, d_off] = *optTuple;
@@ -325,15 +310,11 @@ void RenderSys_t::drawFillBox(const Box_t<uint32_t>& box, float x, float y, uint
     uint32_t newHeight { heightBox - (u_off + d_off) };
 
     // RENDER FILL BOX
-    auto* ptr_toScr = getPosition(xScr, yScr);
-
-    while (newHeight-- > 0){
-        drawLineBox(ptr_toScr, newWidth, 1, color);
-        ptr_toScr += fBuff.width;
-    }
+    fBuff.drawFillRectangle(xScr, yScr, newWidth, newHeight, color);
 }
 
-void RenderSys_t::drawBoxTree(const BoundingBNode& treeBox, float x, float y, uint32_t color) const noexcept
+void RenderSys_t::
+renderBoxTree(const BoundingBNode& treeBox, float x, float y, uint32_t color) const noexcept
 {   
     // OJO!! ARM
     /*uint32_t xSpr { 
@@ -346,14 +327,15 @@ void RenderSys_t::drawBoxTree(const BoundingBNode& treeBox, float x, float y, ui
     };*/
 
     if (treeBox.isCollided) // When a box collide, then filled box with his color.
-        drawFillBox(treeBox.box, x, y, color);
+        renderFillBoxClipped(treeBox.box, x, y, color);
 
-    else drawBox(treeBox.box, x, y, color);
+    else renderBoxClipped(treeBox.box, x, y, color);
 
-    for (const BoundingBNode& BBN : treeBox.subBoxes) drawBoxTree(BBN, x, y, color>>1);
+    for (const BoundingBNode& BBN : treeBox.subBoxes) renderBoxTree(BBN, x, y, color>>1);
 }
 
-void RenderSys_t::drawAllEntities(const ECS::EntityManager_t& contx) const noexcept
+void RenderSys_t::
+renderAllEntities(const ECS::EntityManager_t& contx) const
 {
     // Lamda Function
     // []  Captura: pasa todo lo que esta en contexto (arma una estructura con la captura). () = parámetros
@@ -379,14 +361,14 @@ void RenderSys_t::drawAllEntities(const ECS::EntityManager_t& contx) const noexc
         if (phycmp) 
         {
             currentCam.eid    = phycmp->getEntityID();
-            drawSpriteClipped(rendercmp, *phycmp); // ON CAMERA!!
+            renderSpriteClipped(rendercmp, *phycmp); // ON CAMERA!!
 
             // If debug is active, also render the bounding box (need to implement with camera).
             if (debugDraw) 
             {
                 auto* collcmp = contx.template getRequiredCmp<ColliderCmp_t>(*phycmp);
                 if (!collcmp) return;
-                drawBoxTree(collcmp->boxRoot, phycmp->x, phycmp->y, RED);
+                renderBoxTree(collcmp->boxRoot, phycmp->x, phycmp->y, RED);
             }
         }
         /*{
@@ -404,7 +386,17 @@ void RenderSys_t::drawAllEntities(const ECS::EntityManager_t& contx) const noexc
     );
 }
 
-void RenderSys_t::drawAllCameras(const ECS::EntityManager_t& contx) const noexcept
+void RenderSys_t::renderCamFrame() const noexcept
+{
+    auto& camcmp = *currentCam.camcmp;
+    fBuff.drawAlignedLine(camcmp.xScr, camcmp.yScr, camcmp.height, fBuff.width, RED);                // left
+    fBuff.drawAlignedLine(camcmp.xScr+camcmp.width-1, camcmp.yScr, camcmp.height, fBuff.width, RED); // right
+    fBuff.drawAlignedLine(camcmp.xScr, camcmp.yScr, camcmp.width, 1, RED);                           // up
+    fBuff.drawAlignedLine(camcmp.xScr, camcmp.yScr+camcmp.height-1, camcmp.width, 1, RED);           // down
+}
+
+void RenderSys_t::
+renderAllCameras(const ECS::EntityManager_t& contx) const
 {
     auto& camcmps = contx.template getCmps<CameraCmp_t>();
 
@@ -417,23 +409,15 @@ void RenderSys_t::drawAllCameras(const ECS::EntityManager_t& contx) const noexce
         currentCam.camcmp = &camcmp;
         currentCam.phycmp = phycmp;
 
-        drawAllEntities(contx); // ON CAMERA!!
-
-        // RENDER BOUNDS OF CAM
-        drawLineBox(getPosition(camcmp.xScr, camcmp.yScr), camcmp.height, fBuff.width, RED);                // left
-        drawLineBox(getPosition(camcmp.xScr+camcmp.width-1, camcmp.yScr), camcmp.height, fBuff.width, RED); // right
-        drawLineBox(getPosition(camcmp.xScr, camcmp.yScr), camcmp.width, 1, RED);                        // up
-        drawLineBox(getPosition(camcmp.xScr, camcmp.yScr+camcmp.height-1), camcmp.width, 1, RED);       // down
+        renderAllEntities(contx);  // ON CAMERA!!
+        renderCamFrame();          // RENDER BOUNDS OF CAM
     }
 }
 
-void RenderSys_t::update(ECS::EntityManager_t& contx) const 
+void RenderSys_t::
+update(ECS::EntityManager_t& contx) const
 {
-    const uint32_t size = fBuff.width*fBuff.height;
-    auto* screen        = fBuff.get();
-
-    std::fill(screen, screen+size, BLACK);
-    drawAllCameras(contx);
-
+    fBuff.fill(BLACK);
+    renderAllCameras(contx);
     fBuff.update();
 }

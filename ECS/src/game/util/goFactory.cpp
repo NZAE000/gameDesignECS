@@ -105,7 +105,7 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
     auto* collcmp = blade.getCmp<ColliderCmp_t>();
     auto* rencmp  = blade.getCmp<RenderCmp_t>();
 
-    collcmp->boxRoot.box = { 5 ,5, rencmp->w, rencmp->h };
+    collcmp->boxRoot.box = { 5 ,5, rencmp->w-10, rencmp->h-10 };
     collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER | ColliderCmp_t::BOUNDARY_LAYER; // Mascara compatible entre blades y limites de screen.
     collcmp->property      = ColliderCmp_t::DAMAGE_PROP;
 

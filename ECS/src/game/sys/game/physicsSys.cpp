@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-void PhysicsSys_t::update(ECS::EntityManager_t& contx) const
+void PhysicsSys_t::update(ECS::EntityManager_t& contx) const noexcept
 {
     for (auto& phycmp : contx.template getCmps<PhysicsCmp_t>())
     {   

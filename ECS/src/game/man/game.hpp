@@ -67,7 +67,7 @@ struct GameMan_t : State_t {
     {
 	    // LEVEL 1!!
 	    //std::cout << measureTimeToProcc([&](){ stateMan.getFactory().loadLevelFromJSON("./assets/levels/level1.json"); })<<"\n";
-	    stateMan.getFactory().createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
+	    //stateMan.getFactory().createBinLevelFromJSON("./assets/levels/level1.json", "./assets/levels/Level1.bin");
 	   
         stateMan.setManager(entityMan);
         InpSys.setOn();
@@ -82,20 +82,20 @@ struct GameMan_t : State_t {
 	{
 		timer.start();
 
-        RenSys.update(entityMan);
+        /*RenSys.update(entityMan);
         PhySys.update(entityMan);
         InpSys.update(entityMan);
         ColSys.update(entityMan);
         HthSys.update(entityMan);
         SpwSys.update(entityMan);
-        CamSys.update(entityMan);
-        /*std::cout << " [REN]: "  << timer.measureTimeToProcc([&](){ RenSys.update(entityMan); });
+        CamSys.update(entityMan);*/
+        std::cout << " [REN]: "  << timer.measureTimeToProcc([&](){ RenSys.update(entityMan); });
         std::cout << " [PHY]: "  << timer.measureTimeToProcc([&](){ PhySys.update(entityMan); });
         std::cout << " [IN]: "   << timer.measureTimeToProcc([&](){ InpSys.update(entityMan); });
         std::cout << " [COLL]: " << timer.measureTimeToProcc([&](){ ColSys.update(entityMan); });
         std::cout << " [HTH]: "  << timer.measureTimeToProcc([&](){ HthSys.update(entityMan); });
         std::cout << " [SPW]: "  << timer.measureTimeToProcc([&](){ SpwSys.update(entityMan); });
-        std::cout << " [CAM]: "  << timer.measureTimeToProcc([&](){ CamSys.update(entityMan); }) <<"\n\n";*/
+        std::cout << " [CAM]: "  << timer.measureTimeToProcc([&](){ CamSys.update(entityMan); }) <<"\n\n";
 
         timer.waitForUntil_ns(timePF);
 

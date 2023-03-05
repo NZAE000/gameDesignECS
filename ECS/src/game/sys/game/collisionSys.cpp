@@ -29,6 +29,49 @@ transformToWorldCoordinates(const Box_t<uint32_t>& box, float x, float y) const 
     };
 }
 
+void CollisionSys_t::update(ECS::EntityManager_t& contx) const
+{
+    auto& collcmps = contx.template getCmps<ColliderCmp_t>();
+    uint32_t size  = collcmps.size();
+    
+    std::function<void(BoundingBNode&)> setFalseCollision = [&](BoundingBNode& boxNode){
+        boxNode.isCollided = false;
+        for (auto& b : boxNode.subBoxes) setFalseCollision(b);
+    };
+    // Antes, setear cada componente mas sus cajas hijas como "NO COLISIONADO"
+    for (auto& collcmp : collcmps) setFalseCollision(collcmp.boxRoot);
+
+    for (uint32_t cmpi=0; cmpi<size; ++cmpi)
+    {
+        auto& collcmp1 = collcmps[cmpi];
+        auto* phycmp1  = contx.template getRequiredCmp<PhysicsCmp_t>(collcmp1);
+        if (!phycmp1) continue;
+
+        // Fisrt check collision with screen sides (only entities with compatible mask collision) ...
+        if (collcmp1.maskCollision & ColliderCmp_t::BOUNDARY_LAYER)
+            checkBoundingScreenCollision(collcmp1.boxRoot.box, *phycmp1);
+
+        // then, check collision beetween cmpcollider of an entity with cmpcollider+1 of other entity.
+        for (uint32_t cmpj=cmpi+1; cmpj<size; ++cmpj) 
+        {   
+            auto& collcmp2 = collcmps[cmpj];
+            // comprobar si tienen capa de mascara en comun para colisionar
+            if ( !(collcmp1.maskCollision & collcmp2.maskCollision) ) continue;
+            // o si son plataformas o ambos de tipo solidos
+            if (collcmp1.property & ColliderCmp_t::SOLID_PROP 
+             && collcmp2.property & ColliderCmp_t::SOLID_PROP) continue; 
+
+            auto* phycmp2  = contx.template getRequiredCmp<PhysicsCmp_t>(collcmp2);
+            if (!phycmp2) continue;
+
+            if (isCollisionEntities(*phycmp1, collcmp1.boxRoot, *phycmp2, collcmp2.boxRoot))
+            {
+                reactBetweenEntities(contx, collcmp1, collcmp2);
+            }
+        }
+    }
+}
+
 constexpr void CollisionSys_t::
 checkBoundingScreenCollision(Box_t<uint32_t>const& box, PhysicsCmp_t& phycmp) const noexcept
 {
@@ -111,50 +154,6 @@ isCollisionEntities(const PhysicsCmp_t& phycmp1, BoundingBNode& boxNode1, const 
     return false;
 }
 
-
-void CollisionSys_t::update(ECS::EntityManager_t& contx) const
-{
-    auto& collcmps = contx.template getCmps<ColliderCmp_t>();
-    uint32_t size  = collcmps.size();
-    
-    std::function<void(BoundingBNode&)> setFalseCollision = [&](BoundingBNode& boxNode){
-        boxNode.isCollided = false;
-        for (auto& b : boxNode.subBoxes) setFalseCollision(b);
-    };
-    // Antes, setear cada componente mas sus cajas hijas como "NO COLISIONADO"
-    for (auto& collcmp : collcmps) setFalseCollision(collcmp.boxRoot);
-
-    for (uint32_t cmpi=0; cmpi<size; ++cmpi)
-    {
-        auto& collcmp1 = collcmps[cmpi];
-        auto* phycmp1  = contx.template getRequiredCmp<PhysicsCmp_t>(collcmp1);
-        if (!phycmp1) continue;
-
-        // Fisrt check collision with screen sides (only entities with compatible mask collision) ...
-        if (collcmp1.maskCollision & ColliderCmp_t::BOUNDARY_LAYER)
-            checkBoundingScreenCollision(collcmp1.boxRoot.box, *phycmp1);
-
-        // then, check collision beetween cmpcollider of an entity with cmpcollider+1 of other entity.
-        for (uint32_t cmpj=cmpi+1; cmpj<size; ++cmpj) 
-        {   
-            auto& collcmp2 = collcmps[cmpj];
-            // comprobar si tienen capa de mascara en comun para colisionar
-            if ( !(collcmp1.maskCollision & collcmp2.maskCollision) ) continue;
-            // o si son plataformas o ambos de tipo solidos
-            if (collcmp1.property & ColliderCmp_t::SOLID_PROP 
-             && collcmp2.property & ColliderCmp_t::SOLID_PROP) continue; 
-
-            auto* phycmp2  = contx.template getRequiredCmp<PhysicsCmp_t>(collcmp2);
-            if (!phycmp2) continue;
-
-            if (isCollisionEntities(*phycmp1, collcmp1.boxRoot, *phycmp2, collcmp2.boxRoot))
-            {
-                reactBetweenEntities(contx, collcmp1, collcmp2);
-            }
-        }
-    }
-}
-
 constexpr void CollisionSys_t::
 reactBetweenEntities(ECS::EntityManager_t& contx, const ColliderCmp_t& collcmp1, const ColliderCmp_t& collcmp2) const noexcept
 {
@@ -179,7 +178,7 @@ reactBetweenEntities(ECS::EntityManager_t& contx, const ColliderCmp_t& collcmp1,
     }
 }
 
-void CollisionSys_t::
+constexpr void CollisionSys_t::
 applyDamageEntities(ECS::EntityManager_t& contx, const ColliderCmp_t& playercmp, const ColliderCmp_t& othercmp) const noexcept
 {
     // Get health components
@@ -191,7 +190,7 @@ applyDamageEntities(ECS::EntityManager_t& contx, const ColliderCmp_t& playercmp,
     healthOther->cumulativeDmg  += healthOther->selfDmgOnInfliction;
 }
 
-void CollisionSys_t::
+constexpr void CollisionSys_t::
 undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const ColliderCmp_t& solidcmp) const noexcept
 {   
     auto* phycmpMobile = contx.template getRequiredCmp<PhysicsCmp_t>(mobilecmp);

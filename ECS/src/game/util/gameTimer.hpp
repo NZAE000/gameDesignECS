@@ -37,7 +37,7 @@ struct GameTimer_t {
 	    GameTimer_t timer {};
 	    proccess();
 	    return static_cast<double>(timer.timePassed())/1000000; // ms
-	};
+	}
 
 private:
 	TimePoint m_start;

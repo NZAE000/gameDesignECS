@@ -10,7 +10,7 @@ extern "C" {
 InputSys_t::InputSys_t() 
 : SystemBase_t{} { setOn(); }
 
-void InputSys_t::setOn() const
+void InputSys_t::setOn() const noexcept
 {
 	// Set pointer to func
 	ptc_set_on_keypress(onKeyPress);
@@ -20,7 +20,17 @@ void InputSys_t::setOn() const
 	keyboard.reset();
 }
 
-bool InputSys_t::isKeyPress(KeySym key) const
+void InputSys_t::onKeyPress(KeySym key) noexcept
+{
+	keyboard.keyPressed(key);
+}
+
+void InputSys_t::onKeyRelease(KeySym key) noexcept
+{
+	keyboard.keyReleased(key);
+}
+
+bool InputSys_t::isKeyPress(KeySym key) const noexcept
 {
 	return keyboard.isKeyPress(key);
 }
@@ -50,14 +60,4 @@ void InputSys_t::update(ECS::EntityManager_t& contx) const
 		}
 		//if ( keyboard.isKeyPress(input.key_DOWN) ) phy.vy =  1;
 	}
-}
-
-void InputSys_t::onKeyPress(KeySym key)
-{
-	keyboard.keyPressed(key);
-}
-
-void InputSys_t::onKeyRelease(KeySym key)
-{
-	keyboard.keyReleased(key);
 }

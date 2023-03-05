@@ -9,8 +9,7 @@ struct PhysicsSys_t : ECS::SystemBase_t<PhysicsSys_t>{
     // explicit: no puede implicitamenete hacer una conversion de tipo, o algo quese pareza a PhysicsSys_t
     explicit PhysicsSys_t() : SystemBase_t{} {}
     
-    void update(ECS::EntityManager_t&) const final override;
-    void update(ECS::EntityManager_t&) final override {}
+    void update(ECS::EntityManager_t&) const noexcept;
 
 private:
     
