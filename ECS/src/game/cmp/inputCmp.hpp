@@ -10,8 +10,8 @@ struct InputCmp_t : ECS::ComponentBase_t<InputCmp_t> {
 	: ComponentBase_t(eid) 
 	{};
 
-	KeySym key_UP    { XK_Up }; 
-	KeySym key_DOWN  { XK_Down }; 
+	KeySym key_UP    { XK_Up    }; 
+	KeySym key_DOWN  { XK_Down  }; 
 	KeySym key_LEFT  { XK_Left  }; 
 	KeySym key_RIGHT { XK_Right };
 

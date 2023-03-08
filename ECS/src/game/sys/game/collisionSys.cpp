@@ -85,13 +85,13 @@ checkBoundingScreenCollision(Box_t<uint32_t>const& box, PhysicsCmp_t& phycmp) co
 
     // Horizontal boundig verification
     if (xL >= wScreen || xR < 0) {
-        phycmp.x  -= phycmp.vx; 
+        //phycmp.x  -= phycmp.vx; 
         phycmp.vx *= -1; 
     }
     // Vertical boundig verification
     if (yU >= hScreen || yD < 0)
     {
-        phycmp.y -= phycmp.vy;
+        //phycmp.y -= phycmp.vy;
         //phycmp.jumpIndexPhase = phycmp.JUMPS_PHASES.size(); // Interrumpir salto
         if (phycmp.g)   phycmp.vy  =  0;  // Las entidades que tengan gravedad, entonces frenan en los limites (suelo o limite superior)
         else            phycmp.vy *= -1;  // De lo contrario las demas entidades rebotan.
@@ -161,7 +161,7 @@ reactBetweenEntities(ECS::EntityManager_t& contx, const ColliderCmp_t& collcmp1,
     auto* othercmp  = &collcmp2;
     using COLLCMP   = ColliderCmp_t;
 
-    // si el otro es el player, se intercambian direcciones de punteros
+    // Si el otro es el player, se intercambian direcciones de punteros
     if (othercmp->property & COLLCMP::PLAYER_PROP) std::swap(playercmp, othercmp);
     // sino, se compureba que el player realmente es player, de lo contrario no se hace nada.
     else if (!(playercmp->property & COLLCMP::PLAYER_PROP)) return;
@@ -232,23 +232,24 @@ undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const
     };
 
     // type + variable + initializer
-    struct { const float x, y; } undo 
+    struct { const float x, y; } undo
     {
         deltaIntervals(boxMobile.getXLeft(), boxMobile.getXRight(), boxSolid.getXLeft(), boxSolid.getXRight()), 
         deltaIntervals(boxMobile.getYUp(), boxMobile.getYDown(), boxSolid.getYUp(), boxSolid.getYDown())
     };
 
     if (undo.x == 0 || (undo.y != 0 && std::abs(undo.y) <= std::abs(undo.x))){
-        //std::cout<<"undo y: "<<undo.y<<"\n";
         phycmpMobile->y  += undo.y;
         phycmpMobile->vy  = 0;
 
         phycmpMobile->vx *= // Si se alcanza una velocidad en frenado muy minima (tanto izquierda o derecha)
          ( (phycmpMobile->vx > 0 && phycmpMobile->vx < phycmpMobile->MINVX_BRAKING ) 
-        || (phycmpMobile->vx < 0 && phycmpMobile->vx > -phycmpMobile->MINVX_BRAKING))? 0 : phycmpSolid->friction; // de lo contrario seguir aplicando friccion hasta llegar a esas velocidades minimas.
+        || (phycmpMobile->vx < 0 && phycmpMobile->vx > -phycmpMobile->MINVX_BRAKING))? 0 : phycmpSolid->friction; // de lo contrario seguir aplicando friccion hasta llegar a esas velocidades minimas.*/
 
-        phycmpMobile->onPlatform = (undo.y < 0); // cuando el desacido en y es negativo, significa que estamos encima de un solido, no de lo contrario.
+        phycmpMobile->onPlatform     = (undo.y < 0); // Cuando el desacido de pixeles en Y es negativo, significa que estamos encima de un solido, no de lo contrario.
         phycmpMobile->jumpIndexPhase = phycmpMobile->JUMPS_PHASES.size();
+
+        std::cout<<"undoy: "<<undo.y<<" vx: "<<phycmpMobile->vx<<"\n";
 
     } else {
         phycmpMobile->x += undo.x;

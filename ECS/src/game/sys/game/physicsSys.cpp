@@ -3,8 +3,10 @@
 #include <ecs/man/entityManager.cpp>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
-void PhysicsSys_t::update(ECS::EntityManager_t& contx) const noexcept
+// ALL UNITS OF MOVEMENTS ARE RELATIVE TO TIME (seconds)
+void PhysicsSys_t::update(ECS::EntityManager_t& contx, double dt) const noexcept
 {
     for (auto& phycmp : contx.template getCmps<PhysicsCmp_t>())
     {   
@@ -17,26 +19,30 @@ void PhysicsSys_t::update(ECS::EntityManager_t& contx) const noexcept
         } else phycmp.countVyZero = 0;*/
 
         // Verify if we are not still on platform (current solution)
-        if (std::abs(phycmp.vy) > phycmp.MINVY_ONPLATFORM) phycmp.onPlatform = false;
+        if (std::abs(phycmp.vy) > phycmp.MINVY_ONPLATFORM*dt) {
+            //if (phycmp.getEntityID() == 1) {std::cout<<"sii "<<phycmp.MINVY_ONPLATFORM*dt<<"\n";}
+            phycmp.onPlatform = false;
+        }
 
         // Set jump to next jump phase
         auto& jumpPhase = phycmp.jumpIndexPhase;
         if (phycmp.isInJumpPhase()) phycmp.vy = phycmp.JUMPS_PHASES[jumpPhase++];
-            
+
+        // Set speed with acceleration x (change only some entities with ax > 0)
+        phycmp.applyAccelerationX(dt);
+        phycmp.vx = std::clamp(phycmp.vx, -phycmp.MAX_VX, phycmp.MAX_VX);
+
         // Set speed with on gravity (change only some entities with g > 0)
-        phycmp.applyAccelerationY();
-        
+        phycmp.applyAccelerationY(dt);
         // CLAMP: para que no se pase de un limite minimo o maximo de velocidad en y
         phycmp.vy = std::clamp(phycmp.vy, -phycmp.MAX_VY, phycmp.MAX_VY);
         //if (phycmp.vy > PhysicsCmp_t::MAX_VY) phycmp.vy = PhysicsCmp_t::MAX_VY;
         //if (phycmp.vy < PhysicsCmp_t::MIN_VY) phycmp.vy = PhysicsCmp_t::MIN_VY;
+        //}
 
-        // Set speed with acceleration x (change only some entities with ax > 0)
-        phycmp.applyAccelerationX();
-        phycmp.vx = std::clamp(phycmp.vx, -phycmp.MAX_VX, phycmp.MAX_VX);
 
         // Set positions with on speed
-        phycmp.x += phycmp.vx;
-        phycmp.y += phycmp.vy;
+        phycmp.x += phycmp.vx*dt;
+        phycmp.y += phycmp.vy*dt;
     }
 }

@@ -38,7 +38,7 @@ struct GOFactory_t {
 	    auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(spwnEnt);
 	    phycmp.x     = x;
 	    phycmp.y     = y;
-	    phycmp.vy    = 2;
+	    phycmp.vy    = 150;
 
 	    auto& collcmp         = entityMan->addCmp<ColliderCmp_t>(spwnEnt);
 	    collcmp.boxRoot.box   = { 0, 0, 5, 5 }; // x, y, w, h

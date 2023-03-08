@@ -9,21 +9,21 @@ struct PhysicsCmp_t : ECS::ComponentBase_t<PhysicsCmp_t> {
 	explicit PhysicsCmp_t(ECS::EntityID_t eid) 
 	: ComponentBase_t(eid) {}
 
-	// Gravity constants
-	static constexpr float STD_AX  {  0.6f };
-	static constexpr float MAX_VX  {  4.5f };
-	static constexpr float MINVX_BRAKING{ 0.5f*STD_AX }; // MINIMA VX PARA SABER QUE SE HA FRENADO APROXIMANDOSE A 0
+	// UNITS MOVEMENTS PER SECONDS
+	static constexpr float MAX_VX        { 280.0f     };
+	static constexpr float STD_AX        { MAX_VX/0.2 };
+	static constexpr float MINVX_BRAKING { 0.005f*MAX_VX }; // MINIMA VX PARA SABER QUE SE HA FRENADO APROXIMANDOSE A 0
 
-	static constexpr float GRAVITY {  0.5f };
-	static constexpr float MAX_VY  {  6.0f };
-	static constexpr float MINVY_ONPLATFORM { 3.0f*GRAVITY }; // MINIMA VY PARA SABER QUE SE HA DE ESTAR EN PLATAFORMA
+	static constexpr float MAX_VY           { 400.0f     };
+	static constexpr float GRAVITY          { MAX_VY/0.4 };
+	static constexpr float MINVY_ONPLATFORM { 0 };//GRAVITY*0.1f }; // MINIMA VY PARA SABER QUE SE HA DE ESTAR EN PLATAFORMA
 
 	// Non-type template parameter: passing a literal to template, to know the size of the array
 	static constexpr std::array //<int32_t, 14> 
-	JUMPS_PHASES = {-8,-7,-7,-7,-6,-6,-6,-5,-5,-5,-4,-4,-4,-3,-3,-3};
+	JUMPS_PHASES = {-400,-400,-400,-350,-350,-350,-350,-300,-300,-300,-300,-200,-200,-200,-200,-100,-100,-100,-50};
 
 	// When zero velocity is counted n times, then the entity is on the ground
-	static constexpr uint8_t TIMES_VY_ZERO { 3 };
+	//static constexpr uint8_t TIMES_VY_ZERO { 3 };
 
 	constexpr bool isJumpEnabled() const
 	{
@@ -36,17 +36,18 @@ struct PhysicsCmp_t : ECS::ComponentBase_t<PhysicsCmp_t> {
 
 	constexpr void startJumpPhase() { jumpIndexPhase = 0; }
 	constexpr bool isInJumpPhase()  { return (jumpIndexPhase < JUMPS_PHASES.size()); }
-	constexpr void applyAccelerationX() { vx += ax; }
-	constexpr void applyAccelerationY() { vy += g;  }
+
+	constexpr void applyAccelerationX(double dt) { vx += ax*dt; }
+	constexpr void applyAccelerationY(double dt) { vy += g*dt;  }
 
 	// VARIABLES
 	float  x { 0 },  y { 0 };    	// position
 	float vx { 0 }, vy { 0 };   	// speed
 	float ax { 0 };					// x acceleration (0 default)
-	float g  { 0 };    	  		    // y acceleration (gravity) (0 default)
+	float  g { 0 };    	  		    // y acceleration (gravity) (0 default)
 	float friction { 1.0f };        // rozamiento
 
 	uint8_t jumpIndexPhase { JUMPS_PHASES.size() }; // last index: indicates that there is no jump
-	bool onPlatform { true }; // OJO
+	bool onPlatform { false }; // OJO
 	//uint8_t countVyZero	   { 0 };
 };

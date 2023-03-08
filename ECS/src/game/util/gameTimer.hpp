@@ -30,7 +30,6 @@ struct GameTimer_t {
 		return 0;
 	}
 
-
 	template<typename CALLABLE>
 	auto measureTimeToProcc(CALLABLE proccess)
 	{

@@ -100,7 +100,7 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
     auto& blade   = createEntity(x, y, "./assets/blade.png");
 
     auto* phycmp = blade.getCmp<PhysicsCmp_t>();
-    phycmp->vx = 2; 
+    phycmp->vx = 250; // per seconds
 
     auto* collcmp = blade.getCmp<ColliderCmp_t>();
     auto* rencmp  = blade.getCmp<RenderCmp_t>();

@@ -17,8 +17,8 @@ extern "C" {
 
 
 // Statics by default
-constexpr uint32_t FPS    { 60  };
-constexpr uint64_t timePF { 1000000000UL/FPS };
+constexpr uint32_t FPS    { 60 };
+constexpr uint64_t timePF { 1000000000UL/FPS }; // nanosecods per frame
 
 struct Pause_t : State_t {
 
@@ -82,20 +82,20 @@ struct GameMan_t : State_t {
 	{
 		timer.start();
 
-        /*RenSys.update(entityMan);
-        PhySys.update(entityMan);
+        RenSys.update(entityMan);
+        PhySys.update(entityMan, 1.0/FPS);
         InpSys.update(entityMan);
         ColSys.update(entityMan);
         HthSys.update(entityMan);
         SpwSys.update(entityMan);
-        CamSys.update(entityMan);*/
-        std::cout << " [REN]: "  << timer.measureTimeToProcc([&](){ RenSys.update(entityMan); });
-        std::cout << " [PHY]: "  << timer.measureTimeToProcc([&](){ PhySys.update(entityMan); });
+        CamSys.update(entityMan);
+        /*std::cout << " [REN]: "  << timer.measureTimeToProcc([&](){ RenSys.update(entityMan); });
+        std::cout << " [PHY]: "  << timer.measureTimeToProcc([&](){ PhySys.update(entityMan, 1.0/FPS); });
         std::cout << " [IN]: "   << timer.measureTimeToProcc([&](){ InpSys.update(entityMan); });
         std::cout << " [COLL]: " << timer.measureTimeToProcc([&](){ ColSys.update(entityMan); });
         std::cout << " [HTH]: "  << timer.measureTimeToProcc([&](){ HthSys.update(entityMan); });
         std::cout << " [SPW]: "  << timer.measureTimeToProcc([&](){ SpwSys.update(entityMan); });
-        std::cout << " [CAM]: "  << timer.measureTimeToProcc([&](){ CamSys.update(entityMan); }) <<"\n\n";
+        std::cout << " [CAM]: "  << timer.measureTimeToProcc([&](){ CamSys.update(entityMan); }) <<"\n\n";*/
 
         timer.waitForUntil_ns(timePF);
 
