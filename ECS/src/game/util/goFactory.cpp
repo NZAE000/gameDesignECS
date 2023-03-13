@@ -4,6 +4,7 @@
 #include <game/cmp/cameraCmp.hpp>
 #include <picoJSON.ua/picojson.hpp>
 #include <fstream>
+#include <iostream>
 
 ECS::Entity_t& 
 GOFactory_t::createEntity(uint32_t x, uint32_t y, const std::string_view filename) const
@@ -31,7 +32,7 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     auto& plataform = entityMan->createEntity();
 
     auto& rencmp = entityMan->addCmp<RenderCmp_t>(plataform);
-    rencmp.loadFromPng("./assets/platform2.png");
+    rencmp.loadFromPng("./assets/platform.png");
 
     auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(plataform);
     phycmp.x     = x;
@@ -49,14 +50,33 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
 ECS::Entity_t& 
 GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 {
-    auto& principalCharac = createEntity(x, y, "./assets/deadpool2.png");
-    entityMan->addCmp<InputCmp_t>(principalCharac);
+    auto& principalCharac = createEntity(x, y, "./assets/deadpool.png");
+
+    auto* phycmp = principalCharac.getCmp<PhysicsCmp_t>();
+    phycmp->g = PhysicsCmp_t::GRAVITY; // set gravity for my player
+
+    auto& inpcmp = entityMan->addCmp<InputCmp_t>(principalCharac);
+
+    // Set key-action to player
+    inpcmp.addAction(XK_Left, [&](PhysicsCmp_t& phycmp) {
+        phycmp.ax = -phycmp.STD_AX;
+    });
+    inpcmp.addAction(XK_Right, [&](PhysicsCmp_t& phycmp) {
+        phycmp.ax = phycmp.STD_AX;
+    });
+    inpcmp.addAction(XK_Up, [&](PhysicsCmp_t& phycmp) {
+        if (phycmp.isJumpEnabled()) {
+            phycmp.startJumpPhase();
+            std::cout<<"JUMP\n";
+        }
+    });
+
 
     auto* collcmp = principalCharac.getCmp<ColliderCmp_t>();
-    //auto* rencmp  = principalCharac.getCmp<RenderCmp_t>();
+    auto* rencmp  = principalCharac.getCmp<RenderCmp_t>();
 
     // set boundign boxes on my principal sprite player
-    //collcmp->boxRoot.box = { 0, 0, rencmp.w, rencmp.h }; // 1. bounding principal
+    collcmp->boxRoot.box = { 0, 0, rencmp->w-7, rencmp->h }; // 1. bounding principal
     collcmp->boxRoot.subBoxes = {
         { { 11, 1, 37, 38 }, false, // 2. subbox
             {
@@ -72,7 +92,7 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
                 { { 21, 50, 25, 31 }, false, {} }  // 3.
             } 
         }, 
-        { { 4, 82, 44, 30 }, false, // 2.
+        { { 3, 82, 43, 30 }, false, // 2.
             {
                 //{ {  9, 24,  83,  100 }, false, {} }, // 3.
                 //{ { 31, 44,  83, 104 }, false, {} }, // 3.
@@ -87,9 +107,6 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 
     auto* healthcmp   = principalCharac.getCmp<HealthCmp_t>();
     healthcmp->health = 100; // set to 100 health for my player
-
-    auto* phycmp = principalCharac.getCmp<PhysicsCmp_t>();
-    phycmp->g = PhysicsCmp_t::GRAVITY; // set gravity for my player
 
     return principalCharac;
 }

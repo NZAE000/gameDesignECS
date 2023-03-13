@@ -19,8 +19,8 @@ void PhysicsSys_t::update(ECS::EntityManager_t& contx, double dt) const noexcept
         } else phycmp.countVyZero = 0;*/
 
         // Verify if we are not still on platform (current solution)
-        if (std::abs(phycmp.vy) > phycmp.MINVY_ONPLATFORM*dt) {
-            //if (phycmp.getEntityID() == 1) {std::cout<<"sii "<<phycmp.MINVY_ONPLATFORM*dt<<"\n";}
+        if (std::abs(phycmp.vy) > phycmp.MINVY_ONPLATFORM) {
+            if (phycmp.getEntityID() == 1) {std::cout<<"sii "<<phycmp.MINVY_ONPLATFORM<<"\n";}
             phycmp.onPlatform = false;
         }
 

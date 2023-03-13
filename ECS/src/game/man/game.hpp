@@ -17,8 +17,8 @@ extern "C" {
 
 
 // Statics by default
-constexpr uint32_t FPS    { 60 };
-constexpr uint64_t timePF { 1000000000UL/FPS }; // nanosecods per frame
+constexpr uint32_t FPS    { 60  };
+constexpr uint64_t timePF { 1000000000UL/FPS };
 
 struct Pause_t : State_t {
 

@@ -44,24 +44,21 @@ void InputSys_t::update(ECS::EntityManager_t& contx) const
 		auto* phycmp = contx.template getRequiredCmp<PhysicsCmp_t>(input);
 		if (!phycmp) continue;
 
-		auto& phy = *(phycmp);
-		std::cout<<"x:"<<phy.x<<" y:"<<phy.y<<" vx: "<<phy.vx<<" vy: "<<phy.vy;
-		//if (phy.onPlatform) std::cout<<" en plataforma\n";
-		//std::cout<<"VY Player: "<< phy.vy <<" phase: " << static_cast<uint32_t>(phy.jumpIndexPhase)<<"\n";
-		phy.ax = 0; // only entities with input cmp
+		std::cout<<"x:"<<phycmp->x<<" y:"<<phycmp->y<<" vx: "<<phycmp->vx<<" vy: "<<phycmp->vy;
+		phycmp->ax = 0; // only entities with input cmp
 
-		if ( keyboard.isKeyPress(input.key_LEFT) ) phy.ax = -phy.STD_AX;
-		if ( keyboard.isKeyPress(input.key_RIGHT)) phy.ax =  phy.STD_AX;
-		if ( keyboard.isKeyPress(input.key_UP)	 ) 
+		const ECS::Hash_t<KeySym, std::function<void(PhysicsCmp_t&)>>& actions = input.getActions();
+		ECS::Hash_t<KeySym, std::function<void(PhysicsCmp_t&)>>::const_iterator nextAction 
+		= actions.begin();
+
+		while(nextAction != actions.end())
 		{
-			if (phy.isJumpEnabled()) {
-				//std::cout<<"JUMP ENABLE\n";
-				phy.startJumpPhase(); // Se habilita el salto iniciando su primera fase de salto.
-			}
+			if (keyboard.isKeyPress(nextAction->first))
+				nextAction->second(*phycmp);
+			++nextAction;
 		}
-		std::cout<<" ax: "<<phy.ax<<"\n";
-		//if ( keyboard.isKeyPress(input.key_DOWN) ) phy.vy =  1;
 
+		std::cout<<" ax: "<<phycmp->ax<<"\n";
 		ptc_process_events();
 	}
 }

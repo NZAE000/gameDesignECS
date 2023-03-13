@@ -1,6 +1,6 @@
 #pragma once
 #include <ecs/cmp/component.hpp>
-#include "boundingBox.hpp"
+#include <game/util/boundingBox.hpp>
 
 
 struct ColliderCmp_t : ECS::ComponentBase_t<ColliderCmp_t> {

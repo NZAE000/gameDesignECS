@@ -12,6 +12,7 @@
 #include <game/sys/game/inputSys.hpp>
 #include <game/sys/game/cameraSys.hpp>
 #include <game/sys/game/spawnSys.hpp>
+#include <game/util/animationManager.hpp>
 
 static constexpr uint32_t WIDTH { 640 };
 static constexpr uint32_t HEIGHT { 360 };
@@ -65,6 +66,8 @@ try {
 
     StateManager_t stateMan   { SysManager, GOFactory };
     stateMan.pushState<Menu_t>(stateMan);
+
+    AnimManager_t& animMan = AnimManager_t::getInstanse();
 
     while(stateMan.thereAnyState()) stateMan.update();
 

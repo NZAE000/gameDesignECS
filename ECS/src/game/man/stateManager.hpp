@@ -37,9 +37,11 @@ struct StateManager_t {
 	template<typename SYS_t>
 	constexpr const SYS_t& getSys() const { return sysMan.getSys<SYS_t>(); }
 
-	void setManager(ECS::EntityManager_t& em) { goFact.setManager(em); }
 	const auto& getFactory() const { return goFact; }
 	auto& getFactory() 			   { return goFact; }
+
+	void setManager(ECS::EntityManager_t& em) { goFact.setManager(em); }
+
  
 private:
 	std::stack<std::unique_ptr<State_t>> states;

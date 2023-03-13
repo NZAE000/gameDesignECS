@@ -55,8 +55,9 @@ void CollisionSys_t::update(ECS::EntityManager_t& contx) const
         for (uint32_t cmpj=cmpi+1; cmpj<size; ++cmpj) 
         {   
             auto& collcmp2 = collcmps[cmpj];
-            // comprobar si tienen capa de mascara en comun para colisionar
+            // Comprobar si tienen capa de mascara en comun para colisionar..
             if ( !(collcmp1.maskCollision & collcmp2.maskCollision) ) continue;
+
             // o si son plataformas o ambos de tipo solidos
             if (collcmp1.property & ColliderCmp_t::SOLID_PROP 
              && collcmp2.property & ColliderCmp_t::SOLID_PROP) continue; 
@@ -238,7 +239,8 @@ undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const
         deltaIntervals(boxMobile.getYUp(), boxMobile.getYDown(), boxSolid.getYUp(), boxSolid.getYDown())
     };
 
-    if (undo.x == 0 || (undo.y != 0 && std::abs(undo.y) <= std::abs(undo.x))){
+    if (undo.x == 0 || (undo.y != 0 && std::abs(undo.y) <= std::abs(undo.x)))
+    {
         phycmpMobile->y  += undo.y;
         phycmpMobile->vy  = 0;
 
