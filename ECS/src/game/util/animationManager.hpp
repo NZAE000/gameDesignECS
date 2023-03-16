@@ -7,7 +7,7 @@
 
 enum class CHARAC_t
 { 
-	PLAYER, BLADE, PLATFORM
+	PLAYER, BLADE, PLATFORM, SPAWNER
 };
 
 enum class ACTION_t
@@ -22,12 +22,13 @@ struct AnimManager_t {
 
 	using Appearances        = ECS::Vec_t<Appearance_t>;
 	using Actions        	 = ECS::Hash_t<ACTION_t, ECS::UPTR<Appearances>>;
-	using opIter_actions 	 = std::optional<ECS::Hash_t<CHARAC_t, ECS::UPTR<Actions>>::iterator>;
-	using opIter_appearences = std::optional<Actions::iterator>;
+	using opIter_actions 	 = std::optional<ECS::Hash_t<CHARAC_t, ECS::UPTR<Actions>>::const_iterator>;
+	using opIter_appearences = std::optional<Actions::const_iterator>;
 
 	Appearance_t& createAppearance(CHARAC_t, ACTION_t, std::string_view filename);
-	Appearance_t* getAppearance(CHARAC_t, ACTION_t);
-	
+	const Appearance_t* getAppearance(CHARAC_t, ACTION_t) const noexcept;
+	      Appearance_t* getAppearance(CHARAC_t, ACTION_t)       noexcept;
+
 	static AnimManager_t& getInstanse()
 	{
 		static AnimManager_t animMan {};
@@ -37,8 +38,8 @@ struct AnimManager_t {
 private:
 
 	explicit AnimManager_t();
-	opIter_actions findIteratorMapActions(CHARAC_t) noexcept;
-	opIter_appearences findIteratorMapAppearances(Actions&, ACTION_t) noexcept;
+	opIter_actions findIteratorMapActions(CHARAC_t) const noexcept;
+	opIter_appearences findIteratorMapAppearances(const Actions&, ACTION_t) const noexcept;
 	Actions& createAnimations(CHARAC_t);
 	Appearances& createAppearances(Actions&, ACTION_t);
 	Actions& getActions(CHARAC_t);

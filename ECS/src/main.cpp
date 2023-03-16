@@ -51,9 +51,9 @@ int
 main(void)
 try {
 
-    ECS::SystemManager_t SysManager {};                  // SYSTEM MANAGER
-    GOFactory_t          GOFactory  {};                  // GAME OBJECT FACTORY 
-    FrameBuffer_t        FrameBuff  { WIDTH, HEIGHT };   // MY BUFFER FOR DRAW GAME OBJECTS (tinyptc)
+    ECS::SystemManager_t SysManager {};                                  // SYSTEM MANAGER
+    GOFactory_t          GOFactory  { AnimManager_t::getInstanse() };    // GAME OBJECT FACTORY 
+    FrameBuffer_t        FrameBuff  { WIDTH, HEIGHT };                   // MY BUFFER FOR DRAW GAME OBJECTS (tinyptc)
     
     // INIT SYSTEMS
     SysManager.createSys<RenderSys_t>(FrameBuff);
@@ -66,8 +66,6 @@ try {
 
     StateManager_t stateMan   { SysManager, GOFactory };
     stateMan.pushState<Menu_t>(stateMan);
-
-    AnimManager_t& animMan = AnimManager_t::getInstanse();
 
     while(stateMan.thereAnyState()) stateMan.update();
 

@@ -15,7 +15,7 @@ struct ColliderCmp_t : ECS::ComponentBase_t<ColliderCmp_t> {
 	explicit ColliderCmp_t(ECS::EntityID_t eid)
 	: ComponentBase_t(eid) {}
 
-	BoundingBNode boxRoot {};
+	BoundingBNode boxRoot;
 	uint8_t maskCollision { NO_LAYER }; // 0 = 0000 0000 : COLISIONA CON NADA POR DEFAULT
 	uint8_t property { NO_PROP };
 };

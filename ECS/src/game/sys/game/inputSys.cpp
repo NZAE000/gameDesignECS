@@ -6,7 +6,7 @@
 extern "C" {
 	#include <tinyPTC.ua/src/tinyptc.h>
 }
-#include <iostream>
+//#include <iostream>
 
 InputSys_t::InputSys_t() 
 : SystemBase_t{} { setOn(); }
@@ -44,7 +44,7 @@ void InputSys_t::update(ECS::EntityManager_t& contx) const
 		auto* phycmp = contx.template getRequiredCmp<PhysicsCmp_t>(input);
 		if (!phycmp) continue;
 
-		std::cout<<"x:"<<phycmp->x<<" y:"<<phycmp->y<<" vx: "<<phycmp->vx<<" vy: "<<phycmp->vy;
+		//std::cout<<"x:"<<phycmp->x<<" y:"<<phycmp->y<<" vx: "<<phycmp->vx<<" vy: "<<phycmp->vy;
 		phycmp->ax = 0; // only entities with input cmp
 
 		const ECS::Hash_t<KeySym, std::function<void(PhysicsCmp_t&)>>& actions = input.getActions();
@@ -58,7 +58,7 @@ void InputSys_t::update(ECS::EntityManager_t& contx) const
 			++nextAction;
 		}
 
-		std::cout<<" ax: "<<phycmp->ax<<"\n";
+		//std::cout<<" ax: "<<phycmp->ax<<"\n";
 		ptc_process_events();
 	}
 }

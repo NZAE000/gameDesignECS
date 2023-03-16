@@ -10,7 +10,7 @@
 struct StateManager_t {
 
 	explicit StateManager_t(ECS::SystemManager_t& sm, GOFactory_t& gf) 
-	: sysMan{sm}, goFact{gf} {}
+	: SysMan{sm}, GOFact{gf} {}
 
 	template<typename STATE, typename... PARAMS> 	// Type state and args types for constructor.
 	void pushState(PARAMS&&... params) 				// With universal references (coulding be lvalues or rvalues)
@@ -32,19 +32,19 @@ struct StateManager_t {
 	bool thereAnyState() const { return !states.empty(); }
 
 	template<typename SYS_t>
-	constexpr SYS_t& getSys() { return sysMan.getSys<SYS_t>(); }
+	constexpr SYS_t& getSys() { return SysMan.getSys<SYS_t>(); }
 
 	template<typename SYS_t>
-	constexpr const SYS_t& getSys() const { return sysMan.getSys<SYS_t>(); }
+	constexpr const SYS_t& getSys() const { return SysMan.getSys<SYS_t>(); }
 
-	const auto& getFactory() const { return goFact; }
-	auto& getFactory() 			   { return goFact; }
+	const auto& getFactory() const { return GOFact; }
+	auto& getFactory() 			   { return GOFact; }
 
-	void setManager(ECS::EntityManager_t& em) { goFact.setManager(em); }
+	void setManager(ECS::EntityManager_t& em) { GOFact.setManager(em); }
 
  
 private:
 	std::stack<std::unique_ptr<State_t>> states;
-	ECS::SystemManager_t& sysMan;					// SYSTEM_MANAGER ref
-	GOFactory_t& goFact;							// GAME OBJECT FACTORY ref
+	ECS::SystemManager_t& SysMan;					// SYSTEM_MANAGER ref
+	GOFactory_t& GOFact;							// GAME OBJECT FACTORY ref
 };

@@ -6,6 +6,10 @@
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/renderCmp.hpp>
 #include <game/cmp/colliderCmp.hpp>
+#include <game/util/animationManager.hpp>
+#include <stdexcept>
+
+struct AnimManager_t; // forward declaration
 
 namespace ECS { 
 	struct Entity_t;
@@ -13,7 +17,7 @@ namespace ECS {
 
 struct GOFactory_t {
 
-	GOFactory_t() = default;
+	GOFactory_t(AnimManager_t& am) : AnimMan{am} {}
 
 	void setManager(ECS::EntityManager_t& em) { entityMan = &em; }
 
@@ -29,20 +33,24 @@ struct GOFactory_t {
 	{
 	    auto& spwnEnt = entityMan->createEntity();
 
+	    Appearance_t* spwAppear = AnimMan.getAppearance(CHARAC_t::SPAWNER, ACTION_t::DEFAULT);
+	    if (!spwAppear)
+	    	throw std::runtime_error("Spawner appearance not found");
+
 	    [[maybe_unused]]auto& ren = entityMan->addCmp<RenderCmp_t>(spwnEnt);
 
-	    auto& spwncmp        = entityMan->addCmp<SpawnCmp_t>(spwnEnt);
-	    spwncmp.spawnNow     = callback; // accion al momento de spawnear
-	    spwncmp.tobe_spawned = 50;
+	    auto& collcmp         = entityMan->addCmp<ColliderCmp_t>(spwnEnt);
+	    collcmp.boxRoot       = spwAppear->boxRoot;
+	    collcmp.maskCollision = ColliderCmp_t::BOUNDARY_LAYER;
 
 	    auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(spwnEnt);
 	    phycmp.x     = x;
 	    phycmp.y     = y;
 	    phycmp.vy    = 150;
 
-	    auto& collcmp         = entityMan->addCmp<ColliderCmp_t>(spwnEnt);
-	    collcmp.boxRoot.box   = { 0, 0, 5, 5 }; // x, y, w, h
-	    collcmp.maskCollision = ColliderCmp_t::BOUNDARY_LAYER;
+	    auto& spwncmp        = entityMan->addCmp<SpawnCmp_t>(spwnEnt);
+	    spwncmp.spawnNow     = callback; // accion al momento de spawnear
+	    spwncmp.tobe_spawned = 50;
 
 	    return spwnEnt;
 	}
@@ -54,8 +62,8 @@ struct GOFactory_t {
 	
 private:
 
-	ECS::Entity_t& createEntity(uint32_t x, uint32_t y, const std::string_view filename) const;
+	ECS::Entity_t& createEntity(uint32_t x, uint32_t y) const;
 
 	ECS::EntityManager_t* entityMan { nullptr };
-
+	AnimManager_t& AnimMan;
 };

@@ -11,13 +11,6 @@ struct RenderCmp_t : ECS::ComponentBase_t<RenderCmp_t> {
     : ComponentBase_t(eid) 
     { }
 
-    void loadFromPng(const std::string_view filename);
-
-    uint32_t w{0}, h {0};                // dimension
-    std::vector<uint32_t> sprite {};     // pixeles del personaje
-
-private:
-	auto loadPngIntoVector(const std::string_view filename);
-	void initSpriteFromABGRData(const std::vector<unsigned char>& pixels);
-
+    uint32_t w{0}, h {0};             // dimension
+    std::vector<uint32_t> sprite;     // pixeles del personaje
 };

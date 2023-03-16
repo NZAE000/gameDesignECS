@@ -2,6 +2,8 @@
 
 AnimManager_t::AnimManager_t()
 {
+	// INTIALIZE ALL ANIMATIONS
+
 	Appearance_t& player     = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/deadpool.png");
 	BoundingBNode& boxRootPl = player.boxRoot;
 
@@ -34,9 +36,13 @@ AnimManager_t::AnimManager_t()
     Appearance_t& platform     = createAppearance(CHARAC_t::PLATFORM, ACTION_t::DEFAULT, "./assets/platform.png");
 	BoundingBNode& boxRootPtmf = platform.boxRoot;
 	boxRootPtmf.box = { 0, 0, platform.w, platform.h };
+
+	Appearance_t& spawner     = createAppearance(CHARAC_t::SPAWNER, ACTION_t::DEFAULT, "./assets/spawner.png");
+	BoundingBNode& boxRootSpw = spawner.boxRoot;
+	boxRootSpw.box = { 0, 0, 5, 5 };
 }
 
-Appearance_t* AnimManager_t::getAppearance(CHARAC_t charac, ACTION_t action)
+const Appearance_t* AnimManager_t::getAppearance(CHARAC_t charac, ACTION_t action) const noexcept
 {
 	Appearance_t* appearance { nullptr };
 	opIter_actions opItAction = findIteratorMapActions(charac);
@@ -53,11 +59,16 @@ Appearance_t* AnimManager_t::getAppearance(CHARAC_t charac, ACTION_t action)
 	return appearance;
 }
 
+Appearance_t* AnimManager_t::getAppearance(CHARAC_t charac, ACTION_t action) noexcept
+{
+	const Appearance_t* appearance = const_cast<const AnimManager_t*>(this)->getAppearance(charac, action);
+	return const_cast<Appearance_t*>(appearance);
+}
 
-// ITERATORS
+// ITERATORS *******************************************************************************
 
 AnimManager_t::opIter_actions 
-AnimManager_t::findIteratorMapActions(CHARAC_t charac) noexcept
+AnimManager_t::findIteratorMapActions(CHARAC_t charac) const noexcept
 {
 	opIter_actions opIt = animations.find(charac);
 	if (*opIt == animations.end()) opIt.reset();
@@ -66,7 +77,7 @@ AnimManager_t::findIteratorMapActions(CHARAC_t charac) noexcept
 }
 
 AnimManager_t::opIter_appearences
-AnimManager_t::findIteratorMapAppearances(Actions& actions, ACTION_t action) noexcept
+AnimManager_t::findIteratorMapAppearances(const Actions& actions, ACTION_t action) const noexcept
 {
 	opIter_appearences opIt = actions.find(action);
 	if (*opIt == actions.end()) opIt.reset();
@@ -81,16 +92,17 @@ AnimManager_t::createAppearance(CHARAC_t charac, ACTION_t action, std::string_vi
 {
 	Appearances* appears { nullptr };
 
-	Actions& actions        = getActions(charac);
-	opIter_appearences opIt = findIteratorMapAppearances(actions, action);
+	Actions& actions        = getActions(charac); // Get map action-appearances. If not exist, is created.
+	opIter_appearences opIt = findIteratorMapAppearances(actions, action); // Get vector appearances.
 
 	if (opIt) appears = (*opIt)->second.get();
-	else      appears = &createAppearances(actions, action);
+	else      appears = &createAppearances(actions, action); // IF THE ACTION IS NOT, IS CREATED.
 
-	return appears->emplace_back(filename);
+	return appears->emplace_back(filename); // The appearance is created and is returned.
 }
 
 
+// Get map action-appearences. If not exist, is created.
 AnimManager_t::Actions& AnimManager_t::getActions(CHARAC_t charac)
 {
 	Actions* actions { nullptr };

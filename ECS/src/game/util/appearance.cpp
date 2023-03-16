@@ -28,7 +28,8 @@ auto Appearance_t::loadPngIntoVector(const std::string_view filename)
 {
 	std::vector<unsigned char> pixels {};
     unsigned long width_dec {0}, height_dec {0};
-    std::ifstream file(filename.data(), std::ios::binary); // leer fichero en formato binario
+
+    std::ifstream file(filename.data(), std::ios::binary); // Leer fichero en formato binario
     std::vector<unsigned char> fileContainer(
            std::istreambuf_iterator<char> {file} // iterador al principio
          , std::istreambuf_iterator<char> {}     // iterador al final

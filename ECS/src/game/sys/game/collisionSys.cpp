@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <functional>
 #include <cmath>
-#include <iostream>
+//#include <iostream>
 
 constexpr Box_t<float> CollisionSys_t::
 transformToWorldCoordinates(const Box_t<uint32_t>& box, float x, float y) const noexcept
@@ -251,7 +251,7 @@ undoCollision(ECS::EntityManager_t& contx, const ColliderCmp_t& mobilecmp, const
         phycmpMobile->onPlatform     = (undo.y < 0); // Cuando el desacido de pixeles en Y es negativo, significa que estamos encima de un solido, no de lo contrario.
         phycmpMobile->jumpIndexPhase = phycmpMobile->JUMPS_PHASES.size();
 
-        std::cout<<"undoy: "<<undo.y<<" vx: "<<phycmpMobile->vx<<"\n";
+        //std::cout<<"undoy: "<<undo.y<<" vx: "<<phycmpMobile->vx<<"\n";
 
     } else {
         phycmpMobile->x += undo.x;

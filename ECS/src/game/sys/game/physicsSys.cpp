@@ -3,7 +3,7 @@
 #include <ecs/man/entityManager.cpp>
 #include <algorithm>
 #include <cmath>
-#include <iostream>
+//#include <iostream>
 
 // ALL UNITS OF MOVEMENTS ARE RELATIVE TO TIME (seconds)
 void PhysicsSys_t::update(ECS::EntityManager_t& contx, double dt) const noexcept
@@ -20,7 +20,7 @@ void PhysicsSys_t::update(ECS::EntityManager_t& contx, double dt) const noexcept
 
         // Verify if we are not still on platform (current solution)
         if (std::abs(phycmp.vy) > phycmp.MINVY_ONPLATFORM) {
-            if (phycmp.getEntityID() == 1) {std::cout<<"sii "<<phycmp.MINVY_ONPLATFORM<<"\n";}
+            //if (phycmp.getEntityID() == 1) {std::cout<<"sii "<<phycmp.MINVY_ONPLATFORM<<"\n";}
             phycmp.onPlatform = false;
         }
 

@@ -7,11 +7,11 @@
 
 struct Appearance_t {
 
-	explicit Appearance_t(std::string_view filename) { loadFromPng(filename); }
+	explicit Appearance_t(std::string_view filename) { loadFromPng(filename); } // Load vector and dimensions
 
 	std::vector<uint32_t> sprite;
 	uint32_t w, h;
-	BoundingBNode boxRoot;
+	BoundingBNode boxRoot; // bounding box and subboxes must be assigned externally
 
 private:
 	void initSpriteFromABGRData(const std::vector<unsigned char>& pixels);
