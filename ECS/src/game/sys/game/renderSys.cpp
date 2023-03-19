@@ -124,7 +124,7 @@ renderSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const
     // New coords sprite to 'screen reference' and pixels_off for sprite redimension.
     auto [xScr, yScr, l_off, r_off, u_off, d_off] = *optTuple;
 
-    // Pixels to crop    
+    // Pixels to crop
     uint32_t sidePixelsOff { l_off + r_off };
     uint32_t suprPixelsOff { u_off + d_off };
 
@@ -133,7 +133,7 @@ renderSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const
     uint32_t newHeight { rencmp.h - suprPixelsOff };
 
     // RENDER SPRITE
-    const uint32_t* sprite_it { rencmp.sprite.data() + u_off*rencmp.w + l_off };
+    const uint32_t* sprite_it { rencmp.sprite + u_off*rencmp.w + l_off };
     fBuff.drawSprite({ xScr, yScr, newWidth, newHeight }, sidePixelsOff, sprite_it);
 
     /*//BEFORE IMPLEMENTED!!!
@@ -417,7 +417,7 @@ renderAllCameras(const ECS::EntityManager_t& contx) const
 void RenderSys_t::
 update(ECS::EntityManager_t& contx) const
 {
-    fBuff.fill(BLACK);
+    fBuff.fill(BACKGRD_COLOR);
     renderAllCameras(contx);
     fBuff.update();
 }

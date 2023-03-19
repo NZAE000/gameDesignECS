@@ -32,7 +32,7 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     if (!platformAppear) throw std::runtime_error("Platform appearance not found");
 
     auto& rencmp  = entityMan->addCmp<RenderCmp_t>(plataform);
-    rencmp.sprite = platformAppear->sprite;
+    rencmp.sprite = platformAppear->sprite.data();
     rencmp.w      = platformAppear->w;
     rencmp.h      = platformAppear->h;
 
@@ -58,7 +58,7 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
     if (!playerAppear) throw std::runtime_error("Player appearance not found");
 
     auto* rencmp   = principalCharac.getCmp<RenderCmp_t>();
-    rencmp->sprite = playerAppear->sprite;
+    rencmp->sprite = playerAppear->sprite.data();
     rencmp->w      = playerAppear->w; 
     rencmp->h      = playerAppear->h;
 
@@ -101,7 +101,7 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
     if (!bladeAppear) throw std::runtime_error("Blade appearance not found");
 
     auto* rencmp  = blade.getCmp<RenderCmp_t>();
-    rencmp->sprite = bladeAppear->sprite;
+    rencmp->sprite = bladeAppear->sprite.data();
     rencmp->w      = bladeAppear->w; 
     rencmp->h      = bladeAppear->h;
 

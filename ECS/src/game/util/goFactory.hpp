@@ -40,7 +40,7 @@ struct GOFactory_t {
 	    [[maybe_unused]]auto& ren = entityMan->addCmp<RenderCmp_t>(spwnEnt);
 
 	    auto& collcmp         = entityMan->addCmp<ColliderCmp_t>(spwnEnt);
-	    collcmp.boxRoot       = spwAppear->boxRoot;
+	    collcmp.boxRoot       = spwAppear->boxRoot; // OJO COPY!!!
 	    collcmp.maskCollision = ColliderCmp_t::BOUNDARY_LAYER;
 
 	    auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(spwnEnt);

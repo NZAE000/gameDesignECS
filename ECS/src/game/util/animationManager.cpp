@@ -4,28 +4,55 @@ AnimManager_t::AnimManager_t()
 {
 	// INTIALIZE ALL ANIMATIONS
 
-	Appearance_t& player     = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/deadpool.png");
-	BoundingBNode& boxRootPl = player.boxRoot;
+	Appearance_t& playerStand1 = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-3.png");
+	BoundingBNode& boxRootPl   = playerStand1.boxRoot;
 
-	// Set boundign boxes on my principal sprite player
-    boxRootPl.box = { 0, 0, player.w-7, player.h }; // 1. bounding principal
+	// Set boundign boxes on my principal sprite playerStand1
+    boxRootPl.box = { 0, 0, playerStand1.w, playerStand1.h }; // 1. bounding principal
     boxRootPl.subBoxes = {
-        { { 11, 1, 37, 38 }, false, // 2. subbox
+    	{ { 37, 1, 22, 17 }, false, // HEAD
             {
-                { { 16,  2, 28,  6 }, false, {} }, // 3. subbox
-                { { 14,  8, 33, 22 }, false, {} }, // 3.
-                { { 15, 30, 29,  8 }, false, {} }  // 3.
+            	{ { 39, 3, 15, 5 }, false, {} },
+            	{ { 38, 8, 20, 9 }, false, {} }
             } 
         },
-        { { 1, 39, 47, 43 }, false, // 2.
+    	{ { 11, 18, 68, 29 }, false, // 2. TORSO - ARMS
             {
-                { { 4,  40, 40, 10 }, false, {} }, // 3.
-                { { 2,  50, 12, 31 }, false, {} }, // 3.
-                { { 21, 50, 25, 31 }, false, {} }  // 3.
+            	{ { 12, 19, 23, 27 }, false, // ARM 1
+            		{
+            			{
+            				{ { 21, 20, 13, 10}, false, {} }, // shoulder
+            				{ { 14, 30, 20, 15}, false, {} }  // forearm-hand
+            			}
+            		} 
+            	}, 
+            	{ { 35, 19, 19, 27}, false, {} },  // TORSO
+            	{ { 54, 31, 24, 14 }, false, {} }  // AMR 2
             } 
-        }, 
-        { { 3, 82, 43, 30 }, false, // 2.
-            {}
+        },
+    	{ { 28, 47, 30, 21 }, false, // 2. PELVIS
+            {
+            } 
+        },
+    	{ { 8, 68, 28, 28 }, false, // 2. LEG 1
+            {
+            	{ { 21, 69, 14, 9  }, false, {} }, // thigh
+            	{ { 10, 80, 15, 15 }, false, {} }  // knee
+            } 
+        },
+    	{ { 52, 68, 16, 28 }, false, // 2. LEG 2
+            {
+            	{ { 53, 69, 12, 11 }, false, {} }, // thigh
+            	{ { 55, 80, 12, 15 }, false, {} }  // knee
+            } 
+        },
+        { { 1, 96, 14, 13 }, false, // 2. FEET 1
+            {
+            } 
+        },
+        { { 58, 96, 21, 13 }, false, // 2. FEET 2
+            {
+            } 
         }
     };
 
@@ -53,7 +80,7 @@ const Appearance_t* AnimManager_t::getAppearance(CHARAC_t charac, ACTION_t actio
 		if (opItAppear) 
 		{
 			Appearances& appears = *(*opItAppear)->second.get();
-			if (!appears.empty()) appearance = &appears.front(); 
+			if (!appears.empty()) appearance = &appears.front();
 		}
 	}
 	return appearance;

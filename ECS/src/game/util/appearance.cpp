@@ -30,10 +30,10 @@ auto Appearance_t::loadPngIntoVector(const std::string_view filename)
     unsigned long width_dec {0}, height_dec {0};
 
     std::ifstream file(filename.data(), std::ios::binary); // Leer fichero en formato binario
-    std::vector<unsigned char> fileContainer(
-           std::istreambuf_iterator<char> {file} // iterador al principio
-         , std::istreambuf_iterator<char> {}     // iterador al final
-     );
+    std::vector<unsigned char> fileContainer (
+           std::istreambuf_iterator<char> { file } // iterador al principio
+        ,  std::istreambuf_iterator<char> {}       // iterador al final
+    );
 
     // La decodificación del png a uchar se almacenará en pixels.
     decodePNG(pixels, width_dec, height_dec, fileContainer.data(), fileContainer.size());

@@ -12,5 +12,5 @@ struct RenderCmp_t : ECS::ComponentBase_t<RenderCmp_t> {
     { }
 
     uint32_t w{0}, h {0};             // dimension
-    std::vector<uint32_t> sprite;     // pixeles del personaje
+    uint32_t* sprite { nullptr };     // pixeles del personaje
 };
