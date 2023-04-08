@@ -15,8 +15,8 @@ transformToWorldCoordinates(const Box_t<uint32_t>& box, float x, float y) const 
     return Box_t<float> {
             x + box.getXLeft()
         ,   y + box.getYUp()
-        ,   static_cast<float>(box.w)
-        ,   static_cast<float>(box.h) 
+        ,   x + box.getXRight()
+        ,   y + box.getYDown()
     };
 }
 
@@ -27,7 +27,7 @@ transformWorldCoordsToScreenRef(float x, float y, uint32_t width, uint32_t heigh
     // COORDINATES TRANSFORMATION:
 
     //   SPRT     -->     WORLD      -->      CAMERA      -->     SCREEN
-    //     (0,0 + POSSPR)       (-CAMPOSWRLD)         (+CAMPOSSCR)
+    //      (0,0 + POSSPR)       (-CAMPOSWRLD)         (+CAMPOSSCR)
 
     std::tuple<uint32_t,uint32_t,uint32_t,uint32_t,uint32_t,uint32_t> tupla {0,0,0,0,0,0};
     auto optTuple { std::optional{tupla} };
@@ -54,19 +54,19 @@ transformWorldCoordsToScreenRef(float x, float y, uint32_t width, uint32_t heigh
     } sprRef {};
 
     // TRANSFORM SPRITE COORDINATES INTO 'WORLD' REF (0,0 + POSSPRITE)
-    sprRef.world = {       
+    sprRef.world = { // {xSup, ySup, xInf, yInf}
             x
         ,   y
-        ,   static_cast<float>(width)
-        ,   static_cast<float>(height)
+        ,   x + width  - 1
+        ,   y + height - 1
     };
 
     // TRANSFORM SPRITE COORDINATES INTO 'CAMERA' REF (POSSPRITEWRLD - POSCAMWRLD)
     sprRef.camera = {
-            sprRef.world.x - phyCmpOfCam.x
-        ,   sprRef.world.y - phyCmpOfCam.y
-        ,   sprRef.world.w 
-        ,   sprRef.world.h
+            sprRef.world.getXLeft()  - phyCmpOfCam.x
+        ,   sprRef.world.getYUp()    - phyCmpOfCam.y
+        ,   sprRef.world.getXRight() - phyCmpOfCam.x
+        ,   sprRef.world.getYDown()  - phyCmpOfCam.y
     };
 
     // Get xleft, xright, yup and ydown coordinates ref on camera
@@ -134,7 +134,7 @@ renderSpriteClipped(const RenderCmp_t& rencmp, const PhysicsCmp_t& phycmp) const
 
     // RENDER SPRITE
     const uint32_t* sprite_it { rencmp.sprite + u_off*rencmp.w + l_off };
-    fBuff.drawSprite({ xScr, yScr, newWidth, newHeight }, sidePixelsOff, sprite_it);
+    fBuff.drawSprite(xScr, yScr, newWidth, newHeight, sidePixelsOff, sprite_it);
 
     /*//BEFORE IMPLEMENTED!!!
     // Clipping
@@ -273,14 +273,14 @@ renderBoxClipped(const Box_t<uint32_t>& box, float x, float y, uint32_t color) c
 {
     // Coordinates bounding convertion to world coordinates
     Box_t<float> boxWrld { transformToWorldCoordinates(box, x, y) };
-    float xL { boxWrld.x           };
+    float xL { boxWrld.getXLeft()  };
     float xR { boxWrld.getXRight() };
-    float yU { boxWrld.y           };
+    float yU { boxWrld.getYUp()    };
     float yD { boxWrld.getYDown()  };
 
     // Side sizes box
-    uint32_t widthBox  = box.w;
-    uint32_t heightBox = box.h;
+    uint32_t widthBox  = box.getWidth();
+    uint32_t heightBox = box.getHeight();
 
     renderAlignedLineClipped(xL, yU, widthBox, false, color);     // Up line
     renderAlignedLineClipped(xL, yU, heightBox, true, color);     // Left line
@@ -292,12 +292,12 @@ void RenderSys_t::
 renderFillBoxClipped(const Box_t<uint32_t>& box, float x, float y, uint32_t color) const noexcept
 {
     // X,Y coordinate bounding convertion to world coordinate.
-    float xBox { x + box.x  };
-    float yBox { y + box.y  };
+    float xBox { x + box.getXLeft() };
+    float yBox { y + box.getYUp()   };
 
     // Side sizes box
-    uint32_t widthBox  = box.w;
-    uint32_t heightBox = box.h;
+    uint32_t widthBox  = box.getWidth();
+    uint32_t heightBox = box.getHeight();
 
     // Transform box sprite relative to screen ref
     auto optTuple { transformWorldCoordsToScreenRef(xBox, yBox, widthBox, heightBox) };

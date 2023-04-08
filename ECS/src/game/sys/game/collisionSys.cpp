@@ -24,8 +24,8 @@ transformToWorldCoordinates(const Box_t<uint32_t>& box, float x, float y) const 
     return Box_t<float> {
             x + box.getXLeft()
         ,   y + box.getYUp()
-        ,   static_cast<float>(box.w)
-        ,   static_cast<float>(box.h)
+        ,   x + box.getXRight()
+        ,   y + box.getYDown()
     };
 }
 
@@ -79,9 +79,9 @@ checkBoundingScreenCollision(Box_t<uint32_t>const& box, PhysicsCmp_t& phycmp) co
     // Bounding coordinates convertion to screen coordinates
     Box_t<float> boxTransToSrc = transformToWorldCoordinates(box, phycmp.x, phycmp.y);
     
-    float xL { boxTransToSrc.x           };
+    float xL { boxTransToSrc.getXLeft()  };
     float xR { boxTransToSrc.getXRight() };
-    float yU { boxTransToSrc.y           };
+    float yU { boxTransToSrc.getYUp()    };
     float yD { boxTransToSrc.getYDown()  };
 
     // Horizontal boundig verification

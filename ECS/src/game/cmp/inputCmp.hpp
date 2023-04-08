@@ -14,7 +14,7 @@ struct InputCmp_t : ECS::ComponentBase_t<InputCmp_t> {
 	{};
 
 	template<typename CALLABLE>
-	constexpr void addAction(KeySym key, CALLABLE action) // operaot [] cant throw excpt.
+	constexpr void addAction(KeySym key, CALLABLE action) // operator [] cant throw excpt.
 	{
 		actions[key] = action;
 	}

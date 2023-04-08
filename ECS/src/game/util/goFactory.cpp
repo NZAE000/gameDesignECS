@@ -59,7 +59,7 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
 
     auto* rencmp   = principalCharac.getCmp<RenderCmp_t>();
     rencmp->sprite = playerAppear->sprite.data();
-    rencmp->w      = playerAppear->w; 
+    rencmp->w      = playerAppear->w;
     rencmp->h      = playerAppear->h;
 
     auto* collcmp = principalCharac.getCmp<ColliderCmp_t>();
@@ -102,7 +102,7 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
 
     auto* rencmp  = blade.getCmp<RenderCmp_t>();
     rencmp->sprite = bladeAppear->sprite.data();
-    rencmp->w      = bladeAppear->w; 
+    rencmp->w      = bladeAppear->w;
     rencmp->h      = bladeAppear->h;
 
     auto* collcmp = blade.getCmp<ColliderCmp_t>();

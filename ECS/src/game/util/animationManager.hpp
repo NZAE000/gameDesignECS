@@ -15,7 +15,7 @@ enum class ACTION_t
 	DEFAULT, ADVANC_L, ADVANC_R, JUMP, DUCK, PUNCH, KICK
 };
 
-constexpr uint8_t STDNUM_ACTIONS { 20 };
+constexpr uint8_t STDNUM_ACTIONS { 10 };
 
 
 struct AnimManager_t {

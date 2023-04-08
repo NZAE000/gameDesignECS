@@ -4,12 +4,15 @@
 template<typename Type>
 struct Box_t {
 
-	constexpr Type getXLeft() const noexcept  { return x;         }
-	constexpr Type getXRight() const noexcept { return x + (w-1); }
+	constexpr Type getXLeft()  const noexcept { return xSup; }
+	constexpr Type getXRight() const noexcept { return xInf; }
 
-	constexpr Type getYUp()   const noexcept  { return y;         }
-	constexpr Type getYDown() const noexcept  { return y + (h-1); }
+	constexpr Type getYUp()    const noexcept { return ySup; }
+	constexpr Type getYDown()  const noexcept { return yInf; }
 
-	Type x {}, y {};
-	Type w {}, h {};
+	constexpr Type getWidth()  const noexcept { return (xInf - xSup) + 1; }
+	constexpr Type getHeight() const noexcept { return (yInf - ySup) + 1; }
+
+	Type xSup {}, ySup {};
+	Type xInf {}, yInf {};
 };

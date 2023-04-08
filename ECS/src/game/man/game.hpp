@@ -1,5 +1,4 @@
 #pragma once
-#include <thread>
 #include <game/sys/game/renderSys.hpp>
 #include <game/sys/game/physicsSys.hpp>
 #include <game/sys/game/collisionSys.hpp>

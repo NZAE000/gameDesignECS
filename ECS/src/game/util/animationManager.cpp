@@ -1,68 +1,170 @@
 #include "animationManager.hpp"
 
+// INTIALIZE ALL ANIMATIONS
 AnimManager_t::AnimManager_t()
 {
-	// INTIALIZE ALL ANIMATIONS
+	// INIT DEFAULT ACTION PLAYER
+	Appearance_t& playerStand1 	   = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-1.png");
+	Appearance_t& playerStand2	   = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-2.png");
+	Appearance_t& playerStand3	   = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-3.png");
+	BoundingBNode& boxRootPlStand1 = playerStand1.boxRoot;
+	BoundingBNode& boxRootPlStand2 = playerStand2.boxRoot;
+	BoundingBNode& boxRootPlStand3 = playerStand3.boxRoot;
 
-	Appearance_t& playerStand1 = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-3.png");
-	BoundingBNode& boxRootPl   = playerStand1.boxRoot;
+	// SET BOUNDING BOXES playerStand1 
 
-	// Set boundign boxes on my principal sprite playerStand1
-    boxRootPl.box = { 0, 0, playerStand1.w, playerStand1.h }; // 1. bounding principal
-    boxRootPl.subBoxes = {
-    	{ { 37, 1, 22, 17 }, false, // HEAD
+    boxRootPlStand1.box 	 = { 0, 0, playerStand1.w-1, playerStand1.h-1 };
+    boxRootPlStand1.subBoxes = {
+    	{ { 37, 1, 58, 17 }, false, // HEAD
             {
-            	{ { 39, 3, 15, 5 }, false, {} },
-            	{ { 38, 8, 20, 9 }, false, {} }
+            	{ { 39, 3, 53,  7 }, false, {} },
+            	{ { 38, 8, 57, 16 }, false, {} }
             } 
         },
-    	{ { 11, 18, 68, 29 }, false, // 2. TORSO - ARMS
+    	{ { 11, 18, 78, 46 }, false, // 2. TORSO - ARMS
             {
-            	{ { 12, 19, 23, 27 }, false, // ARM 1
+            	{ { 12, 19, 34, 45 }, false, // ARM 1
             		{
             			{
-            				{ { 21, 20, 13, 10}, false, {} }, // shoulder
-            				{ { 14, 30, 20, 15}, false, {} }  // forearm-hand
+            				{ { 21, 20, 33, 29}, false, {} }, // shoulder
+            				{ { 14, 30, 33, 44}, false, {} }  // forearm-hand
             			}
-            		} 
+            		}
             	}, 
-            	{ { 35, 19, 19, 27}, false, {} },  // TORSO
-            	{ { 54, 31, 24, 14 }, false, {} }  // AMR 2
+            	{ { 35, 19, 53, 45}, false, {} },  // TORSO
+            	{ { 54, 30, 77, 45 }, false, {} }  // AMR 2
             } 
         },
-    	{ { 28, 47, 30, 21 }, false, // 2. PELVIS
+    	{ { 28, 47, 57, 67 }, false, // 2. PELVIS
             {
             } 
         },
-    	{ { 8, 68, 28, 28 }, false, // 2. LEG 1
+    	{ { 8, 68, 35, 95 }, false, // 2. LEG 1
             {
-            	{ { 21, 69, 14, 9  }, false, {} }, // thigh
-            	{ { 10, 80, 15, 15 }, false, {} }  // knee
+            	{ { 21, 69, 34, 79  }, false, {} }, // thigh
+            	{ { 10, 80, 24, 94 }, false, {} }  // knee
             } 
         },
-    	{ { 52, 68, 16, 28 }, false, // 2. LEG 2
+    	{ { 52, 68, 67, 95 }, false, // 2. LEG 2
             {
-            	{ { 53, 69, 12, 11 }, false, {} }, // thigh
-            	{ { 55, 80, 12, 15 }, false, {} }  // knee
+            	{ { 53, 69, 64, 79 }, false, {} }, // thigh
+            	{ { 55, 80, 66, 94 }, false, {} }  // knee
             } 
         },
-        { { 1, 96, 14, 13 }, false, // 2. FEET 1
+        { { 1, 96, 14, 108 }, false, // 2. FEET 1
             {
             } 
         },
-        { { 58, 96, 21, 13 }, false, // 2. FEET 2
+        { { 58, 96, 78, 108 }, false, // 2. FEET 2
             {
             } 
         }
     };
 
+    boxRootPlStand2.box 	 = { 0, 0, playerStand2.w-1, playerStand2.h-1 };
+	boxRootPlStand2.subBoxes = {
+    	{ { 37, 1, 58, 17 }, false, // HEAD
+            {
+            	{ { 39, 3, 53,  7 }, false, {} },
+            	{ { 38, 8, 57, 16 }, false, {} }
+            } 
+        },
+    	{ { 11, 18, 78, 49 }, false, // 2. TORSO - ARMS
+            {
+            	{ { 12, 19, 34, 45 }, false, // ARM 1
+            		{
+            			{
+            				{ { 21, 20, 33, 29}, false, {} }, // shoulder
+            				{ { 14, 30, 33, 44}, false, {} }  // forearm-hand
+            			}
+            		}
+            	}, 
+            	{ { 35, 19, 53, 48}, false, {} },  // TORSO
+            	{ { 54, 31, 77, 48 }, false, {} }  // AMR 2
+            } 
+        },
+    	{ { 28, 50, 57, 67 }, false, // 2. PELVIS
+            {
+            } 
+        },
+    	{ { 8, 68, 35, 95 }, false, // 2. LEG 1
+            {
+            	{ { 21, 69, 34, 79  }, false, {} }, // thigh
+            	{ { 10, 80, 24, 94 }, false, {} }  // knee
+            } 
+        },
+    	{ { 52, 68, 67, 95 }, false, // 2. LEG 2
+            {
+            	{ { 53, 69, 64, 79 }, false, {} }, // thigh
+            	{ { 55, 80, 66, 94 }, false, {} }  // knee
+            } 
+        },
+        { { 1, 96, 14, 108 }, false, // 2. FEET 1
+            {
+            } 
+        },
+        { { 58, 96, 78, 108 }, false, // 2. FEET 2
+            {
+            } 
+        }
+    };
+
+    boxRootPlStand3.box 	 = { 0, 0, playerStand3.w-1, playerStand3.h-1 };
+	boxRootPlStand3.subBoxes = {
+    	{ { 37, 1, 58, 17 }, false, // HEAD
+            {
+            	{ { 39, 3, 53,  7 }, false, {} },
+            	{ { 38, 8, 57, 16 }, false, {} }
+            } 
+        },
+    	{ { 12, 18, 76, 49 }, false, // 2. TORSO - ARMS
+            {
+            	{ { 13, 19, 37, 45 }, false, // ARM 1
+            		{
+            			{
+            				{ { 22, 20, 36, 29}, false, {} }, // shoulder
+            				{ { 15, 30, 36, 44}, false, {} }  // forearm-hand
+            			}
+            		}
+            	}, 
+            	{ { 38, 19, 53, 48}, false, {} },  // TORSO
+            	{ { 54, 31, 75, 48 }, false, {} }  // AMR 2
+            } 
+        },
+    	{ { 28, 50, 57, 67 }, false, // 2. PELVIS
+            {
+            } 
+        },
+    	{ { 8, 68, 35, 95 }, false, // 2. LEG 1
+            {
+            	{ { 21, 69, 34, 79  }, false, {} }, // thigh
+            	{ { 10, 80, 24, 94 }, false, {} }  // knee
+            } 
+        },
+    	{ { 52, 68, 67, 95 }, false, // 2. LEG 2
+            {
+            	{ { 53, 69, 64, 79 }, false, {} }, // thigh
+            	{ { 55, 80, 66, 94 }, false, {} }  // knee
+            } 
+        },
+        { { 1, 96, 14, 108 }, false, // 2. FEET 1
+            {
+            } 
+        },
+        { { 58, 96, 78, 108 }, false, // 2. FEET 2
+            {
+            } 
+        }
+    };
+
+
     Appearance_t& blade      = createAppearance(CHARAC_t::BLADE, ACTION_t::DEFAULT, "./assets/blade.png");
     BoundingBNode& boxRootBl = blade.boxRoot;
-    boxRootBl.box = { 5 ,5, blade.w-10, blade.h-10 };
+    boxRootBl.box = { 5 ,5, blade.w-5, blade.h-5 };
 
     Appearance_t& platform     = createAppearance(CHARAC_t::PLATFORM, ACTION_t::DEFAULT, "./assets/platform.png");
 	BoundingBNode& boxRootPtmf = platform.boxRoot;
-	boxRootPtmf.box = { 0, 0, platform.w, platform.h };
+	boxRootPtmf.box = { 0, 0, platform.w-1, platform.h-1 };
 
 	Appearance_t& spawner     = createAppearance(CHARAC_t::SPAWNER, ACTION_t::DEFAULT, "./assets/spawner.png");
 	BoundingBNode& boxRootSpw = spawner.boxRoot;

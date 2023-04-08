@@ -21,7 +21,7 @@ struct FrameBuffer_t {
 	uint32_t* get() const noexcept { return frameBuff.get(); }
 	void update()   const noexcept { ptc_update(frameBuff.get()); }
 	void fill(uint32_t color) noexcept;
-	void drawSprite(const Box_t<uint32_t>&, uint32_t pixels_off, const uint32_t* ptrToSprite) noexcept;
+	void drawSprite(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t pixels_off, const uint32_t* ptrToSprite) noexcept;
 	void drawAlignedLine(uint32_t x, uint32_t y, uint32_t lengthLine, uint32_t displacement, uint32_t color) noexcept;
 	void drawFillRectangle(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t color) noexcept;
 

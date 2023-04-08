@@ -20,7 +20,7 @@ struct CameraWithPhysics_t {
 
 struct RenderSys_t : ECS::SystemBase_t<RenderSys_t> {
 
-    static constexpr uint32_t RED   { 0xFFFF0000 };
+    static constexpr uint32_t RED           { 0xFFFF0000 };
     static constexpr uint32_t BACKGRD_COLOR { 0x0017202A };//  17202a
 
     // explicit: no puede implicitamenete hacer una conversion de tipo, o algo que se pareza a RenderSys_T

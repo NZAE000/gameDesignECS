@@ -12,11 +12,9 @@ void FrameBuffer_t::fill(uint32_t color) noexcept
 }
 
 void FrameBuffer_t::
-drawSprite(const Box_t<uint32_t>& dimSpr, uint32_t pixels_off, const uint32_t* ptrToSprite) noexcept
+drawSprite(uint32_t x, uint32_t y, uint32_t widthSpr, uint32_t heightSpr, uint32_t pixels_off, const uint32_t* ptrToSprite) noexcept
 {
-	auto* ptrToBuff = getPosition(dimSpr.x, dimSpr.y);
-	uint32_t widthSpr  { dimSpr.w };
-	uint32_t heightSpr { dimSpr.h };
+	auto* ptrToBuff = getPosition(x, y);
 
     while(heightSpr--) {
         for (uint32_t w=0; w<widthSpr; ++w)
