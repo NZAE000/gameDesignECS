@@ -32,15 +32,16 @@ struct GOFactory_t {
 	createSpawner(uint32_t x, uint32_t y, CALLABLE callback) const
 	{
 	    auto& spwnEnt = entityMan->createEntity();
-
-	    Appearance_t* spwAppear = AnimMan.getAppearance(CHARAC_t::SPAWNER, ACTION_t::DEFAULT);
+	    
+	    FRAME_SEQUENCE frameSec {0};
+	    AppearFrames_t* spwAppear = AnimMan.getAppearance(CHARAC_t::SPAWNER, ACTION_t::DEFAULT, frameSec);
 	    if (!spwAppear)
 	    	throw std::runtime_error("Spawner appearance not found");
 
 	    [[maybe_unused]]auto& ren = entityMan->addCmp<RenderCmp_t>(spwnEnt);
 
 	    auto& collcmp         = entityMan->addCmp<ColliderCmp_t>(spwnEnt);
-	    collcmp.boxRoot       = spwAppear->boxRoot; // OJO COPY!!!
+	    collcmp.boxRoot       = spwAppear->appear.boxRoot; // OJO COPY!!!
 	    collcmp.maskCollision = ColliderCmp_t::BOUNDARY_LAYER;
 
 	    auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(spwnEnt);

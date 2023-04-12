@@ -8,6 +8,7 @@
 struct Appearance_t {
 
 	explicit Appearance_t(std::string_view filename) { loadFromPng(filename); } // Load vector and dimensions
+	explicit Appearance_t() {}
 
 	std::vector<uint32_t> sprite;
 	uint32_t w, h;

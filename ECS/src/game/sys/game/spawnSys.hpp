@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include <ecs/sys/system.hpp>
 
 struct SpawnSys_t : ECS::SystemBase_t<SpawnSys_t>{
