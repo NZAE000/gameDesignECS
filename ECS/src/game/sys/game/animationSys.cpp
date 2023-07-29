@@ -3,6 +3,7 @@
 #include <game/cmp/animationCmp.hpp>
 #include <game/cmp/renderCmp.hpp>
 #include <game/cmp/colliderCmp.hpp>
+#include <game/cmp/physicsCmp.hpp>
 #include <game/util/appearance.hpp>
 #include <cmath>
 
@@ -18,6 +19,12 @@ void AnimationSys_t::update(ECS::EntityManager_t& contx) const
 	{
 		AppearFrames_t* appearFrame = AnimMan.getAppearance(animcmp.character, animcmp.currentAction, animcmp.currentFrameSec);
 		if (!appearFrame) continue;
+
+		auto* phycmp = contx.template getRequiredCmp<PhysicsCmp_t>(animcmp);
+		if (!phycmp) continue;
+
+		if (phycmp->vx > 0)      AnimMan.onNormalAnimations();
+		else if (phycmp->vx < 0) AnimMan.onFlippingAnimations();
 
 		if (++animcmp.currentRepFrame == appearFrame->rep)
 		{

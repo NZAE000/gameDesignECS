@@ -3,17 +3,13 @@
 // INTIALIZE ALL ANIMATIONS
 AnimManager_t::AnimManager_t()
 {
-	// CREATE DEFAULT ACTION PLAYER
-	Appearance_t& playerStand1 	   = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-1.png", 12);
-	Appearance_t& playerStand2	   = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-2.png", 12);
-	Appearance_t& playerStand3	   = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-3.png", 12);
-	BoundingBNode& boxRootPlStand1 = playerStand1.boxRoot;
-	BoundingBNode& boxRootPlStand2 = playerStand2.boxRoot;
-	BoundingBNode& boxRootPlStand3 = playerStand3.boxRoot;
+	// CREATE DEFAULT ACTION PLAYER AND GET BOX ROOTS
+	BoundingBNode& boxRootPlStand1 = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-1.png", 12).boxRoot;
+	BoundingBNode& boxRootPlStand2 = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-2.png", 12).boxRoot;
+	BoundingBNode& boxRootPlStand3 = createAppearance(CHARAC_t::PLAYER, ACTION_t::DEFAULT, "./assets/dpstand-3.png", 12).boxRoot;
 
-	// SET BOUNDING BOXES playerStand1 
-
-    boxRootPlStand1.box 	 = { 0, 0, playerStand1.w-1, playerStand1.h-1 };
+	// SET BOUNDING BOXES STAND ACTION PLAYER
+    boxRootPlStand1.box 	 = { 0, 0, 79, 109 };
     boxRootPlStand1.subBoxes = {
     	{ { 37, 1, 58, 17 }, false, // HEAD
             {
@@ -61,7 +57,7 @@ AnimManager_t::AnimManager_t()
         }
     };
 
-    boxRootPlStand2.box 	 = { 0, 0, playerStand2.w-1, playerStand2.h-1 };
+    boxRootPlStand2.box 	 = { 0, 0, 79, 109 };
 	boxRootPlStand2.subBoxes = {
     	{ { 37, 1, 58, 17 }, false, // HEAD
             {
@@ -109,7 +105,7 @@ AnimManager_t::AnimManager_t()
         }
     };
 
-    boxRootPlStand3.box 	 = { 0, 0, playerStand3.w-1, playerStand3.h-1 };
+    boxRootPlStand3.box 	 = { 0, 0, 79, 109 };
 	boxRootPlStand3.subBoxes = {
     	{ { 37, 1, 58, 17 }, false, // HEAD
             {
@@ -160,14 +156,33 @@ AnimManager_t::AnimManager_t()
     // CREATE FLIP DEFAULT ACTION PLAYER (to left)
     createFlipAppearances(CHARAC_t::PLAYER, ACTION_t::DEFAULT);
 
+    // CREATE MOVE_SIDE ACTION PLAYER AND GET BOX ROOTS
+    BoundingBNode& boxRootPlMoveside1 = createAppearance(CHARAC_t::PLAYER, ACTION_t::MOVE_SIDE, "./assets/dpmoveside-1.png", 12).boxRoot;
+	BoundingBNode& boxRootPlMoveside2 = createAppearance(CHARAC_t::PLAYER, ACTION_t::MOVE_SIDE, "./assets/dpmoveside-2.png", 12).boxRoot;
+	BoundingBNode& boxRootPlMoveside3 = createAppearance(CHARAC_t::PLAYER, ACTION_t::MOVE_SIDE, "./assets/dpmoveside-3.png", 12).boxRoot;
+	BoundingBNode& boxRootPlMoveside4 = createAppearance(CHARAC_t::PLAYER, ACTION_t::MOVE_SIDE, "./assets/dpmoveside-4.png", 12).boxRoot;
+	BoundingBNode& boxRootPlMoveside5 = createAppearance(CHARAC_t::PLAYER, ACTION_t::MOVE_SIDE, "./assets/dpmoveside-5.png", 12).boxRoot;
+	BoundingBNode& boxRootPlMoveside6 = createAppearance(CHARAC_t::PLAYER, ACTION_t::MOVE_SIDE, "./assets/dpmoveside-6.png", 12).boxRoot;
+	BoundingBNode& boxRootPlMoveside7 = createAppearance(CHARAC_t::PLAYER, ACTION_t::MOVE_SIDE, "./assets/dpmoveside-7.png", 12).boxRoot;
+
+    // SET BOUNDING BOXES MOVESIDE ACTION PLAYER
+	
+
+
+    // CREATE DEFAULT ACTION BLADE
     Appearance_t& blade      = createAppearance(CHARAC_t::BLADE, ACTION_t::DEFAULT, "./assets/blade.png", 1);
     BoundingBNode& boxRootBl = blade.boxRoot;
-    boxRootBl.box = { 5 ,5, blade.w-5, blade.h-5 };
+    boxRootBl.box = { 5, 5, blade.w-5, blade.h-5 };
 
+    // CREATE FLIP DEFAULT ACTION BLADE (to left)
+    createFlipAppearances(CHARAC_t::BLADE, ACTION_t::DEFAULT);
+
+    // CREATE DEFAULT ACTION PLATAFORM
     Appearance_t& platform     = createAppearance(CHARAC_t::PLATFORM, ACTION_t::DEFAULT, "./assets/platform.png", 1);
 	BoundingBNode& boxRootPtmf = platform.boxRoot;
 	boxRootPtmf.box = { 0, 0, platform.w-1, platform.h-1 };
 
+	// CREATE DEFAULT ACTION SPAWNER
 	Appearance_t& spawner     = createAppearance(CHARAC_t::SPAWNER, ACTION_t::DEFAULT, "./assets/spawner.png", 1);
 	BoundingBNode& boxRootSpw = spawner.boxRoot;
 	boxRootSpw.box = { 0, 0, 5, 5 };
@@ -175,7 +190,7 @@ AnimManager_t::AnimManager_t()
 
 void AnimManager_t::createFlipAppearances(CHARAC_t charac, ACTION_t action)
 {
-	currentMapAnim = &animations;
+	onNormalAnimations();
 	// First check if exists the normal appearences
 	opIter_actions opItAction = findIteratorMapActions(charac);
 	if (opItAction)
@@ -187,48 +202,66 @@ void AnimManager_t::createFlipAppearances(CHARAC_t charac, ACTION_t action)
 			Appearances& normalAppears = *(*opItAppear)->second.get(); // appearences OKEY.
 
 			// Then.. create the flipped appearences container (vector)
-			currentMapAnim = &flipAnimations;
+			onFlippingAnimations();
 			Appearances* flippedAppears = &getAppearences(charac, action); // This should create new character-actions into flipAnimations
-			if (!flippedAppears->size()) // Check if there are no flipped appearance frames
-			{
-				flipAppearances(normalAppears, *flippedAppears);
-			}
+			
+			// Check if there are no flipped appearance frames
+			if (!flippedAppears->size()) flipAppearances(normalAppears, *flippedAppears);
 		}
 	}
-	currentMapAnim = &animations;
+	onNormalAnimations();
 }
 
-void AnimManager_t::flipAppearances(const Appearances& normalAppears, Appearances& flippedAppears)
+void AnimManager_t::flipAppearances(const Appearances& normalAppears, Appearances& flippedAppears) noexcept
 {
 	for (const AppearFrames_t& normalAF : normalAppears)
 	{
-		const auto& normalSprite  = normalAF.appear.sprite;
-		const auto& normalBoxRoot = normalAF.appear.boxRoot;
-		const uint32_t width  	  = normalAF.appear.w;
-		const uint32_t height 	  = normalAF.appear.h;
-		const REP_PER_FRAME repFm = normalAF.rep;
-
 		AppearFrames_t flippedAF;
-		flippedAF.rep = repFm;
-		flippedAF.appear.boxRoot = normalBoxRoot; // change NOW!!
-		flippedAF.appear.sprite.resize(width*height);
-		flippedAF.appear.w = width;
-		flippedAF.appear.h = height;
-
-		// Copy normal pixels flipped
-		auto* ptrToNormalSprite  = normalAF.appear.sprite.data();
-		auto* ptrToFlippedSprite = flippedAF.appear.sprite.data();
-		for (uint32_t h=0; h<height; ++h)
-		{
-			ptrToNormalSprite += width-1;
-			for (uint32_t w=0; w<width; ++w){
-				*ptrToFlippedSprite = *ptrToNormalSprite;
-				++ptrToFlippedSprite; --ptrToNormalSprite;
-			}
-			ptrToNormalSprite += width+1;
-		}
-
+		flipSprite(normalAF, flippedAF);
+		flipBoxTree(normalAF.appear.boxRoot, flippedAF.appear.boxRoot, normalAF.appear.w, normalAF.appear.h);
+		flippedAF.rep = normalAF.rep;
 		flippedAppears.push_back(flippedAF);
+	}
+}
+
+void AnimManager_t::
+flipBoxTree(const BoundingBNode& normalTreeBox, BoundingBNode& flippedTreeBox, uint32_t width, uint32_t height) const noexcept
+{   
+	// When the boundign boxes is flipped, then the xSup and xInf is changed to xInf and xSup 
+	flippedTreeBox.box.xSup = (width - 1) - normalTreeBox.box.xInf;
+	flippedTreeBox.box.xInf = (width - 1) - normalTreeBox.box.xSup;
+	// Here not changed
+	flippedTreeBox.box.ySup = normalTreeBox.box.ySup;
+	flippedTreeBox.box.yInf = normalTreeBox.box.yInf;
+
+	std::size_t size = normalTreeBox.subBoxes.size();
+	if (!size) return;
+
+	flippedTreeBox.subBoxes.resize(size);
+	for (std::size_t i=0; i<size; ++i)
+		flipBoxTree(normalTreeBox.subBoxes.at(i), flippedTreeBox.subBoxes.at(i), width, height);
+}
+
+void AnimManager_t::flipSprite(const AppearFrames_t& normalAF, AppearFrames_t& flippedAF) const noexcept
+{
+
+	const uint32_t width  = normalAF.appear.w;
+	const uint32_t height = normalAF.appear.h;
+	flippedAF.appear.sprite.resize(width*height);
+	flippedAF.appear.w = width;
+	flippedAF.appear.h = height;
+
+	auto* ptrToNormalSprite  = normalAF.appear.sprite.data();
+	auto* ptrToFlippedSprite = flippedAF.appear.sprite.data();
+
+	for (uint32_t h=0; h<height; ++h)  // Copy normal pixels flipped
+	{
+		ptrToNormalSprite += width-1;
+		for (uint32_t w=0; w<width; ++w){
+			*ptrToFlippedSprite = *ptrToNormalSprite;
+			++ptrToFlippedSprite; --ptrToNormalSprite;
+		}
+		ptrToNormalSprite += width+1;
 	}
 }
 

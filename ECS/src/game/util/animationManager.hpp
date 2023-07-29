@@ -28,6 +28,9 @@ struct AnimManager_t {
 	const AppearFrames_t* getAppearance(CHARAC_t, ACTION_t, FRAME_SEQUENCE&) const noexcept;
 	      AppearFrames_t* getAppearance(CHARAC_t, ACTION_t, FRAME_SEQUENCE&)       noexcept;
 
+	void onNormalAnimations()   noexcept { currentMapAnim = &animations;     }
+	void onFlippingAnimations() noexcept { currentMapAnim = &flipAnimations; }
+
 	static AnimManager_t& getInstanse()
 	{
 		static AnimManager_t animMan {};
@@ -39,7 +42,9 @@ private:
 	explicit AnimManager_t();
 	Appearance_t& createAppearance(CHARAC_t, ACTION_t, std::string_view filename, REP_PER_FRAME);
 	void createFlipAppearances(CHARAC_t, ACTION_t);
-	void flipAppearances(const Appearances& normalAppears, Appearances& flippedAppears);
+	void flipAppearances(const Appearances& normalAppears, Appearances& flippedAppears) noexcept;
+	void flipBoxTree(const BoundingBNode& normalTreeBox, BoundingBNode& flippedTreeBox, uint32_t width, uint32_t height) const noexcept;
+	void flipSprite(const AppearFrames_t& normalAF, AppearFrames_t& flippedAF) const noexcept;
 	Appearances& getAppearences(CHARAC_t, ACTION_t);
 	opIter_actions findIteratorMapActions(CHARAC_t) const noexcept;
 	opIter_appearences findIteratorMapAppearances(const Actions&, ACTION_t) const noexcept;

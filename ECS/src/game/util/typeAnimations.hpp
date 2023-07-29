@@ -7,7 +7,7 @@ enum class CHARAC_t
 
 enum class ACTION_t
 {
-	DEFAULT, ADVANC_L, ADVANC_R, JUMP, DUCK, PUNCH, KICK
+	DEFAULT, MOVE_SIDE, JUMP, JUMP_SIDE, DUCK, PUNCH, KICK
 };
 
 using FRAME_SEQUENCE = std::size_t;

@@ -14,7 +14,7 @@
 #include <game/sys/game/animationSys.hpp>
 #include <game/util/animationManager.hpp>
 
-static constexpr uint32_t WIDTH { 640 };
+static constexpr uint32_t WIDTH  { 640 };
 static constexpr uint32_t HEIGHT { 360 };
 
 

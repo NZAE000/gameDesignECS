@@ -11,14 +11,14 @@ struct RenderCmp_t;
 struct PhysicsCmp_t;
 struct CameraCmp_t;
 
-struct CameraWithPhysics_t {
-
-    const CameraCmp_t*  camcmp {};
-    const PhysicsCmp_t* phycmp {};
-    std::size_t eid;
-};
 
 struct RenderSys_t : ECS::SystemBase_t<RenderSys_t> {
+
+    struct CameraWithPhysics_t {
+        const CameraCmp_t*  camcmp {};
+        const PhysicsCmp_t* phycmp {};
+        std::size_t eid;
+    };
 
     static constexpr uint32_t RED           { 0xFFFF0000 };
     static constexpr uint32_t BACKGRD_COLOR { 0x0017202A };//  17202a
@@ -29,7 +29,7 @@ struct RenderSys_t : ECS::SystemBase_t<RenderSys_t> {
 
     ~RenderSys_t(){ }  
 
-    void update(ECS::EntityManager_t&) const;
+    void update(const ECS::EntityManager_t&) const;
 
     constexpr void setDebugDraw(bool state)       const noexcept { debugDraw   = state; }
     constexpr void setDebugColor(uint32_t color)  const noexcept { debugColor  = color; }
@@ -52,6 +52,7 @@ private:
     void renderAllCameras(const ECS::EntityManager_t&) const;
     void renderAllEntities(const ECS::EntityManager_t&) const;
     void renderSpriteClipped(const RenderCmp_t&, const PhysicsCmp_t&) const noexcept;
+
     void renderBoxTree(const BoundingBNode&, float x, float y, uint32_t color) const noexcept;
     void renderBoxClipped(const Box_t<uint32_t>&, float x, float y, uint32_t color) const noexcept;
     void renderFillBoxClipped(const Box_t<uint32_t>&, float x, float y, uint32_t color) const noexcept;

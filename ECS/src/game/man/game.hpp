@@ -83,27 +83,27 @@ struct GameMan_t : State_t {
 	{
 		timer.start();
 
-        /*RenSys.update(entityMan);
+        RenSys.update(entityMan);
         PhySys.update(entityMan, 1.0/FPS);
         AnmSys.update(entityMan);
         InpSys.update(entityMan);
         ColSys.update(entityMan);
         HthSys.update(entityMan);
         SpwSys.update(entityMan);
-        CamSys.update(entityMan);*/
+        CamSys.update(entityMan);
         
-        std::cout << " [REN]: "  << timer.measureTimeToProcc([&](){ RenSys.update(entityMan); });
+        /*std::cout << " [REN]: "  << timer.measureTimeToProcc([&](){ RenSys.update(entityMan); });
         std::cout << " [PHY]: "  << timer.measureTimeToProcc([&](){ PhySys.update(entityMan, 1.0/FPS); });
-        std::cout << " [IN]: "   << timer.measureTimeToProcc([&](){ InpSys.update(entityMan); });
         std::cout << " [ANM]: "  << timer.measureTimeToProcc([&](){ AnmSys.update(entityMan); });
+        std::cout << " [IN]: "   << timer.measureTimeToProcc([&](){ InpSys.update(entityMan); });
         std::cout << " [COLL]: " << timer.measureTimeToProcc([&](){ ColSys.update(entityMan); });
         std::cout << " [HTH]: "  << timer.measureTimeToProcc([&](){ HthSys.update(entityMan); });
         std::cout << " [SPW]: "  << timer.measureTimeToProcc([&](){ SpwSys.update(entityMan); });
         std::cout << " [CAM]: "  << timer.measureTimeToProcc([&](){ CamSys.update(entityMan); }) <<"\n\n";
-
+    */
         timer.waitForUntil_ns(timePF);
 
-        if (InpSys.isKeyPress(XK_Escape)) activeState = false;
+        if (InpSys.isKeyPress(XK_Escape))      activeState = false;
         else if (InpSys.isKeyPress(XK_p))      stateMan.pushState<Pause_t>();
         else if (InpSys.isKeyPress(XK_d))      RenSys.setDebugDraw(debugDraw=!debugDraw); // Marcado de bounding box en las entidades (solo las que tienen collider de componente)
 	}

@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <game/util/box.hpp>
 #include <memory>
 extern "C" {
 	#include <tinyPTC.ua/src/tinyptc.h>

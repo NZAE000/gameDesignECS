@@ -43,8 +43,6 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     collcmp->property      = ColliderCmp_t::SOLID_PROP;
 
     auto* phycmp = plataform.getCmp<PhysicsCmp_t>();
-    phycmp->x     = x;
-    phycmp->y     = y;
     phycmp->friction = 0.85f;
 
     return plataform;

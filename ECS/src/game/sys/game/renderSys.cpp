@@ -96,13 +96,13 @@ transformWorldCoordsToScreenRef(float x, float y, uint32_t width, uint32_t heigh
         ,   camCmp.yScr + static_cast<uint32_t>(std::round(sprCamYUp)   + sprRef.croppedOnCam.up_off)    // y
     };
 
-    /*if (currentCam.eid == 1) { // only show player coords
+    if (currentCam.eid == 1) { // only show player coords
     std::cout<<"\ncamXscr: "<<camCmp.xScr<<" camYscr: "<<camCmp.yScr<<"\n";
     std::cout<<"camXwrld: " <<phyCmpOfCam.x<<" camYwrld: "<<phyCmpOfCam.y<<"\n";
     std::cout<<"xrefWrld: " <<x<<" yrefWrld: "<<y<<"\n";
-    std::cout<<"xrefCam: "  <<sprRef.camera.xLeft<<" yrefCam: "<<sprRef.camera.yUp<<"\n";
+    std::cout<<"xrefCam: "  <<sprRef.camera.xSup<<" yrefCam: "<<sprRef.camera.ySup<<"\n";
     std::cout<<"xrefScr: "  <<sprRef.screen.x<<" yrefScr: "<<sprRef.screen.y<<"\n";
-    }*/
+    }
 
     // CTAD: class template argument deduction:: since C++17.
     std::tuple t {
@@ -415,7 +415,7 @@ renderAllCameras(const ECS::EntityManager_t& contx) const
 }
 
 void RenderSys_t::
-update(ECS::EntityManager_t& contx) const
+update(const ECS::EntityManager_t& contx) const
 {
     fBuff.fill(BACKGRD_COLOR);
     renderAllCameras(contx);
