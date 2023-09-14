@@ -7,7 +7,7 @@
 #include <game/sys/game/healthSys.hpp>
 #include <game/sys/game/cameraSys.hpp>
 #include <game/sys/game/animationSys.hpp>
-#include <ecs/man/entityManager.hpp>
+#include <engine/man/entityManager.hpp>
 #include <game/util/gameTimer.hpp>
 #include <game/man/stateManager.hpp>
 #include <game/man/state.hpp>

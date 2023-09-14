@@ -1,7 +1,7 @@
 #include <game/sys/game/inputSys.hpp>
 #include <game/cmp/inputCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
-#include <ecs/man/entityManager.cpp>
+#include <engine/man/entityManager.hpp>
 
 extern "C" {
 	#include <tinyPTC.ua/src/tinyptc.h>
@@ -9,7 +9,7 @@ extern "C" {
 //#include <iostream>
 
 InputSys_t::InputSys_t() 
-: SystemBase_t{} { setOn(); }
+: System_t{} { setOn(); }
 
 void InputSys_t::setOn() const noexcept
 {

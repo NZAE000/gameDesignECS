@@ -1,5 +1,5 @@
 #include <game/sys/game/collisionSys.hpp>
-#include <ecs/man/entityManager.cpp>
+#include <engine/man/entityManager.hpp>
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/healthCmp.hpp>

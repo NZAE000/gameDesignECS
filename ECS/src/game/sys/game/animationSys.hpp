@@ -1,10 +1,14 @@
 #pragma once
-#include <ecs/sys/system.hpp>
+#include <engine/sys/system.hpp>
 #include <game/util/animationManager.hpp>
 
-struct AnimationSys_t : ECS::SystemBase_t<AnimationSys_t> {
+namespace ECS {
+	struct EntityManager_t;
+}
 
-	explicit AnimationSys_t(AnimManager_t& am) : SystemBase_t(), AnimMan{am} {}
+struct AnimationSys_t : ECS::System_t<AnimationSys_t> {
+
+	explicit AnimationSys_t(AnimManager_t& am) : System_t(), AnimMan{am} {}
 
 	void update(ECS::EntityManager_t&) const;
 

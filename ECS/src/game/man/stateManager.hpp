@@ -4,7 +4,7 @@
 #include <memory>
 #include <type_traits>
 #include <cstdint>
-#include <ecs/man/systemManager.hpp>
+#include <engine/man/systemManager.hpp>
 #include <game/util/goFactory.hpp>
 
 struct StateManager_t {

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <ecs/man/systemManager.cpp>
+#include <engine/man/systemManager.hpp>
 #include <game/man/game.hpp>
 #include <game/man/stateManager.hpp>
 #include <game/util/goFactory.hpp>

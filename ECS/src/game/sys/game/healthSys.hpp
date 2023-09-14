@@ -1,12 +1,16 @@
 #pragma once
-#include <ecs/sys/system.hpp>
+#include <engine/sys/system.hpp>
 
 // forward declaration
 struct BoundingBNode;
 
-struct HealthSys_t : ECS::SystemBase_t<HealthSys_t> {
+namespace ECS {
+	struct EntityManager_t;
+}
 
-	explicit HealthSys_t() : SystemBase_t{} {}
+struct HealthSys_t : ECS::System_t<HealthSys_t> {
+
+	explicit HealthSys_t() : System_t{} {}
 
 	void update(ECS::EntityManager_t&) const;
 

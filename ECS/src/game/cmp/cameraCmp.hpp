@@ -1,12 +1,12 @@
 #pragma once
-#include <ecs/cmp/component.hpp>
+#include <engine/cmp/component.hpp>
 #include <cstdint>
 
 
-struct CameraCmp_t : ECS::ComponentBase_t<CameraCmp_t> {
+struct CameraCmp_t : ECS::Component_t<CameraCmp_t> {
 
 	explicit CameraCmp_t(ECS::EntityID_t eid)
-	: ComponentBase_t(eid)
+	: Component_t(eid)
 	{}
 
 	uint32_t width  { 0 };

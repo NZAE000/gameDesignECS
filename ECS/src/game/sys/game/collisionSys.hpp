@@ -1,15 +1,19 @@
 #pragma once
 #include <cstdint>
-#include <ecs/sys/system.hpp>
+#include <engine/sys/system.hpp>
 #include <game/cmp/colliderCmp.hpp>
 
 // forward declaration
 struct PhysicsCmp_t;
 
-struct CollisionSys_t : ECS::SystemBase_t<CollisionSys_t> {
+namespace ECS {
+    struct EntityManager_t;
+}
+
+struct CollisionSys_t : ECS::System_t<CollisionSys_t> {
 
     explicit CollisionSys_t(uint32_t wscr, uint32_t hscr) 
-    : SystemBase_t{}, wScreen(wscr), hScreen(hscr)
+    : System_t{}, wScreen(wscr), hScreen(hscr)
     {};
 
     void update(ECS::EntityManager_t&) const;

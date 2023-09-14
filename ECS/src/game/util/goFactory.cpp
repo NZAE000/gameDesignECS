@@ -32,17 +32,17 @@ GOFactory_t::createPlatform(uint32_t x, uint32_t y) const
     AppearFrames_t* platformAppear = AnimMan.getAppearance(CHARAC_t::PLATFORM, ACTION_t::DEFAULT, frameSec);
     if (!platformAppear) throw std::runtime_error("Platform appearance not found");
 
-    auto* rencmp   = plataform.getCmp<RenderCmp_t>();
+    auto* rencmp   = plataform.getComponent<RenderCmp_t>();
     rencmp->sprite = platformAppear->appear.sprite.data();
     rencmp->w      = platformAppear->appear.w;
     rencmp->h      = platformAppear->appear.h;
 
-    auto* collcmp          = plataform.getCmp<ColliderCmp_t>();
+    auto* collcmp          = plataform.getComponent<ColliderCmp_t>();
     collcmp->boxRoot       = platformAppear->appear.boxRoot; 
     collcmp->maskCollision = ColliderCmp_t::PLATFORM_LAYER;
     collcmp->property      = ColliderCmp_t::SOLID_PROP;
 
-    auto* phycmp = plataform.getCmp<PhysicsCmp_t>();
+    auto* phycmp = plataform.getComponent<PhysicsCmp_t>();
     phycmp->friction = 0.85f;
 
     return plataform;
@@ -59,17 +59,17 @@ GOFactory_t::createPlayer(uint32_t x, uint32_t y) const
     AppearFrames_t* playerAppear = AnimMan.getAppearance(animCmp.character, animCmp.currentAction, animCmp.currentFrameSec);
     if (!playerAppear) throw std::runtime_error("Player appearance not found");
 
-    auto* rencmp   = principalCharac.getCmp<RenderCmp_t>();
+    auto* rencmp   = principalCharac.getComponent<RenderCmp_t>();
     rencmp->sprite = playerAppear->appear.sprite.data();
     rencmp->w      = playerAppear->appear.w;
     rencmp->h      = playerAppear->appear.h;
 
-    auto* collcmp = principalCharac.getCmp<ColliderCmp_t>();
+    auto* collcmp = principalCharac.getComponent<ColliderCmp_t>();
     collcmp->boxRoot       = playerAppear->appear.boxRoot;
     collcmp->maskCollision = ColliderCmp_t::FULL_LAYER ^ ColliderCmp_t::BOUNDARY_LAYER; // Colisiona con todo por defecto (evitando la colision con los limites del screen). 
     collcmp->property      = ColliderCmp_t::PLAYER_PROP;
 
-    auto* phycmp = principalCharac.getCmp<PhysicsCmp_t>();
+    auto* phycmp = principalCharac.getComponent<PhysicsCmp_t>();
     phycmp->g = PhysicsCmp_t::GRAVITY; // set gravity for my player
 
     auto& inpcmp = entityMan->addCmp<InputCmp_t>(principalCharac);
@@ -103,17 +103,17 @@ GOFactory_t::createBlade(uint32_t x, uint32_t y) const
     AppearFrames_t* bladeAppear = AnimMan.getAppearance(CHARAC_t::BLADE, ACTION_t::DEFAULT, frameSec);
     if (!bladeAppear) throw std::runtime_error("Blade appearance not found");
 
-    auto* rencmp  = blade.getCmp<RenderCmp_t>();
+    auto* rencmp  = blade.getComponent<RenderCmp_t>();
     rencmp->sprite = bladeAppear->appear.sprite.data();
     rencmp->w      = bladeAppear->appear.w;
     rencmp->h      = bladeAppear->appear.h;
 
-    auto* collcmp = blade.getCmp<ColliderCmp_t>();
+    auto* collcmp = blade.getComponent<ColliderCmp_t>();
     collcmp->boxRoot       = bladeAppear->appear.boxRoot;
     collcmp->maskCollision = ColliderCmp_t::BLADE_LAYER | ColliderCmp_t::BOUNDARY_LAYER; // Mascara compatible entre blades y limites de screen.
     collcmp->property      = ColliderCmp_t::DAMAGE_PROP;
 
-    auto* phycmp = blade.getCmp<PhysicsCmp_t>();
+    auto* phycmp = blade.getComponent<PhysicsCmp_t>();
     phycmp->vx = 250; // per seconds
 
     auto& healthcmp = entityMan->addCmp<HealthCmp_t>(blade);
@@ -188,7 +188,7 @@ void GOFactory_t::createLevel1() const
         if (!phycmp) return;
 
         auto& ent  = createBlade(phycmp->x,phycmp->y);
-        phycmp     = ent.getCmp<PhysicsCmp_t>(); // los blades generados solo se desplazan en la ordenada
+        phycmp     = ent.getComponent<PhysicsCmp_t>(); // los blades generados solo se desplazan en la ordenada
         phycmp->vx *= -1;
     });
 

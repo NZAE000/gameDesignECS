@@ -1,9 +1,13 @@
 #pragma once
-#include <ecs/sys/system.hpp>
+#include <engine/sys/system.hpp>
 
-struct SpawnSys_t : ECS::SystemBase_t<SpawnSys_t>{
+namespace ECS {
+	struct EntityManager_t;
+}
 
-	explicit SpawnSys_t() : SystemBase_t{} {}
+struct SpawnSys_t : ECS::System_t<SpawnSys_t>{
+
+	explicit SpawnSys_t() : System_t{} {}
 
 	void update(ECS::EntityManager_t&) const;
 

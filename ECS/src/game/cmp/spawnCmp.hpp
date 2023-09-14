@@ -1,16 +1,16 @@
 #pragma once
-#include <ecs/cmp/component.hpp>
+#include <engine/cmp/component.hpp>
 #include <chrono>
 #include <functional>
 
 using namespace std::chrono_literals;
 
-struct SpawnCmp_t : ECS::ComponentBase_t<SpawnCmp_t> {
+struct SpawnCmp_t : ECS::Component_t<SpawnCmp_t> {
 
 	using clk = std::chrono::steady_clock;
 
 	explicit SpawnCmp_t(ECS::EntityID_t eid)
-	: ComponentBase_t(eid) {}	
+	: Component_t(eid) {}	
 
 
 	// last spawn

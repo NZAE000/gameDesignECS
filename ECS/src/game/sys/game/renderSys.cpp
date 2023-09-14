@@ -1,4 +1,4 @@
-#include <ecs/man/entityManager.cpp>
+#include <engine/man/entityManager.hpp>
 #include <game/sys/game/renderSys.hpp>
 #include <game/cmp/renderCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>

@@ -1,9 +1,13 @@
 #pragma once
-#include <ecs/sys/system.hpp>
+#include <engine/sys/system.hpp>
 
-struct CameraSys_t : ECS::SystemBase_t<CameraSys_t>{
+namespace ECS {
+	struct EntityManager_t;
+}
 
-	explicit CameraSys_t() : SystemBase_t{} {}
+struct CameraSys_t : ECS::System_t<CameraSys_t>{
+
+	explicit CameraSys_t() : System_t{} {}
 
 	void update(ECS::EntityManager_t&) const;
 

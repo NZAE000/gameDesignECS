@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <ecs/sys/system.hpp>
+#include <engine/sys/system.hpp>
 #include <game/cmp/colliderCmp.hpp>
 #include <game/util/gameBuffer.hpp>
 
@@ -11,8 +11,12 @@ struct RenderCmp_t;
 struct PhysicsCmp_t;
 struct CameraCmp_t;
 
+namespace ECS {
+    struct EntityManager_t;
+}
 
-struct RenderSys_t : ECS::SystemBase_t<RenderSys_t> {
+
+struct RenderSys_t : ECS::System_t<RenderSys_t> {
 
     struct CameraWithPhysics_t {
         const CameraCmp_t*  camcmp {};
@@ -25,7 +29,7 @@ struct RenderSys_t : ECS::SystemBase_t<RenderSys_t> {
 
     // explicit: no puede implicitamenete hacer una conversion de tipo, o algo que se pareza a RenderSys_T
     explicit RenderSys_t(FrameBuffer_t& buff) 
-    : SystemBase_t{}, fBuff{buff} {}
+    : System_t{}, fBuff{buff} {}
 
     ~RenderSys_t(){ }  
 

@@ -1,8 +1,12 @@
 #pragma once
-#include <ecs/util/keyBoard.hpp>
-#include <ecs/sys/system.hpp>
+#include <engine/util/keyBoard.hpp>
+#include <engine/sys/system.hpp>
 
-struct InputSys_t : ECS::SystemBase_t<InputSys_t> {
+namespace ECS {
+	struct EntityManager_t;
+}
+
+struct InputSys_t : ECS::System_t<InputSys_t> {
 
 	explicit InputSys_t();
 

@@ -1,7 +1,7 @@
 #include <game/cmp/colliderCmp.hpp>
 #include <game/cmp/healthCmp.hpp>
 #include <game/sys/game/healthSys.hpp>
-#include <ecs/man/entityManager.cpp>
+#include <engine/man/entityManager.hpp>
 //#include <iostream>
 
 bool HealthSys_t::isLeafNodeCollide(const BoundingBNode& bNode) const noexcept

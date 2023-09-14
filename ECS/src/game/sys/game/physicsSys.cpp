@@ -1,6 +1,6 @@
 #include <game/sys/game/physicsSys.hpp>
 #include <game/cmp/physicsCmp.hpp>
-#include <ecs/man/entityManager.cpp>
+#include <engine/man/entityManager.hpp>
 #include <algorithm>
 #include <cmath>
 //#include <iostream>

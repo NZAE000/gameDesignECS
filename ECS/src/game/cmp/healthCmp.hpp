@@ -1,11 +1,11 @@
 #pragma once
-#include<ecs/cmp/component.hpp>
-#include<cstdint>
+#include <engine/cmp/component.hpp>
+#include <cstdint>
 
-struct HealthCmp_t : ECS::ComponentBase_t<HealthCmp_t> {
+struct HealthCmp_t : ECS::Component_t<HealthCmp_t> {
 
 	explicit HealthCmp_t(ECS::EntityID_t eid) 
-	: ComponentBase_t(eid) {}
+	: Component_t(eid) {}
 
 	uint32_t selfDmgOnInfliction { 0 };
 	uint32_t inflictedDmg  		 { 0 };

@@ -1,5 +1,5 @@
 #include <game/sys/game/animationSys.hpp>
-#include <ecs/man/entityManager.cpp>
+#include <engine/man/entityManager.hpp>
 #include <game/cmp/animationCmp.hpp>
 #include <game/cmp/renderCmp.hpp>
 #include <game/cmp/colliderCmp.hpp>

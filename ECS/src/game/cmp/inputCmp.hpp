@@ -1,16 +1,16 @@
 #pragma once
-#include <ecs/cmp/component.hpp>
-#include <ecs/util/typeAliases.hpp>
+#include <engine/cmp/component.hpp>
+#include <engine/util/typeAliases.hpp>
 #include <functional>
 #include <X11/X.h>
 #include <X11/keysym.h>
 
 struct PhysicsCmp_t; // forward declaration
 
-struct InputCmp_t : ECS::ComponentBase_t<InputCmp_t> {
+struct InputCmp_t : ECS::Component_t<InputCmp_t> {
 
 	explicit InputCmp_t (ECS::EntityID_t eid)
-	: ComponentBase_t(eid) 
+	: Component_t(eid) 
 	{};
 
 	template<typename CALLABLE>

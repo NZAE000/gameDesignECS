@@ -352,7 +352,7 @@ AnimManager_t::Actions& AnimManager_t::getActions(CHARAC_t charac)
 
 AnimManager_t::Actions& AnimManager_t::createMapActions(CHARAC_t charac)
 {
-	ECS::UPTR<Actions> actions = std::make_unique<Actions>();
+	ECS::UPTR_t<Actions> actions = std::make_unique<Actions>();
 	auto* ptrActions = actions.get();
 	(*currentMapAnim)[charac] = std::move(actions); // move resource
 
@@ -361,7 +361,7 @@ AnimManager_t::Actions& AnimManager_t::createMapActions(CHARAC_t charac)
 
 AnimManager_t::Appearances& AnimManager_t::createAppearances(Actions& actions, ACTION_t action)
 {
-	ECS::UPTR<Appearances> appears = std::make_unique<Appearances>();
+	ECS::UPTR_t<Appearances> appears = std::make_unique<Appearances>();
 	appears->reserve(STDNUM_FRAMES);
 	auto* ptrAppears = appears.get();
 	actions[action]  = std::move(appears);

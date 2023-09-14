@@ -1,13 +1,13 @@
 #pragma once
 #include <cstdint>
-#include <ecs/cmp/component.hpp>
-#include <ecs/util/typeAliases.hpp>
+#include <engine/cmp/component.hpp>
+#include <engine/util/typeAliases.hpp>
 
 
-struct PhysicsCmp_t : ECS::ComponentBase_t<PhysicsCmp_t> {
+struct PhysicsCmp_t : ECS::Component_t<PhysicsCmp_t> {
 
 	explicit PhysicsCmp_t(ECS::EntityID_t eid) 
-	: ComponentBase_t(eid) {}
+	: Component_t(eid) {}
 
 	// UNITS MOVEMENTS PER SECONDS
 	static constexpr float MAX_VX        { 280.0f     };

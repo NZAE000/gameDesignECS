@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string_view>
-#include <ecs/man/entityManager.cpp>
+#include <engine/man/entityManager.hpp>
 #include <game/cmp/spawnCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/renderCmp.hpp>
