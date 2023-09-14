@@ -1,23 +1,16 @@
 #pragma once
-#include <ecs/util/typeAliases.hpp>
-#include <ecs/cmp/component.hpp>
+#include <engine/util/typeAliases.hpp>
+#include <engine/cmp/component.hpp>
 #include <string_view>
 #include <cstdint>
 
 
-struct RenderCmp_t : ECS::ComponentBase_t<RenderCmp_t> {
+struct RenderCmp_t : ECS::Component_t<RenderCmp_t> {
 
     explicit RenderCmp_t(ECS::EntityID_t eid)
-    : ComponentBase_t(eid) 
+    : Component_t(eid) 
     { }
 
-    void loadFromPng(const std::string_view filename);
-
-    uint32_t w{0}, h {0};           // dimension
-    ECS::Vec_t<uint32_t> sprite {};      // pixeles del personaje
-
-private:
-	auto loadPngIntoVector(const std::string_view filename);
-	void initSpriteFromABGRData(const ECS::Vec_t<unsigned char>& pixels);
-
+    uint32_t w{0}, h {0};             // dimension
+    uint32_t* sprite { nullptr };     // pixeles del personaje
 };

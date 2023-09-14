@@ -1,13 +1,11 @@
-#include <game/sys/spawnSys.hpp>
+#include <game/sys/game/spawnSys.hpp>
+#include <engine/man/entityManager.hpp>
 #include <game/cmp/spawnCmp.hpp>
+#include <game/cmp/physicsCmp.hpp>
 //#include <iostream>
 
-struct RenderCmp_t;
-struct ColliderCmp_t;
 
-
-template<typename GameCTX_t>
-void SpawnSys_t<GameCTX_t>::update(GameCTX_t& contx) const
+void SpawnSys_t::update(ECS::EntityManager_t& contx) const
 {
 	using clk = std::chrono::steady_clock;
 	auto& spawncmps = contx.template getCmps<SpawnCmp_t>();

@@ -1,61 +1,90 @@
 #include <iostream>
-#include <game/sys/renderSys.cpp>
-#include <game/sys/physicsSys.cpp>
-#include <game/sys/collisionSys.cpp>
-#include <game/sys/inputSys.cpp>
-#include <game/sys/spawnSys.cpp>
-#include <ecs/man/entityManager.hpp>
+#include <engine/man/systemManager.hpp>
+#include <game/man/game.hpp>
+#include <game/man/stateManager.hpp>
 #include <game/util/goFactory.hpp>
+#include <game/util/gameBuffer.hpp>
+#include <game/sys/game/renderSys.hpp>
+#include <game/sys/game/physicsSys.hpp>
+#include <game/sys/game/collisionSys.hpp>
+#include <game/sys/game/healthSys.hpp>
+#include <game/sys/game/inputSys.hpp>
+#include <game/sys/game/cameraSys.hpp>
+#include <game/sys/game/spawnSys.hpp>
+#include <game/sys/game/animationSys.hpp>
+#include <game/util/animationManager.hpp>
 
-constexpr uint32_t WIDTH  { 640 };  
-constexpr uint32_t HEIGHT { 360 };
+static constexpr uint32_t WIDTH  { 640 };
+static constexpr uint32_t HEIGHT { 360 };
+
+
+struct Menu_t : State_t {
+
+    explicit Menu_t(StateManager_t& sm) : stMan{sm} {}
+
+    void update() final override
+    {
+        short op {};
+        std::cout<<"\nGAME1!!: \n\n"
+                 <<"1- PLAY\n"
+                 <<"2- OPTIONS\n"
+                 <<"3- EXIT\n";
+        
+        std::cin>>op;
+        switch(op)
+        {
+        case 1:     stMan.pushState<GameMan_t>(stMan); break;
+        case 2:     break;
+        default:    activeState=false;
+        }
+    }
+
+    bool isActiveState() final override { return activeState; }
+
+private:
+    bool activeState { true };
+    StateManager_t& stMan;
+};
 
 
 int 
 main(void)
 try {
+    /*uint16_t bin = 0b00000000;
+    uint16_t bin2 = bin | static_cast<uint16_t>(std::pow(2, 0));
+    std::cout<<bin2<<std::endl;
 
-    ECS::EntityManager_t EntityMan;
-    GOFactory GoFactory { EntityMan };
+    bin2 = bin2 | static_cast<uint16_t>(std::pow(2, 1));
+    bin2 = bin2 | static_cast<uint16_t>(std::pow(2, 7));
 
-    // Entitys
-    GoFactory.createPlayer(1, 1);
-    //GoFactory.createBlade(20, 40);
-    //GoFactory.createBlade(140, 70);
+    ACTION_t action = static_cast<ACTION_t>(bin2);*/
 
-    // Entidad spawner que genera n entidades cada cierto lapso de tiempo
-    // Ultimo argumento es un llamable que es la accion al momento de spawnear,
-    // que en este caso es crear un nuevo blade.
+    ECS::SystemManager_t SysManager {};                                  // SYSTEM MANAGER
+    GOFactory_t          GOFactory  { AnimManager_t::getInstanse() };    // GAME OBJECT FACTORY 
+    FrameBuffer_t        FrameBuff  { WIDTH, HEIGHT };                   // MY BUFFER FOR DRAW GAME OBJECTS (tinyptc)
+    
+    // INIT SYSTEMS
+    SysManager.createSys<RenderSys_t>(FrameBuff);
+    SysManager.createSys<InputSys_t>();
+    SysManager.createSys<PhysicsSys_t>();
+    SysManager.createSys<CollisionSys_t>(WIDTH, HEIGHT);
+    SysManager.createSys<HealthSys_t>();
+    SysManager.createSys<SpawnSys_t>();
+    SysManager.createSys<CameraSys_t>();
+    SysManager.createSys<AnimationSys_t>(AnimManager_t::getInstanse());
 
-    GoFactory.createSpawner(580, 1, [&](const SpawnCmp_t& spcp)
-    {
-        auto* phycmp = EntityMan.getRequiredCmp<PhysicsCmp_t>(spcp);
-        if (!phycmp) return;
+    StateManager_t stateMan   { SysManager, GOFactory };
+    stateMan.pushState<Menu_t>(stateMan);
 
-        auto& ent  = GoFactory.createBlade(phycmp->x,phycmp->y);
-        phycmp     = ent.getCmp<PhysicsCmp_t>(); // los blades generados solo se desplazan en la ordenada
-        phycmp->vy = 0;
-    });
-
-    // Systems
-    const RenderSys_t<ECS::EntityManager_t>    Render    { WIDTH, HEIGHT };
-    InputSys_t<ECS::EntityManager_t>           Input     {};
-    const PhysicsSys_t<ECS::EntityManager_t>   Physic    {};
-    const CollisionSys_t<ECS::EntityManager_t> Collision { WIDTH, HEIGHT };
-    const SpawnSys_t<ECS::EntityManager_t>     Spawn     {};
-
-    Render.setDebugDraw(true); // marcado de bounding box en las entidades (solo las que tienen collider de componente)
-
-    while (Input.update(EntityMan)){
-        Render.update(EntityMan);
-        Physic.update(EntityMan);
-        Collision.update(EntityMan);
-        Spawn.update(EntityMan);
-    }
+    while(stateMan.thereAnyState()) stateMan.update();
 
     return 0;
-    
-} catch(...){
+} 
+catch(const std::exception& e){
+    std::cerr <<"[[Exception]]: "<< e.what() << '\n';
+    return 1;
+}   
+catch(...){
     std::cerr << "ERRO"<< '\n';
     return 1;
 }

@@ -1,16 +1,16 @@
 #pragma once
-#include <ecs/cmp/component.hpp>
+#include <engine/cmp/component.hpp>
 #include <chrono>
 #include <functional>
 
 using namespace std::chrono_literals;
 
-struct SpawnCmp_t : ECS::ComponentBase_t<SpawnCmp_t> {
+struct SpawnCmp_t : ECS::Component_t<SpawnCmp_t> {
 
 	using clk = std::chrono::steady_clock;
 
 	explicit SpawnCmp_t(ECS::EntityID_t eid)
-	: ComponentBase_t(eid) {}	
+	: Component_t(eid) {}	
 
 
 	// last spawn
@@ -23,6 +23,6 @@ struct SpawnCmp_t : ECS::ComponentBase_t<SpawnCmp_t> {
 
 	// Clase encapsuladora de un tipo de puntero a funcion, pero no literal void(*p)(void),
 	// si no que apunta a cualquier cosa llamable que devuela aquel tipo reciva tal/es tipo/s.
-	std::function<void(SpawnCmp_t)> spawnNow {};
+	std::function<void(SpawnCmp_t&)> spawnNow {};
 
 };

@@ -1,19 +1,13 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <game/util/box.hpp>
 
-struct BoundingBox {
-	
-	uint32_t xLeft  { 0 };
-	uint32_t xRight { 0 };
-	uint32_t yUp    { 0 };
-	uint32_t yDown  { 0 };
-};
 
 // Composite pattern
 struct BoundingBNode {
 		
-	BoundingBox box;
+	Box_t<uint32_t> box;
 	bool isCollided { false };
 	std::vector<BoundingBNode> subBoxes;
 };

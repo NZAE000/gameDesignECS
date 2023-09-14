@@ -1,9 +1,9 @@
-#include <game/cmp/renderCmp.hpp>
+#include "appearance.hpp"
 #include <picoPNG.ua/src/picopng.hpp>
 #include <fstream>
 #include <tuple>
 
-void RenderCmp_t::initSpriteFromABGRData(const ECS::Vec_t<unsigned char>& pixels)
+void Appearance_t::initSpriteFromABGRData(const std::vector<unsigned char>& pixels)
 {
 	sprite.reserve(pixels.size()/4);
 
@@ -24,15 +24,16 @@ void RenderCmp_t::initSpriteFromABGRData(const ECS::Vec_t<unsigned char>& pixels
 }
 
 // auto return type: deduce los tipos, ya que ya se declaran o se conocen en la función.
-auto RenderCmp_t::loadPngIntoVector(const std::string_view filename)
+auto Appearance_t::loadPngIntoVector(const std::string_view filename)
 {
 	std::vector<unsigned char> pixels {};
     unsigned long width_dec {0}, height_dec {0};
-    std::ifstream file(filename.data(), std::ios::binary); // leer fichero en formato binario
-    std::vector<unsigned char> fileContainer(
-           std::istreambuf_iterator<char> {file} // iterador al principio
-         , std::istreambuf_iterator<char> {}     // iterador al final
-     );
+
+    std::ifstream file(filename.data(), std::ios::binary); // Leer fichero en formato binario
+    std::vector<unsigned char> fileContainer (
+           std::istreambuf_iterator<char> { file } // iterador al principio
+        ,  std::istreambuf_iterator<char> {}       // iterador al final
+    );
 
     // La decodificación del png a uchar se almacenará en pixels.
     decodePNG(pixels, width_dec, height_dec, fileContainer.data(), fileContainer.size());
@@ -41,7 +42,7 @@ auto RenderCmp_t::loadPngIntoVector(const std::string_view filename)
     return std::tuple { pixels, width_dec, height_dec }; // CTAD: class template argument deduction:: since C++17.
 }
 
-void RenderCmp_t::loadFromPng(const std::string_view filename)
+void Appearance_t::loadFromPng(const std::string_view filename)
 {
 	// structure bindings: since C++17
     auto [pixels, width, height] = loadPngIntoVector(filename);
@@ -50,4 +51,5 @@ void RenderCmp_t::loadFromPng(const std::string_view filename)
     
     w = width;
     h = height;
+    
 }

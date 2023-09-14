@@ -1,51 +1,70 @@
 #pragma once
 #include <cstdint>
 #include <string_view>
-#include <ecs/man/entityManager.hpp>
+#include <engine/man/entityManager.hpp>
 #include <game/cmp/spawnCmp.hpp>
 #include <game/cmp/physicsCmp.hpp>
 #include <game/cmp/renderCmp.hpp>
 #include <game/cmp/colliderCmp.hpp>
+#include <game/util/animationManager.hpp>
+#include <stdexcept>
+
+struct AnimManager_t; // forward declaration
 
 namespace ECS { 
 	struct Entity_t;
-	struct EntityManager_t;
 }
 
-struct GOFactory {
+struct GOFactory_t {
 
-	GOFactory(ECS::EntityManager_t& entMan) 
-	: entityMan(entMan) {}
+	GOFactory_t(AnimManager_t& am) : AnimMan{am} {}
 
-	ECS::Entity_t& createPlayer(uint32_t x, uint32_t y) const;
-	ECS::Entity_t& createBlade(uint32_t x, uint32_t y) const;
-	ECS::Entity_t& createSpawner(uint32_t x, uint32_t y) const;
+	void setManager(ECS::EntityManager_t& em) { entityMan = &em; }
+
+	ECS::Entity_t& createPlayer(uint32_t x, uint32_t y)    const;
+	ECS::Entity_t& createBlade(uint32_t x, uint32_t y) 	   const;
+	ECS::Entity_t& createPlatform(uint32_t x, uint32_t y)  const;
+	ECS::Entity_t& createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, ECS::EntityID_t) const;
 
 	// Programacion generica
 	template<typename CALLABLE>
 	ECS::Entity_t&
 	createSpawner(uint32_t x, uint32_t y, CALLABLE callback) const
 	{
-	    auto& ent = entityMan.createEntity();
+	    auto& spwnEnt = entityMan->createEntity();
+	    
+	    FRAME_SEQUENCE frameSec {0};
+	    AppearFrames_t* spwAppear = AnimMan.getAppearance(CHARAC_t::SPAWNER, ACTION_t::DEFAULT, frameSec);
+	    if (!spwAppear)
+	    	throw std::runtime_error("Spawner appearance not found");
 
-	    auto& spwncmp    = entityMan.addCmp<SpawnCmp_t>(ent);
-	    spwncmp.spawnNow = callback; // accion al momento de spawnear
+	    [[maybe_unused]]auto& ren = entityMan->addCmp<RenderCmp_t>(spwnEnt);
 
-	    auto& phycmp = entityMan.addCmp<PhysicsCmp_t>(ent);
+	    auto& collcmp         = entityMan->addCmp<ColliderCmp_t>(spwnEnt);
+	    collcmp.boxRoot       = spwAppear->appear.boxRoot; // OJO COPY!!!
+	    collcmp.maskCollision = ColliderCmp_t::BOUNDARY_LAYER;
+
+	    auto& phycmp = entityMan->addCmp<PhysicsCmp_t>(spwnEnt);
 	    phycmp.x     = x;
 	    phycmp.y     = y;
-	    phycmp.vx    =  0;
+	    phycmp.vy    = 150;
 
-	    auto& collcmp = entityMan.addCmp<ColliderCmp_t>(ent);
-	    collcmp.maskCollision = 0; // collide with nothing.
+	    auto& spwncmp        = entityMan->addCmp<SpawnCmp_t>(spwnEnt);
+	    spwncmp.spawnNow     = callback; // accion al momento de spawnear
+	    spwncmp.tobe_spawned = 50;
 
-	    return ent;
+	    return spwnEnt;
 	}
 
+	void createLevel1() const;
+	void loadLevelFromJSON(const std::string_view path) const;
+	void createBinLevelFromJSON(const std::string_view jsonpath, const std::string_view binpath) const;
+	void loadLevelFromBin(const std::string_view path) const;
+	
 private:
 
-	ECS::Entity_t& createEntity(uint32_t x, uint32_t y, const std::string_view filename) const;
+	ECS::Entity_t& createEntity(uint32_t x, uint32_t y) const;
 
-	ECS::EntityManager_t& entityMan;
-
+	ECS::EntityManager_t* entityMan { nullptr };
+	AnimManager_t& AnimMan;
 };
